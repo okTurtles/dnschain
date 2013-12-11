@@ -28,34 +28,44 @@ var server = dnsd.createServer(function (req, res) {
         res.end()
     } else {
         if (hostname.endsWith('.bit')) {
-            dbit = 'd/' + hostname.substring(0, hostname.length - 4);
+            var dot = hostname.indexOf('.'), dotbit = hostname.indexOf('.bit'), dbit = hostname.slice(0);
+            if (dot !== dotbit)
+                dbit = dbit.substring(dot+1, dbit.length); // lop off subdomain
+            dbit = 'd/' + dbit.substring(0, dbit.length - 4);
+            console.log('name_show ' + dbit);
             client.call('name_show', [dbit], function(err, result) {
                 if (!err) {
                     console.log('name_show ' + dbit + ': ' + util.inspect(result));
                     var info = JSON.parse(result.value);
                     console.log('name_show ' + dbit + ' (info): ' + util.inspect(info));
-                    ns = info.ns[0];
-                    dns.resolve4(ns, function (err, addrs) {
-                        if (err) {
-                            console.log('err['+dbit+'] ' + err);
-                            res.end()
-                        } else {
-                            console.log('lookup['+dbit+'] with' + addrs[0]);
-                            var req = ndns.Request({
-                                question: ndns.Question({name: hostname, type: 'A'}),
-                                server: {address: addrs[0]}
-                            }).on('message', function (err, answer) {
-                                if (err)
-                                    console.log('err['+dbit+']/message: ' + err);
-                                else {
-                                    console.log('got answer for '+dbit+': ' + util.inspect(answer));
-                                    res.answer.push({name:hostname, type:'A', data:answer.answer[0].address, 'ttl':ttl});
-                                }
-                            }).on('end', function () {
-                                res.end();
-                            }).send();
-                        }
-                    });
+                    if (info.ns) {
+                        ns = info.ns[0];
+                        dns.resolve4(ns, function (err, addrs) {
+                            if (err) {
+                                console.log('err['+dbit+'] ' + err);
+                                res.end()
+                            } else {
+                                console.log('lookup['+dbit+'] with' + addrs[0]);
+                                var req = ndns.Request({
+                                    question: ndns.Question({name: hostname, type: 'A'}),
+                                    server: {address: addrs[0]}
+                                }).on('message', function (err, answer) {
+                                    if (err)
+                                        console.log('err['+dbit+']/message: ' + err);
+                                    else {
+                                        console.log('got answer for '+dbit+': ' + util.inspect(answer));
+                                        res.answer.push({name:hostname, type:'A', data:answer.answer[0].address, 'ttl':ttl});
+                                    }
+                                }).on('end', function () {
+                                    res.end();
+                                }).send();
+                            }
+                        });
+                    } else if (info.ip) {
+                        console.log('lookup['+dbit+'] with ip: ' + info.ip[0]);
+                        res.answer.push({name:hostname, type:'A', data:info.ip[0], 'ttl':ttl});
+                        res.end();
+                    }
                     //for (var k in result)
                     //    console.log(k + ': ' + result[k]);
                 } else
