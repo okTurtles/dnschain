@@ -5,7 +5,7 @@ module.exports = (grunt)->
     (require 'matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks)
 
     _ = grunt.util._
-    # path = require 'path'
+    path = require 'path'
 
     # Project configuration.
     grunt.initConfig { # <-- Per smart-convention, require braces around long blocks
@@ -47,12 +47,12 @@ module.exports = (grunt)->
         grunt.config ['coffeelint', target], src: files
 
         # coffee
-        coffeeData = grunt.config ['coffee', target]
-        files = [files] if _.isString files
-        files = files.map (file)-> path.relative coffeeData.cwd, file
-        coffeeData.src = files
-
-        grunt.config ['coffee', target], coffeeData
+        if target != 'gruntfile'
+            coffeeData = grunt.config ['coffee', target]
+            files = [files] if _.isString files
+            files = files.map (file)-> path.relative coffeeData.cwd, file
+            coffeeData.src = files
+            grunt.config ['coffee', target], coffeeData
 
     # tasks.
     grunt.registerTask 'compile', [

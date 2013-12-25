@@ -20,7 +20,7 @@
         "name": "max_line_length",
         "value": 95,
         "level": "error",
-        "limitComments": true
+        "limitComments": false
     },
     "line_endings": {
         "name": "line_endings",
