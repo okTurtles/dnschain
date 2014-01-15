@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "json-rpc2": "~0.3.1",
-    "dnsd": "~0.9.4",
     "lodash": "~2.4.1",
     "bunyan": "~0.22.1",
-    "string": "~1.7.0"
+    "string": "~1.7.0",
+    "native-dns": "~0.4.1"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
@@ -29,7 +29,8 @@
     "grunt-contrib-copy": "~0.4.1",
     "grunt-coffeelint": "~0.0.7",
     "matchdep": "~0.1.2",
-    "grunt-shell": "~0.6.1"
+    "grunt-shell": "~0.6.1",
+    "optimist": "~0.6.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
