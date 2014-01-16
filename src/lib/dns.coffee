@@ -28,7 +28,9 @@ module.exports = (dnsnmc) ->
             @server.serve(@dnsOpts.port @dnsOpts.host) or tErr "dns serve"
             @log.info 'started DNS:', @dnsOpts
 
-        shutdown: -> @server.close()
+        shutdown: ->
+            @log.debug 'shutting down!'
+            @server.close()
 
         deferQuestion: (q, res)->
             req = dns2.Request {question: q, server: @dnsOpts.fallbackDNS}
@@ -38,64 +40,100 @@ module.exports = (dnsnmc) ->
                 res.send()
             req.send()
 
+        namecoinizeDomain: (domain) ->
+            nmcDomain = S(domain).chompRight('.bit').s
+            if (dotIdx = domain.indexOf('.')) != -1
+                nmcDomain = nmcDomain.slice(dotIdx+1) # rm subdomain
+            'd/' + nmcDomain # add 'd/' namespace
+
+        sendErr: (res, code) ->
+            res.header.rcode = code
+            @log.warn {fn: 'sendErr', response: res}, "sending back error #{code}: #{dns2.RCODE_TO_NAME[code]}"
+            res.send()
+
         callback: (req, res) ->
             @log.debug fn:'callback', req
 
             for question in req.question
-                hostname = question.name
-                length = hostname.length
+                domain = question.name
+                length = domain.length
                 ttl = Math.floor(Math.random() * 3600)
 
                 if question.type != 'A'
-                    @log.debug "deferring resolution of type: " + question.type
-                    @deferQuestion(question, res)
+                    @log.debug deffering: question.type, "deferring resolution"
+                    @deferQuestion(question, res) # deferQuestion handles sending response
                 else
-                    if S(hostname).endsWith '.bit'
-                        [dot, dotbit, dbit] = [hostname.indexOf('.'), hostname.indexOf('.bit'), hostname.slice(0)]
-                        if dot != dotbit
-                            dbit = dbit.substring(dot+1, dbit.length) # lop off subdomain
-                        dbit = 'd/' + dbit.substring(0, dbit.length - 4)
-                        @log.debug "name_show " + dbit
-                        cfg.clients.rpc.call 'name_show', [dbit], (err, result) ->
-                            if not err
-                                @log.debug "name_show #{dbit}: %s", result
+                    if S(domain).endsWith '.bit'
+                        nmcDomain = @namecoinizeDomain domain
+                        @nmc.name_show nmcDomain, (err, result) ->
+                            if err
+                                @log.error err: err, "name_show failed for: #{nmcDomain}: %s", result
+                                # TODO: SEND PROPER ERROR RESPONSE BACK TO CLIENT!!
+                                @sendErr res, dns2.consts.NAME_TO_RCODE.SERVFAIL
+                            else
+                                @log.debug result: result, "result for name_show #{nmcDomain}"
                                 info = JSON.parse result.value
-                                @log.debug "name_show #{dbit} (info): %s", info
-                                if info.ns 
-                                    ns = info.ns[0]
+
+                                # TODO: handle all the types specified in the specification!
+                                #       https://github.com/namecoin/wiki/blob/master/Domain-Name-Specification-2.0.md
+                                # TODO: handle other info outside of the specification!
+                                #       - GNS support
+                                #       - DNSSEC/DANE support?
+
+                                # According to NMC specification, specifying 'ns'
+                                # overrules 'ip' value, so check it here and resolve using
+                                # old-style DNS.
+                                if info.ns?.length > 0
+                                    # if the DNS is specified as a domain (instead of IP)
+                                    # then we need to look up that server's IP.
+
+                                    # TODO: we need to keep trying other servers until success
+                                    #       (or exhaustion)
+                                    ns = info.ns.pop()
+
+                                    # TODO: handle ns = IPv6 addr!
+
+                                    if S(ns).replaceAll('.','').isNumeric()
+                                        # we have its IP, immediately send query to it
+                                    else
+                                        # we need to resolve the DNS server and get its IP
+
+
                                     dns.resolve4 ns, (err, addrs) ->
                                         if err
-                                            @log.debug "err["+dbit+'] ' + err
+                                            @log.debug "err["+nmcDomain+'] ' + err
                                             res.end()
                                         else
-                                            @log.debug "lookup["+dbit+'] with' + addrs[0]
-                                            req = ndns.Request(
-                                                question: ndns.Question({name: hostname, type: 'A'}),
+                                            @log.debug "lookup["+nmcDomain+'] with' + addrs[0]
+                                            req = dns2.Request(
+                                                question: dns2.Question({name: domain, type: 'A'}),
                                                 server: {address: addrs[0]}
                                             ).on('message', (err, answer) ->
                                                 if (err)
-                                                    @log.debug "err["+dbit+']/message: ' + err
+                                                    @log.debug "err["+nmcDomain+']/message: ' + err
                                                 else
-                                                    @log.debug "got answer for "+dbit+': ' + util.inspect(answer)
-                                                    res.answer.push({name:hostname, type:'A', data:answer.answer[0].address, 'ttl':ttl})
+                                                    @log.debug "got answer for "+nmcDomain+': ' + util.inspect(answer)
+                                                    res.answer.push({name:domain, type:'A', data:answer.answer[0].address, 'ttl':ttl})
                                                 
                                             ).on('end', -> res.end()).send()
                                 else if info.ip
-                                    @log.debug "lookup["+dbit+'] with ip: ' + info.ip[0]
-                                    res.answer.push({name:hostname, type:'A', data:info.ip[0], 'ttl':ttl})
+                                    # we have its IP! send reply to client
+                                    @log.debug "lookup["+nmcDomain+'] with ip: ' + info.ip[0]
+                                    # TODO: pick an appropriate 'ttl' for the response!
+                                    # TODO: handle more info! send the rest of the
+                                    #       stuff in 'info', and all the IPs!
+                                    res.answer.push dns2.A {name:domain, data:info.ip[0]}
                                     res.end()
-                            else
-                                @log.debug "getinfo [err]: " + err
-                        
+                                # TODO: handle info.ip6!
                     
-                    else if S(hostname).endsWith '.nmc'
+                    else if S(domain).endsWith '.nmc'
                         @log.debug "request for secure.dnsnmc.net! sending our IP: " + OURIP
-                        res.answer.push({name:hostname, type:'A', data:OURIP, 'ttl':ttl})
+                        res.answer.push({name:domain, type:'A', data:OURIP, 'ttl':ttl})
                         res.end()
                     else
-                        dns.resolve4 hostname, (err, addrs) ->
+                        dns.resolve4 domain, (err, addrs) ->
                             if !err
-                                res.answer.push {name:hostname, type:'A', data:addrs[0], 'ttl':ttl}
+                                res.answer.push {name:domain, type:'A', data:addrs[0], 'ttl':ttl}
                             else
                                 @log.debug "resolve4 error: " + err
                             res.end()

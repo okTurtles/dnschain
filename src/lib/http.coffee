@@ -27,7 +27,9 @@ module.exports = (dnsnmc) ->
             @server.listen(@httpOpts.port @httpOpts.host) or tErr "http listen"
             @log.info 'started HTTP:', @httpOpts
 
-        shutdown: -> @server.close()
+        shutdown: ->
+            @log.debug 'shutting down!'
+            @server.close()
 
         callback: (req, res) ->
             path = url.parse(req.url).pathname.substr(1)

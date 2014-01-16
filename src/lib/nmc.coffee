@@ -27,5 +27,10 @@ module.exports = (dnsnmc) ->
             @peer = rpc.Client.create(rpcParams...) or tErr "rpc create"
             @log.info "connected to namecoind: %s:%d", @rpcOpts.host, @rpcOpts.port
 
-        shutdown: -> @peer.end()
-        name_show: (path, cb) -> @peer.call 'name_show', [path], cb
+        shutdown: ->
+            @log.debug 'shutting down!'
+            @peer.end()
+
+        name_show: (path, cb) ->
+            @log.debug "name_show: #{path}"
+            @peer.call 'name_show', [path], cb
