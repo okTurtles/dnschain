@@ -34,12 +34,22 @@ design:
 ###
 
 # exports.protected = project-wide static vars and dependencies
+renameDeps =
+    rpc       : 'json-rpc2'
+    _         : 'lodash'
+    S         : 'string'
+    dns2      : 'native-dns'
+    es        : 'event-stream'
+    emitStream: 'emit-stream'
 
-for d,dep of { rpc:'json-rpc2', _:'lodash', S:'string', dns2:'native-dns' }
+for d,dep of renameDeps
    eval "var #{d} = exports.protected.#{d} = require('#{dep}');"
 
-for d in ['dns', 'http', 'url', 'util']
+for d in ['net', 'dns', 'http', 'url', 'util']
     eval "var #{d} = exports.protected.#{d} = require('#{d}');"
+
+# mixin fancy functional stuff to latest version of lodash
+require 'lodash-contrib'
 
 # `dns`  = nodejs' dns (currently lacks ability to specify dns server for query)
 # `dns2` = native-dns (to be merged into nodejs in the future, according to author. used for specifying dns servers per query)

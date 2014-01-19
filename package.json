@@ -19,7 +19,10 @@
     "lodash": "~2.4.1",
     "bunyan": "~0.22.1",
     "string": "~1.7.0",
-    "native-dns": "~0.4.1"
+    "native-dns": "~0.4.1",
+    "event-stream": "~3.1.0",
+    "lodash-contrib": "~241.3.1",
+    "emit-stream": "~0.1.2"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
