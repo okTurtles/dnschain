@@ -31,25 +31,27 @@ design:
       someone wants to use DNSNMC in a library or to have multiple DNSNMC
       servers on the same machine (for whatever reason).
 
+
+security:
+
+- protect against DDoS DNS amplification attacks. 
+
 ###
 
-# exports.protected = project-wide static vars and dependencies
+# exports.globals = project-wide static vars and dependencies
 renameDeps =
-    rpc       : 'json-rpc2'
-    _         : 'lodash'
-    S         : 'string'
-    dns2      : 'native-dns'
-    es        : 'event-stream'
-    emitStream: 'emit-stream'
+    rpc : 'json-rpc2'
+    _   : 'lodash-contrib'
+    S   : 'string'
+    dns2: 'native-dns'
+    es  : 'event-stream'
+    sa  : 'stream-array'
 
 for d,dep of renameDeps
-   eval "var #{d} = exports.protected.#{d} = require('#{dep}');"
+    eval "var #{d} = exports.globals.#{d} = require('#{dep}');"
 
-for d in ['net', 'dns', 'http', 'url', 'util']
-    eval "var #{d} = exports.protected.#{d} = require('#{d}');"
-
-# mixin fancy functional stuff to latest version of lodash
-require 'lodash-contrib'
+for d in ['net', 'dns', 'http', 'url', 'util', 'os']
+    eval "var #{d} = exports.globals.#{d} = require('#{d}');"
 
 # `dns`  = nodejs' dns (currently lacks ability to specify dns server for query)
 # `dns2` = native-dns (to be merged into nodejs in the future, according to author. used for specifying dns servers per query)
@@ -57,7 +59,29 @@ require 'lodash-contrib'
 #          for now I am holding off on using it for the sake of simplicity (single API), but if
 #          we discover a lacking server funcionality in native-dns, we'll switch to it for that purpose.
 
-tErr = exports.protected.tErr = (args...)-> throw new Error args...
+tErr = exports.globals.tErr = (args...)-> throw new Error args...
+
+exports.globals.ip2type = (domain, ttl, type='A') ->
+    (ip)-> dns2[type] {name:domain, address:ip, ttl:ttl}
+
+
+# TODO: get this from 'config'!
+externalIP = exports.globals.externalIP = do ->
+    faces = os.networkInterfaces()
+    default_iface = switch
+        when os.type() is 'Darwin' then 'en0'
+        when os.type() is 'Linux' then 'eth0'
+        else _(faces).keys().reject((x)->x.match /lo/).first()
+    cachedIP = undefined
+
+    (iface=default_iface, cached=true,fam='IPv4',internal=false) ->
+        if cached and cachedIP
+            cachedIP
+        else
+            faces = os.networkInterfaces()
+            unless ip = faces[iface]
+                throw new Error util.format("No such interface '%s'. Available: %j", iface, faces)
+            cachedIP = ip.filter({family:fam, internal:internal})[0].address
 
 exports.defaults =
     dnsOpts:
@@ -86,17 +110,19 @@ exports.DNSNMC = class DNSNMC
             name:"dnsnmc#{DNSNMC::count = (DNSNMC::count ? -1) + 1}"
             streams: [{stream: process.stderr, level: 'debug'}]
 
-        for k in [ "rpcOpts", "dnsOpts", "httpOpts" ]
-            @[k] = _.merge _.cloneDeep(exports.defaults[k]), @[k]
+        _.defaults @, _.pick(exports.defaults, ['rpcOpts', 'dnsOpts', 'httpOpts'])
 
         try
             @nmc = new NMCPeer @
             @dns = new DNSServer @
-            @http = new HTTPServer @            
+            @http = new HTTPServer @
+            @log.info "DNSNMC running with external IP: %s", externalIP()
         catch e
-            service.shutdown() for service in [@nmc, @dns, @http]
+            @shutdown()
             @log.error "dnsnmc failed to start: %s", e
             throw e # rethrow
+
+    shutdown: -> [@nmc, @dns, @http].forEach (s) -> s.shutdown()
 
 NMCPeer = require('./nmc')(exports)
 DNSServer = require('./dns')(exports)

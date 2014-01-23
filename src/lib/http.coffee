@@ -12,18 +12,17 @@ Licensed under the BSD 3-Clause license.
 
 module.exports = (dnsnmc) ->
     # expose these into our namespace
-    for k of dnsnmc.protected
-        eval "var #{k} = dnsnmc.protected.#{k};"
+    for k of dnsnmc.globals
+        eval "var #{k} = dnsnmc.globals.#{k};"
 
     class HTTPServer
         constructor: (@dnsnmc) ->
             @log = @dnsnmc.log.child server: "dnsnmc#{@dnsnmc.count}-HTTP"
 
             # localize some values from the parent DNSNMC server (to avoid extra typing)
-            for k in ["httpOpts", "nmc"]
-                @[k] = @dnsnmc[k]
+            _.merge @, _.pick(@dnsnmc, ["httpOpts", "nmc"])
 
-            @server = http.createServer(@callback) or tErr "http create"
+            @server = http.createServer(@callback.bind(@)) or tErr "http create"
             @server.listen(@httpOpts.port @httpOpts.host) or tErr "http listen"
             @log.info 'started HTTP:', @httpOpts
 
@@ -32,8 +31,8 @@ module.exports = (dnsnmc) ->
             @server.close()
 
         callback: (req, res) ->
-            path = url.parse(req.url).pathname.substr(1)
-            @log.debug "httpServer server got req for #{path}: #{util.inspect(req)}"
+            path = S(url.parse(req.url).pathname).chompLeft('/').s
+            @log.debug "httpServer server got req for %s: %j", path, req
 
             @nmc.name_show path, (err,result)->
                 if err

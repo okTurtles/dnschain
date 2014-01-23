@@ -13,13 +13,13 @@
     "no_trailing_whitespace": {
         "name": "no_trailing_whitespace",
         "level": "error",
-        "allowed_in_comments": false,
+        "allowed_in_comments": true,
         "allowed_in_empty_lines": true
     },
     "max_line_length": {
         "name": "max_line_length",
         "value": 95,
-        "level": "error",
+        "level": "ignore",
         "limitComments": false
     },
     "line_endings": {
@@ -101,7 +101,7 @@
     },
     "no_unnecessary_fat_arrows": {
         "name": "no_unnecessary_fat_arrows",
-        "level": "warn"
+        "level": "ignore"
     },
     "missing_fat_arrows": {
         "name": "missing_fat_arrows",

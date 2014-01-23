@@ -8,13 +8,14 @@ module.exports = (grunt)->
     path = require 'path'
 
     # Project configuration.
-    grunt.initConfig { # <-- Per smart-convention, require braces around long blocks
+    grunt.initConfig { # <-- Per helpful-convention, require braces around long blocks
     
         pkg: grunt.file.readJSON('package.json')
 
         coffeelint:
             gruntfile: ['<%= watch.gruntfile.files %>']
             lib: ['<%= watch.lib.files %>']
+            example: ['<%= watch.example.files %>']
             options:
                 configFile: "coffeelint.json"
 
@@ -24,6 +25,12 @@ module.exports = (grunt)->
                 cwd: 'src/lib/'
                 src: ['**/*.coffee']
                 dest: 'out/lib/'
+                ext: '.js'
+            example:
+                expand: true
+                cwd: 'src/example/'
+                src: ['**/*.coffee']
+                dest: 'out/example/'
                 ext: '.js'
 
         watch:
@@ -35,10 +42,17 @@ module.exports = (grunt)->
             lib:
                 files: ['src/lib/**/*.coffee']
                 tasks: ['coffeelint:lib', 'coffee:lib']
+            example:
+                files: ['src/example/**/*.coffee']
+                tasks: ['coffeelint:example', 'coffee:example']
 
         clean: ['out/']
+
+        nodemon:
+            example:
+                script: 'example.js'
     
-    } # <-- Per smart-convention, require braces around long blocks
+    } # <-- Per helpful-convention, require braces around long blocks
 
     grunt.event.on 'watch', (action, files, target)->
         grunt.log.writeln "#{target}: #{files} has #{action}"

@@ -14,19 +14,20 @@ Licensed under the BSD 3-Clause license.
 
 module.exports = (dnsnmc) ->
     # expose these into our namespace
-    for k of dnsnmc.protected
-        eval "var #{k} = dnsnmc.protected.#{k};"
+    for k of dnsnmc.globals
+        eval "var #{k} = dnsnmc.globals.#{k};"
+
+    ResolverStream = require('./resolver-stream')(dnsnmc)
 
     class DNSServer
         constructor: (@dnsnmc) ->
             @log = @dnsnmc.log.child server: "dnsnmc#{@dnsnmc.count}-DNS"
 
             # localize some values from the parent DNSNMC server (to avoid extra typing)
-            for k in ["dnsOpts", "nmc"]
-                @[k] = @dnsnmc[k]
+            _.merge @, _.pick(@dnsnmc, ['dnsOpts', 'nmc'])
 
             @server = dns2.createServer() or tErr "dns2 create"
-            @server.on 'request', @callback
+            @server.on 'request', @callback.bind(@)
             @server.serve(@dnsOpts.port @dnsOpts.host) or tErr "dns serve"
             @log.info 'started DNS:', @dnsOpts
 
@@ -34,68 +35,29 @@ module.exports = (dnsnmc) ->
             @log.debug 'shutting down!'
             @server.close()
 
-        deferQuestion: (q, res)->
-            req = dns2.Request {question: q, server: @dnsOpts.fallbackDNS}
-            req.on 'message', (err, answer) ->
-                for a in answer.answer
-                    res.answer.push dns2.A(a)
-                res.send()
-            # TODO: handle 'error', 'timeout', etc!
-            req.send()
-
-        # @returns stream 
-        ipStream: ([stackedReqDelay]..., callback) ->
-            stackedReqDelay ?= 0
-            log = @log
-            requests = []
-            dnserrs = []
-            reqID = 0
-            stream = es.through(input)
-
-            stream.cancelRequests = (cname) ->
-                for r in requests
-                    if !cname? or r.cname != cname
-                        clearTimeout(r.tid)
-                        r.req.cancel()
-                requests = []
-                stream.end()
-
-            input = (cnames) ->
-                cnames = JSON.parse cnames
-                cnames = [cnames] if typeof cnames is 'string'
-                cnames.forEach (cname) ->
-                    req = dns2.Request
-                        question: dns2.Question {name:cname, type:'A'}
-                        server: @dnsOpts.fallbackDNS
-
-                    req.on 'message', (err, answer) ->
-                        if err
-                            log.debug {fn: resolver, err: err}, "failed to resolve '#{cname}'"
-                            dnserrs.push {cname: cname, err: err, answer: answer}
-                        else
-                            answer.answer.forEach (a)-> stream.queue(a.address)
-                            # callback *must* be called *after* queueing these
-                            # answers as it might call stream.cancelRequests()!
-                            callback?.call(stream, answer)
-                            
-                    req.on 'end', ->
-                        if dnserrs.length is cnames.length
-                            stream.emit 'error', dnserrs
-                            log.error {fn:'resolver', cnames:cnames, errs: dnserrs}
-
-                    tid = setTimeout(req.send, reqID++ * stackedReqDelay)
-                    requests.push {tid:tid, req:req}
-            # return the stream
-            stream
-
         namecoinizeDomain: (domain) ->
             nmcDomain = S(domain).chompRight('.bit').s
             if (dotIdx = domain.indexOf('.')) != -1
                 nmcDomain = nmcDomain.slice(dotIdx+1) # rm subdomain
             'd/' + nmcDomain # add 'd/' namespace
 
+        deferQuestion: (q, res) ->
+            req = dns2.Request {question: q, server: @dnsOpts.fallbackDNS}
+            success = false
+
+            req.on 'message', (err, answer) =>
+                if !err? and answer.answer.length > 0
+                    success = true
+                    res.answer.push.apply(res.answer, answer.answer.map dns2.A)
+                    res.send()
+            
+            req.on 'done', =>
+                unless success
+                    @log.warn {fn:'deferQuestion', req:req}, "defer failed"
+                    @sendErr res
+
         sendErr: (res, code) ->
-            res.header.rcode = code
+            res.header.rcode = code ? dns2.consts.NAME_TO_RCODE.SERVFAIL
             @log.warn {fn: 'sendErr', response: res}, "sending back error #{code}: #{dns2.RCODE_TO_NAME[code]}"
             res.send()
 
@@ -109,7 +71,7 @@ module.exports = (dnsnmc) ->
             domain = question.name
             length = domain.length
             # TODO: pick an appropriate TTL value
-            ttl = Math.floor(Math.random() * 3600)
+            ttl = Math.floor(Math.random() * 3600) + 30
 
             if question.type != 'A' # TODO: handle AAAA!
                 @log.debug deffering: question.type, "deferring resolution"
@@ -121,7 +83,7 @@ module.exports = (dnsnmc) ->
                         if err
                             @log.error err: err, "name_show failed for: #{nmcDomain}: %s", result
                             # TODO: SEND PROPER ERROR RESPONSE BACK TO CLIENT!!
-                            @sendErr res, dns2.consts.NAME_TO_RCODE.SERVFAIL
+                            @sendErr res
                         else
                             @log.debug result: result, "result for name_show #{nmcDomain}"
                             info = JSON.parse result.value
@@ -136,66 +98,77 @@ module.exports = (dnsnmc) ->
                             # overrules 'ip' value, so check it here and resolve using
                             # old-style DNS.
                             if info.ns?.length > 0
-                                # if the DNS is specified as a domain (instead of IP)
-                                # then we need to look up that server's IP.
-
-                                # stream of ns cnames -> async lookups
-                                # stream of nameserver IPs
-                                # stacked lookups for each NS IP quit on first answer (long delay)
+                                # 1. Create a stream of nameserver IP addresses out of info.ns
+                                # 2. Send request to each of the servers, separated by a two
+                                #    second delay. On receiving the first answer from any of
+                                #    them, cancel all other pending requests and respond to
+                                #    our client.
+                                # 
+                                # TODO: handle ns = IPv6 addr!
                                 nsIPs = []
                                 nsCNAMEs = []
                                 for ip in info.ns
-                                    if net.isIP(ip) then nsIPs.push(ip) else nsCNAMEs.push(ip)
+                                    (if net.isIP(ip) then nsIPs else nsCNAMEs).push(ip)
 
-                                nsIPs = es.merge(es.readArray(nsIPs), @ipStream())
-                                nsIPs.on 'data', (ip) ->
-                                    @ipStream 2000, (answer) ->
+                                # ResolverStream will clone these in the constructor
+                                resolvOpts =
+                                    log         : @log.bind(@)
+                                    stackedDelay: 0
 
+                                nsCNAME2IP = new ResolverStream resolvOpts
 
-                                # TODO: handle ns = IPv6 addr!
+                                nsIPs = es.merge(sa(nsIPs), sa(nsCNAMEs).pipe(nsCNAME2IP))
 
+                                # safe to do becase ResolverStream clones the opts
+                                resolvOpts.stackedDelay = 2000
+                                resolvOpts.reqMaker = (cname) -> # -> bc @nsIP
+                                    req = dns2.Request
+                                        question: dns2.Question {name:cname, type:'A'}
+                                        server: {address: @nsIP.slice(0)} #copy it!
 
-                                if net.isIPv4(ns)
-                                    # we have its IP, immediately send query to it
-                                else
-                                    # we need to resolve the DNS server and get its IP
+                                stackedQuery = new ResolverStream resolvOpts
+                                stackedQuery.errors = 0
 
+                                nsIPs.on 'data', (nsIP) ->
+                                    stackedQuery.nsIP = nsIP
+                                    stackedQuery.write nmcDomain
 
-                                dns.resolve4 ns, (err, addrs) ->
-                                    if err
-                                        @log.debug "err["+nmcDomain+'] ' + err
-                                        res.end()
-                                    else
-                                        @log.debug "lookup["+nmcDomain+'] with' + addrs[0]
-                                        req = dns2.Request(
-                                            question: dns2.Question({name: domain, type: 'A'}),
-                                            server: {address: addrs[0]}
-                                        ).on('message', (err, answer) ->
-                                            if (err)
-                                                @log.debug "err["+nmcDomain+']/message: ' + err
-                                            else
-                                                @log.debug "got answer for "+nmcDomain+': ' + util.inspect(answer)
-                                                res.answer.push({name:domain, type:'A', data:answer.answer[0].address, 'ttl':ttl})
-                                            
-                                        ).on('end', -> res.end()).send()
+                                stackedQuery.on 'answer', (answer) =>
+                                    nsCNAME2IP.cancelRequests(true)
+                                    stackedQuery.cancelRequests(true)
+                                    res.answer.push.apply(res.answer, answer.answer.map dns2.A)
+                                    @log.debug {fn: 'callback->answer', res: res.answer}, "sending answer!"
+                                    res.send()
+
+                                stackedQuery.on 'error', (err) =>
+                                    if ++stackedQuery.errors == info.ns.length
+                                        @log.warn {fn:'cb[stackedQErr]', err:err}, "errors on all NS!"
+                                        @sendErr(res)
+
                             else if info.ip
                                 # we have its IP! send reply to client
-                                @log.debug "lookup["+nmcDomain+'] with ip: ' + info.ip[0]
                                 # TODO: pick an appropriate 'ttl' for the response!
                                 # TODO: handle more info! send the rest of the
                                 #       stuff in 'info', and all the IPs!
-                                res.answer.push dns2.A {name:domain, data:info.ip[0]}
-                                res.end()
+                                info.ip = [info.ip] if typeof info.ip is 'string'
+                                res.answer.push.apply(res.answer, info.ip.map ip2type(domain, ttl))
+                                @log.debug {fn: 'callback', info: info, domain: nmcDomain, res: res.answer}, "direct IP stored in blockchain!"
+                                res.send()
+                            else
+                                @log.error {fn: 'callback', info:info}, "no IP or NS in info"
+                                @sendErr(res, dns2.consts.NAME_TO_RCODE.NOTFOUND)
                             # TODO: handle info.ip6!
                 
                 else if S(domain).endsWith '.nmc'
-                    @log.debug "request for secure.dnsnmc.net! sending our IP: " + OURIP
-                    res.answer.push({name:domain, type:'A', data:OURIP, 'ttl':ttl})
+                    ourIP = externalIP()
+                    @log.debug "request for %s! sending our IP: %s", domain, ourIP
+                    res.answer.push ip2type(domain,ttl)(ourIP)
                     res.end()
                 else
-                    dns.resolve4 domain, (err, addrs) ->
-                        if !err
-                            res.answer.push {name:domain, type:'A', data:addrs[0], 'ttl':ttl}
-                        else
+                    dns.resolve4 domain, (err, addrs) =>
+                        if err
                             @log.debug "resolve4 error: " + err
-                        res.end()
+                            @sendErr(res)
+                        else
+                            res.answer.push.apply(res.answer, addrs.map ip2type(domain, ttl))
+                            res.send()
