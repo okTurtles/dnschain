@@ -8,7 +8,7 @@ Licensed under the BSD 3-Clause license.
 
 ###
 
-'use strict'
+# we don't 'use strict' because i really want to be able to use 'eval' to declare variables
 
 ###
 
@@ -47,10 +47,12 @@ renameDeps =
     es  : 'event-stream'
     sa  : 'stream-array'
 
+exports.globals = {}
+
 for d,dep of renameDeps
     eval "var #{d} = exports.globals.#{d} = require('#{dep}');"
 
-for d in ['net', 'dns', 'http', 'url', 'util', 'os']
+for d in ['net', 'dns', 'http', 'url', 'util', 'os', 'winston']
     eval "var #{d} = exports.globals.#{d} = require('#{d}');"
 
 # `dns`  = nodejs' dns (currently lacks ability to specify dns server for query)
@@ -64,15 +66,17 @@ tErr = exports.globals.tErr = (args...)-> throw new Error args...
 exports.globals.ip2type = (domain, ttl, type='A') ->
     (ip)-> dns2[type] {name:domain, address:ip, ttl:ttl}
 
-
-# TODO: get this from 'config'!
-externalIP = exports.globals.externalIP = do ->
+# TODO: get 'iface' from 'config'!
+externalIP = exports.externalIP = exports.globals.externalIP = do ->
     faces = os.networkInterfaces()
     default_iface = switch
-        when os.type() is 'Darwin' then 'en0'
-        when os.type() is 'Linux' then 'eth0'
-        else _(faces).keys().reject((x)->x.match /lo/).first()
+        when os.type() is 'Darwin' and faces.en0? then 'en0'
+        when os.type() is 'Linux' and faces.eth0? then 'eth0'
+        else _(faces).keys().find (x)-> !x.match /lo/
     cachedIP = undefined
+
+    # TODO: TO DEFER RESOLUTION USE NODE'S DNS FUNCTIONS! NOT DNS2!! BETTER YET, MAKE IT OPTIONAL TO USE DNS2!
+    # cachedIP = '127.0.0.1'
 
     (iface=default_iface, cached=true,fam='IPv4',internal=false) ->
         if cached and cachedIP
@@ -81,13 +85,24 @@ externalIP = exports.globals.externalIP = do ->
             faces = os.networkInterfaces()
             unless ip = faces[iface]
                 throw new Error util.format("No such interface '%s'. Available: %j", iface, faces)
-            cachedIP = ip.filter({family:fam, internal:internal})[0].address
+            cachedIP = _.find(ip, {family:fam, internal:internal}).address
+
+
+consts = exports.consts = exports.globals.consts =
+    # for questions that the blockchain cannot answer
+    # (hopefully these will disappear with time)
+    oldDNS:
+        nativeDNSModule: 0 # Use 'native-dns' module (current default). Hopefully merged into NodeJS in the future: https://github.com/joyent/node/issues/6864#issuecomment-32229852
+        nodeDNSModule: 1 # Prior to node 0.11.x will ignore dnsOpts.oldDNS and use OS-specified DNS. Currently ignores 'dnsOpts.oldDNS' in favor of OS-specified DNS even in node 0.11.x (simply needs to be implemented). TODO: <- this!
+
 
 exports.defaults =
     dnsOpts:
         port: 53
         host: '0.0.0.0'
-        fallbackDNS:
+        oldDNSMethod: consts.oldDNS.nativeDNSModule
+        # oldDNSMethod: consts.oldDNS.nodeDNSModule
+        oldDNS:
             address: '8.8.8.8' # Google (we recommend running PowerDNS yourself and sending it there)
             port: 53
             type: 'udp'
@@ -106,23 +121,27 @@ exports.DNSNMC = class DNSNMC
     # TODO: read in configuration files!
 
     constructor: (@rpcOpts, @dnsOpts={}, @httpOpts={})->
-        @log = require('bunyan').createLogger
-            name:"dnsnmc#{DNSNMC::count = (DNSNMC::count ? -1) + 1}"
-            streams: [{stream: process.stderr, level: 'debug'}]
+        @log = @newLogger 'DNSNMC'
 
-        _.defaults @, _.pick(exports.defaults, ['rpcOpts', 'dnsOpts', 'httpOpts'])
+        for k,v of _.pick(exports.defaults, ['rpcOpts', 'dnsOpts', 'httpOpts'])
+            _.defaults @[k], v
 
         try
             @nmc = new NMCPeer @
             @dns = new DNSServer @
             @http = new HTTPServer @
-            @log.info "DNSNMC running with external IP: %s", externalIP()
+            @log.info "DNSNMC running with external IP: ", externalIP()
         catch e
+            @log.error {exception: e}, "dnsnmc failed to start"
             @shutdown()
-            @log.error "dnsnmc failed to start: %s", e
             throw e # rethrow
 
-    shutdown: -> [@nmc, @dns, @http].forEach (s) -> s.shutdown()
+    newLogger: (name, level='debug') ->
+        logger = new winston.Logger
+            transports: [new winston.transports.Console {label:name, level:level}]
+        logger.cli()
+
+    shutdown: -> [@nmc, @dns, @http].forEach (s) -> s?.shutdown?()
 
 NMCPeer = require('./nmc')(exports)
 DNSServer = require('./dns')(exports)

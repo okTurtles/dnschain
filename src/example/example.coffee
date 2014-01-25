@@ -9,8 +9,9 @@ for d,dep of renameDeps
 for d in ['net', 'dns', 'http', 'url', 'util', 'os', 'inquirer']
     eval "var #{d} = require('#{d}');"
 
+console.log "Demo starting..."
 
-DNSNMC = require '../lib/dnsnmc'
+DNSNMC = require('../lib/dnsnmc')
 
 console.log "DEMO (external IP: %s)", DNSNMC.externalIP()
 console.log "\nPlease enter RPC info for namecoind:\n"
@@ -29,7 +30,8 @@ questions = [
    ,
     name: 'port'
     message: 'rpc port: '
-    default: '8336'
+    default: 8336
+    filter: parseInt
 ]
 
 # prevent inquirer from showing password length
@@ -44,4 +46,5 @@ do ->
         this
 
 inquirer.prompt questions, (rpcOpts) ->
-    server = new DNSNMC rpcOpts
+    console.log "launching DNSNMC with args: %j", rpcOpts
+    DNSNMC.createServer rpcOpts

@@ -14,43 +14,48 @@ module.exports = (grunt)->
 
         coffeelint:
             gruntfile: ['<%= watch.gruntfile.files %>']
-            lib: ['<%= watch.lib.files %>']
-            example: ['<%= watch.example.files %>']
+            src: ['<%= watch.src.files %>']
             options:
                 configFile: "coffeelint.json"
 
         coffee:
-            lib:
+            src:
                 expand: true
-                cwd: 'src/lib/'
+                cwd: 'src/'
                 src: ['**/*.coffee']
-                dest: 'out/lib/'
-                ext: '.js'
-            example:
-                expand: true
-                cwd: 'src/example/'
-                src: ['**/*.coffee']
-                dest: 'out/example/'
+                dest: 'out/'
                 ext: '.js'
 
         watch:
             options:
-                spawn: false
+                spawn: true
             gruntfile:
                 files: 'Gruntfile.coffee'
                 tasks: ['coffeelint:gruntfile']
-            lib:
-                files: ['src/lib/**/*.coffee']
-                tasks: ['coffeelint:lib', 'coffee:lib']
-            example:
-                files: ['src/example/**/*.coffee']
-                tasks: ['coffeelint:example', 'coffee:example']
+            src:
+                files: ['src/**/*.coffee']
+                tasks: ['coffeelint:src', 'coffee:src', 'example:respawn']
 
         clean: ['out/']
 
         nodemon:
-            example:
-                script: 'example.js'
+            dev:
+                script: 'src/example/example.coffee'
+                watch: ['src']
+                delayTime: 1000 # 1 second
+                ext: 'js,coffee'
+            dev2:
+                watch: ['src']
+                delayTime: 1000 # 1 second
+                ext: 'js,coffee'
+                exec: 'coffee'
+                args: ['src/example/example.coffee', '-n']
+
+        concurrent:
+            dev:
+                tasks: ['nodemon:dev', 'watch']
+                options:
+                    logConcurrentOutput: true
     
     } # <-- Per helpful-convention, require braces around long blocks
 
@@ -69,11 +74,28 @@ module.exports = (grunt)->
             grunt.config ['coffee', target], coffeeData
 
     # tasks.
-    grunt.registerTask 'compile', [
-        'coffeelint'
-        'coffee'
-    ]
-    grunt.registerTask 'default', [
-        'compile'
-    ]
+    grunt.registerTask 'compile', ['coffeelint', 'coffee']
+    grunt.registerTask 'default', ['compile']
+    # grunt.registerTask 'dev', ['compile', 'concurrent:dev']
+    # grunt.registerTask 'dev', ['compile', 'nodemon:dev2']
 
+    [child,childKilled,shouldSpawn] = [false,false,false]
+
+
+    grunt.registerTask 'example', 'Run Example', ->
+        shouldSpawn = true
+        grunt.task.run 'example:respawn', 'watch'
+
+    grunt.registerTask 'example:respawn', '[internal]', ->
+        if child
+            grunt.log.writeln "Killing child!"
+            childKilled = true
+            child.kill()
+        if shouldSpawn
+            grunt.log.writeln "Spawning child!"
+            child = require('child_process').fork(grunt.config 'nodemon.dev.script')
+            child.on 'exit', (code) ->
+                if !childKilled
+                    process.exit code
+                else
+                    childKilled = false # reset and ignore for now

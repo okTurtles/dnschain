@@ -10,7 +10,15 @@ Licensed under the BSD 3-Clause license.
 
 # TODO: go through 'TODO's!
 
-'use strict'
+###
+- configuration:
+    - local in ~/.dnsnmc
+    - global in /etc/dnsnmc
+    - support command line providing configuration (overrides both of the above)
+    - options:
+        - everything in exports.defaults
+        - logging options for bunyan
+###
 
 module.exports = (dnsnmc) ->
     # expose these into our namespace
