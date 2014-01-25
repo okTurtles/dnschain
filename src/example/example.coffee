@@ -45,6 +45,18 @@ do ->
         write.bind(this)(x)
         this
 
+server = undefined
+
+die = ->
+    console.log "got kill signal!"
+    server?.shutdown()
+    setImmediate -> process.exit(0)
+
+process.on 'SIGTERM', die
+process.on 'SIGINT', die
+process.on 'disconnect', die
+
 inquirer.prompt questions, (rpcOpts) ->
     console.log "launching DNSNMC with args: %j", rpcOpts
-    DNSNMC.createServer rpcOpts
+    server = DNSNMC.createServer rpcOpts
+

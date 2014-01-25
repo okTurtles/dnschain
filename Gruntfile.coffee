@@ -6,6 +6,8 @@ module.exports = (grunt)->
 
     _ = grunt.util._
     path = require 'path'
+    util = require 'util'
+    child_process = require 'child_process'
 
     # Project configuration.
     grunt.initConfig { # <-- Per helpful-convention, require braces around long blocks
@@ -79,23 +81,28 @@ module.exports = (grunt)->
     # grunt.registerTask 'dev', ['compile', 'concurrent:dev']
     # grunt.registerTask 'dev', ['compile', 'nodemon:dev2']
 
-    [child,childKilled,shouldSpawn] = [false,false,false]
-
 
     grunt.registerTask 'example', 'Run Example', ->
-        shouldSpawn = true
         grunt.task.run 'example:respawn', 'watch'
 
     grunt.registerTask 'example:respawn', '[internal]', ->
+        done = @async() # tell grunt we're async
+
+        child = grunt.config.get 'child'
+        grunt.log.writeln util.format("example:respawn... %j", child)
+
         if child
             grunt.log.writeln "Killing child!"
-            childKilled = true
+            grunt.config.set 'child', null
             child.kill()
-        if shouldSpawn
+
+        spawn = ->
             grunt.log.writeln "Spawning child!"
-            child = require('child_process').fork(grunt.config 'nodemon.dev.script')
-            child.on 'exit', (code) ->
-                if !childKilled
-                    process.exit code
-                else
-                    childKilled = false # reset and ignore for now
+            child = child_process.fork grunt.config('nodemon.dev.script')
+            grunt.config.set 'child', child
+            child.on 'exit', (c) ->
+                grunt.error.writeln "child died!"
+                process.exit(c) if grunt.config.get 'child'
+            done()
+
+        setTimeout spawn, 1000 # 1 second later

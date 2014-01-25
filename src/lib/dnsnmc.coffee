@@ -64,7 +64,7 @@ for d in ['net', 'dns', 'http', 'url', 'util', 'os', 'winston']
 tErr = exports.globals.tErr = (args...)-> throw new Error args...
 
 exports.globals.ip2type = (domain, ttl, type='A') ->
-    (ip)-> dns2[type] {name:domain, address:ip, ttl:ttl}
+    (ip)-> dns2[type]({name:domain, address:ip, ttl:ttl})
 
 # TODO: get 'iface' from 'config'!
 externalIP = exports.externalIP = exports.globals.externalIP = do ->
@@ -132,14 +132,23 @@ exports.DNSNMC = class DNSNMC
             @http = new HTTPServer @
             @log.info "DNSNMC running with external IP: ", externalIP()
         catch e
-            @log.error {exception: e}, "dnsnmc failed to start"
+            @log.error "dnsnmc failed to start", {exception: e}
             @shutdown()
             throw e # rethrow
 
     newLogger: (name, level='debug') ->
         logger = new winston.Logger
-            transports: [new winston.transports.Console {label:name, level:level}]
-        logger.cli()
+            levels: winston.config.cli.levels
+            colors: winston.config.cli.lcolors
+            transports: [
+                new winston.transports.Console
+                    label:name
+                    level:level
+                    colorize:true
+                    prettyPrint:true
+                    timestamp:true
+            ]
+        # logger.cli()
 
     shutdown: -> [@nmc, @dns, @http].forEach (s) -> s?.shutdown?()
 

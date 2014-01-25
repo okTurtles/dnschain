@@ -35,7 +35,7 @@ module.exports = (dnsnmc) ->
             @server.on 'socketError', (err) => @error('socketError', err)
             @server.on 'request', @callback.bind(@)
             @server.serve(@dnsOpts.port, @dnsOpts.host)
-            @log.info {opts: @dnsOpts}, 'started DNS'
+            @log.info 'started DNS', {opts: @dnsOpts}
 
         shutdown: ->
             @log.debug 'shutting down!'
@@ -60,27 +60,28 @@ module.exports = (dnsnmc) ->
                 success = false
 
                 req.on 'message', (err, answer) =>
-                    if !err? and answer.answer.length > 0
-                        success = true
-                        # answer.answer.forEach (a)-> res.answer.push dns2.A a
-                        # res.answer.push.apply(res.answer, answer.answer.map dns2.A)
-                        res.answer.push.apply(res.answer, answer.answer)
-                        @log.debug {fn:sig+'[success]', answer: res.answer, q: q.name}
-                        res.send()
-                    else
-                        # @log.debug {err: err, answer: answer}
+                    if err?
+                        @log.error "should not have an error here!", {fn:sig+'[error]', err:err, answer:answer}
                         req.DNSErr ?= err
+                    else
+                        success = true
+                        res.answer.push answer.answer...
+                        @log.debug {fn:sig+'[success]', answer:res.answer, q:q}
+                        res.send()
                 
-                # TODO: IMPLEMENT on 'error'!
+                req.on 'error', (err) =>
+                    @log.error {fn:sig+'[error]', err:err, answer:answer}
+                    req.DNSErr = err
+
                 # TODO: find out why some requests appear to be getting lost!
                 #       (you can tell something is off cause a whole lot more
                 #       appears when using node method)
 
-                req.on 'done', =>
-                    # @log.debug 'done!'
+                req.on 'end', =>
                     unless success
                         @log.warn {fn:sig+'[fail]', q:q, err:req.DNSErr}
                         @sendErr res
+                    @log.debug {fn:sig+'[end]', q:q}
 
                 req.send()
             else
@@ -90,7 +91,7 @@ module.exports = (dnsnmc) ->
                         @sendErr res
                     else
                         # addrs.forEach (a)-> res.answer.push ip2type(q.name, ttl)(a)
-                        res.answer.push.apply(res.answer, addrs.map ip2type(q.name, ttl))
+                        res.answer.push (addrs.map ip2type(q.name, ttl, QTYPE_NAME[q.type]))...
                         @log.debug {fn:sig+'[success]', answer:res.answer, q:q.name}
                         res.send()
 
@@ -107,13 +108,13 @@ module.exports = (dnsnmc) ->
             q = req.question[0]
             # TODO: pick an appropriate TTL value
             ttl = Math.floor(Math.random() * 3600) + 30
-            @log.debug {q:q}, "received question"
+            @log.debug "received question", {q:q}
 
             # for now we only handle A types.
             # TODO: handle AAAA for IPv6!
-            if q.type != NAME_QTYPE.A
-                @log.debug {q:q}, "only support 'A' types ATM, deferring request!"
-                @oldDNSLookup(q, res)
+            # if q.type != NAME_QTYPE.A
+            #     @log.debug "only support 'A' types ATM, deferring request!", {q:q}
+            #     @oldDNSLookup(q, res)
 
             if S(q.name).endsWith '.bit'
                 nmcDomain = @namecoinizeDomain q.name
@@ -156,7 +157,7 @@ module.exports = (dnsnmc) ->
                             resolvOpts.stackedDelay = 2000
                             resolvOpts.reqMaker = (cname) -> # -> bc @nsIP
                                 req = dns2.Request
-                                    question: dns2.Question {name:cname, type:NAME_QTYPE.A}
+                                    question: _.merge(q, name:cname)
                                     server: {address: @nsIP.slice(0)} #copy it!
 
                             stackedQuery = new ResolverStream resolvOpts
@@ -168,16 +169,14 @@ module.exports = (dnsnmc) ->
 
                             stackedQuery.on 'error', (err) =>
                                 if ++stackedQuery.errors == info.ns.length
-                                    @log.warn {fn:'nmc_show', q:q, err:err}, "errors on all NS!"
+                                    @log.warn "errors on all NS!", {fn:'nmc_show', q:q, err:err}
                                     @sendErr(res)
 
                             stackedQuery.on 'answer', (answer) =>
                                 nsCNAME2IP.cancelRequests(true)
                                 stackedQuery.cancelRequests(true)
-                                # res.answer.push.apply(res.answer, answer.answer.map dns2.A)
-                                # answer.answer.forEach (a)-> res.answer.push dns2.A a
-                                res.answer.push.apply(res.answer, answer.answer)
-                                @log.debug {fn:'nmc_show', answer:res.answer}, "sending answer!"
+                                res.answer.push answer.answer...
+                                @log.debug "sending answer!", {fn:'nmc_show', answer:answer}
                                 res.send()
 
                         else if info.ip
@@ -187,7 +186,7 @@ module.exports = (dnsnmc) ->
                             #       stuff in 'info', and all the IPs!
                             info.ip = [info.ip] if typeof info.ip is 'string'
                             # info.ip.forEach (a)-> res.answer.push ip2type(q.name, ttl)(a)
-                            res.answer.push.apply(res.answer, info.ip.map ip2type(q.name, ttl))
+                            res.answer.push (info.ip.map ip2type(q.name, ttl, QTYPE_NAME[q.type]))...
                             @log.debug {fn:'nmc_show|ip', q:q, answer:res.answer}
                             res.send()
                         else
@@ -195,10 +194,9 @@ module.exports = (dnsnmc) ->
                             @sendErr res, NAME_RCODE.NOTFOUND
             
             else if S(q.name).endsWith '.nmc'
-                ourIP = externalIP()
-                res.answer.push ip2type(q.name,ttl)(ourIP)
+                res.answer.push ip2type(q.name,ttl,QTYPE_NAME[q.type])(externalIP())
                 @log.debug {fn:'.nmc', d:q.name, answer:res.answer}
                 res.send()
             else
-                @log.warn {q:q}, "deferring question"
+                @log.debug "deferring question", {q:q}
                 @oldDNSLookup(q, res)

@@ -25,8 +25,9 @@ module.exports = (dnsnmc) ->
             @server = http.createServer(@callback.bind(@)) or tErr "http create"
             @server.on 'error', (err) => @error('error', err)
             @server.on 'socketError', (err) => @error('socketError', err)
-            @server.listen(@httpOpts.port, @httpOpts.host) or tErr "http listen"
-            @log.info {opts: @httpOpts}, 'started HTTP'
+            # @server.listen(@httpOpts.port, @httpOpts.host) or tErr "http listen"
+            @server.listen(@httpOpts.port) or tErr "http listen"
+            @log.info 'started HTTP', {opts: @httpOpts}
 
         shutdown: ->
             @log.debug 'shutting down!'
