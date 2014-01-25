@@ -34,6 +34,8 @@ questions = [
     filter: parseInt
 ]
 
+# TODO: read these values from ~/.namecoin/namecoin.conf
+
 # prevent inquirer from showing password length
 # https://github.com/SBoudrias/Inquirer.js/issues/91
 do ->

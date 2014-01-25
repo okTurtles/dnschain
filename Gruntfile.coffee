@@ -83,26 +83,29 @@ module.exports = (grunt)->
 
 
     grunt.registerTask 'example', 'Run Example', ->
+        # prevent watch from spawning. if we don't do this, we won't be able
+        # to kill the child when files change.
+        grunt.config ['watch', 'options'], spawn: false
         grunt.task.run 'example:respawn', 'watch'
+
+    child = running: false
 
     grunt.registerTask 'example:respawn', '[internal]', ->
         done = @async() # tell grunt we're async
 
-        child = grunt.config.get 'child'
-        grunt.log.writeln util.format("example:respawn... %j", child)
-
-        if child
+        if child.running
             grunt.log.writeln "Killing child!"
-            grunt.config.set 'child', null
-            child.kill()
+            child.running = false
+            child.proc.kill('SIGINT') # nicer...
 
-        spawn = ->
-            grunt.log.writeln "Spawning child!"
-            child = child_process.fork grunt.config('nodemon.dev.script')
-            grunt.config.set 'child', child
-            child.on 'exit', (c) ->
-                grunt.error.writeln "child died!"
-                process.exit(c) if grunt.config.get 'child'
+        spawn = (child) ->
+            grunt.log.writeln "example: spawning child..."
+            child.proc = child_process.fork grunt.config('nodemon.dev.script')
+            child.running = true
+            child.proc.on 'exit', (c) ->
+                if child.running
+                    grunt.log.error "child exited with code: #{c}"
+                    process.exit(c)
             done()
 
-        setTimeout spawn, 1000 # 1 second later
+        setTimeout spawn, 1000, child # 1 second later
