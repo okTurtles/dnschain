@@ -26,6 +26,10 @@ module.exports = (dnsnmc) ->
             @server.on 'error', (err) => @error('error', err)
             @server.on 'socketError', (err) => @error('socketError', err)
             # @server.listen(@httpOpts.port, @httpOpts.host) or tErr "http listen"
+            # TODO: specifying the host in 'listen' forces the HTTP server to *only*
+            #       accept connections on that IP. This is not what we want.
+            #       We want to be able to bind to a specific IP address, but accept
+            #       connections regardless of where they come from (if possible).
             @server.listen(@httpOpts.port) or tErr "http listen"
             @log.info 'started HTTP', {opts: @httpOpts}
 

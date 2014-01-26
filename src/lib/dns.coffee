@@ -47,7 +47,7 @@ module.exports = (dnsnmc) ->
 
         namecoinizeDomain: (domain) ->
             nmcDomain = S(domain).chompRight('.bit').s
-            if (dotIdx = domain.indexOf('.')) != -1
+            if (dotIdx = nmcDomain.indexOf('.')) != -1
                 nmcDomain = nmcDomain.slice(dotIdx+1) # rm subdomain
             'd/' + nmcDomain # add 'd/' namespace
 
@@ -124,7 +124,12 @@ module.exports = (dnsnmc) ->
                         @sendErr res
                     else
                         @log.debug {fn:'nmc_show', q:q, result:result}
-                        info = JSON.parse result.value
+
+                        try
+                            info = JSON.parse result.value
+                        catch e
+                            @log.warn "bad JSON!", {err:e, result:result, q:q}
+                            return @sendErr res, NAME_RCODE.FORMERR
 
                         # TODO: handle all the types specified in the specification!
                         #       https://github.com/namecoin/wiki/blob/master/Domain-Name-Specification-2.0.md
@@ -149,34 +154,33 @@ module.exports = (dnsnmc) ->
                                 (if net.isIP(ip) then nsIPs else nsCNAMEs).push(ip)
 
                             # ResolverStream will clone 'resolvOpts' in the constructor
-                            nsCNAME2IP = new ResolverStream (resolvOpts = {log: @log.bind(@), stackedDelay: 0})
+                            nsCNAME2IP = new ResolverStream(resolvOpts = log:@log)
 
                             nsIPs = es.merge(sa(nsIPs), sa(nsCNAMEs).pipe(nsCNAME2IP))
 
                             # safe to do becase ResolverStream clones the opts
-                            resolvOpts.stackedDelay = 2000
-                            resolvOpts.reqMaker = (cname) -> # -> bc @nsIP
+                            resolvOpts.stackedDelay = 1000
+                            resolvOpts.reqMaker = (nsIP) =>
                                 req = dns2.Request
-                                    question: _.merge(q, name:cname)
-                                    server: {address: @nsIP.slice(0)} #copy it!
+                                    question: q
+                                    server: {address: nsIP}
 
                             stackedQuery = new ResolverStream resolvOpts
                             stackedQuery.errors = 0
 
                             nsIPs.on 'data', (nsIP) ->
-                                stackedQuery.nsIP = nsIP
-                                stackedQuery.write nmcDomain
+                                stackedQuery.write nsIP
 
                             stackedQuery.on 'error', (err) =>
                                 if ++stackedQuery.errors == info.ns.length
                                     @log.warn "errors on all NS!", {fn:'nmc_show', q:q, err:err}
                                     @sendErr(res)
 
-                            stackedQuery.on 'answer', (answer) =>
+                            stackedQuery.on 'answers', (answers) =>
                                 nsCNAME2IP.cancelRequests(true)
                                 stackedQuery.cancelRequests(true)
-                                res.answer.push answer.answer...
-                                @log.debug "sending answer!", {fn:'nmc_show', answer:answer}
+                                res.answer.push answers...
+                                @log.debug "sending answers!", {fn:'nmc_show', answers:answers, q:q}
                                 res.send()
 
                         else if info.ip

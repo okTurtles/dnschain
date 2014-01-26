@@ -9,23 +9,24 @@ Licensed under the BSD 3-Clause license.
 ###
 
 Transform = require('stream').Transform
-StackedScheduler = require('./stacked-scheduler')
 
 # objectMode is one by default
 
 module.exports = (dnsnmc) ->
+    StackedScheduler = require('./stacked-scheduler')(dnsnmc)
+
     # expose these into our namespace
     for k of dnsnmc.globals
         eval "var #{k} = dnsnmc.globals.#{k};"
 
     defaults =
-        log         : dnsnmc.log
+        log         : dnsnmc.DNSNMC::newLogger('RS')
         stackedDelay: 0
-        resolver    : dnsnmc.defaults.dnsOpts.fallbackDNS
+        resolver    : dnsnmc.defaults.dnsOpts.oldDNS
         answerFilter: (a) -> a.address
         reqMaker    : (cname) ->
             dns2.Request
-                question: dns2.Question {name:cname, type:'A'}
+                question: dns2.Question {name:cname, type:'A'} # TODO: 'type' correct always?
                 server: @resolver
 
     class ResolverStream extends Transform
@@ -34,7 +35,7 @@ module.exports = (dnsnmc) ->
             @opts.objectMode ?= true
             defaultProps = _.keys(defaults)
             # copy property values in @opts for those keys in 'defaults' into this object
-            _.merge @, _.pick(_.defaults(@opts, defaults), defaultProps)
+            _.assign @, _.pick(_.defaults(@opts, defaults), defaultProps)
             super _.omit(@opts, defaultProps)
 
             @scheduler  = new StackedScheduler @opts
@@ -51,34 +52,42 @@ module.exports = (dnsnmc) ->
 
         _transform: (cnames, encoding, callback) ->
             cnames = [cnames] if typeof cnames is 'string'
+            sig = "ResolverStream"
             cnames.forEach (cname) =>
                 req = @reqMaker(cname)
+                answers = []
                 success = false
                 reqErr  = undefined
 
                 req.on 'message', (err, answer) =>
-                    if !err? and answer.answer.length > 0
-                        success = true
-                        @emit 'answer', answer
-                        answer.answer.forEach (a) => @push(@answerFilter(a))
-                    else
+                    if err?
+                        @log.error "should not have an error here!", {fn:sig+'[error]', err:err, answer:answer}
                         reqErr = new Error(util.format "message error for '%j': %j", cname, err)
+                    else
+                        @log.debug "resolved %j => %j !", req.question, answer.answer, {fn:sig+'[message]', cname:cname}
+                        success = true
+                        answers.push answer.answer...
+                        answer.answer.forEach (a) => @push(@answerFilter(a))
 
                 req.on 'timeout', =>
+                    @log.debug {fn:sig+'[timeout]', q:req.question}
                     reqErr = new Error(util.format "timeout for '%j': %j", cname, req)
 
                 req.on 'error', (err) =>
+                    @log.warn {fn:sig+'[error]', q:req.question, err:err}
                     reqErr = new Error(util.format "error for '%j': %j", cname, err)
 
                 req.on 'end', =>
                     delete @requests[req.rsReqID]
-                    if success
-                        callback()
-                    else
-                        reqErr ?= new Error('unknown error')
-                        @log.warn {fn:'_transform->end', err:reqErr, req:req}, "request failed"
+                    if reqErr?
+                        @log.warn "request failed", {fn:sig+'endCb', err:reqErr, req:req}
                         callback(reqErr)
-
+                    else
+                        @emit('answers', answers) if success
+                        callback()
+                        # it is possible that neither 'success' is true
+                        # nor is 'reqError' defined. This can happen
+                        # when 'cancelRequests' is called on us.
 
                 req.rsReqID = @reqCounter++
 
