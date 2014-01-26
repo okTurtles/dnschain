@@ -92,16 +92,16 @@ consts = exports.consts = exports.globals.consts =
     # for questions that the blockchain cannot answer
     # (hopefully these will disappear with time)
     oldDNS:
-        nativeDNSModule: 0 # Use 'native-dns' module (current default). Hopefully merged into NodeJS in the future: https://github.com/joyent/node/issues/6864#issuecomment-32229852
-        nodeDNSModule: 1 # Prior to node 0.11.x will ignore dnsOpts.oldDNS and use OS-specified DNS. Currently ignores 'dnsOpts.oldDNS' in favor of OS-specified DNS even in node 0.11.x (simply needs to be implemented). TODO: <- this!
+        NATIVE_DNS: 0 # Use 'native-dns' module (current default). Hopefully merged into NodeJS in the future: https://github.com/joyent/node/issues/6864#issuecomment-32229852
+        NODE_DNS: 1 # Prior to node 0.11.x will ignore dnsOpts.oldDNS and use OS-specified DNS. Currently ignores 'dnsOpts.oldDNS' in favor of OS-specified DNS even in node 0.11.x (simply needs to be implemented). TODO: <- this!
 
 
 exports.defaults =
     dnsOpts:
         port: 53
         host: '0.0.0.0'
-        oldDNSMethod: consts.oldDNS.nativeDNSModule
-        # oldDNSMethod: consts.oldDNS.nodeDNSModule
+        oldDNSMethod: consts.oldDNS.NATIVE_DNS
+        # oldDNSMethod: consts.oldDNS.NODE_DNS
         oldDNS:
             address: '8.8.8.8' # Google (we recommend running PowerDNS yourself and sending it there)
             port: 53

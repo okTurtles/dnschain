@@ -55,7 +55,7 @@ module.exports = (dnsnmc) ->
             sig = "oldDNS{#{@dnsOpts.oldDNSMethod}}"
             @log.debug {fn:sig+'[start]', q:q}
 
-            if @dnsOpts.oldDNSMethod is consts.oldDNS.nativeDNSModule
+            if @dnsOpts.oldDNSMethod is consts.oldDNS.NATIVE_DNS
                 req = dns2.Request {question: q, server: @dnsOpts.oldDNS}
                 success = false
 
