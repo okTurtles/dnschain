@@ -23,4 +23,4 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 _(Nothing yet)_
 
 ## License
-Copyright (c) 2013 Greg Slepak. Licensed under the MIT license.
+Copyright (c) 2013 Greg Slepak. Licensed under the BSD 3-Clause license.
