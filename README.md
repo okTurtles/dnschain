@@ -3,13 +3,13 @@
 Fixes HTTPS security on the internet. Your connection to the Namecoin blockchain.
 
 ## Getting Started
-Install the module with: `npm install dnsnmc`
+<!-- Install the module with: `npm install dnsnmc`
 
 ```javascript
 var dnsnmc = require('dnsnmc');
 dnsnmc.awesome(); // "awesome"
 ```
-
+ -->
 ## Documentation
 _(Coming soon)_
 
