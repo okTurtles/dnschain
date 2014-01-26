@@ -73,10 +73,6 @@ module.exports = (dnsnmc) ->
                     @log.error {fn:sig+'[error]', err:err, answer:answer}
                     req.DNSErr = err
 
-                # TODO: find out why some requests appear to be getting lost!
-                #       (you can tell something is off cause a whole lot more
-                #       appears when using node method)
-
                 req.on 'end', =>
                     unless success
                         @log.warn {fn:sig+'[fail]', q:q, err:req.DNSErr}
@@ -90,7 +86,6 @@ module.exports = (dnsnmc) ->
                         @log.warn {fn:sig+'[fail]', q:q, err:err}
                         @sendErr res
                     else
-                        # addrs.forEach (a)-> res.answer.push ip2type(q.name, ttl)(a)
                         res.answer.push (addrs.map ip2type(q.name, ttl, QTYPE_NAME[q.type]))...
                         @log.debug {fn:sig+'[success]', answer:res.answer, q:q.name}
                         res.send()
@@ -110,8 +105,7 @@ module.exports = (dnsnmc) ->
             ttl = Math.floor(Math.random() * 3600) + 30
             @log.debug "received question", {q:q}
 
-            # for now we only handle A types.
-            # TODO: handle AAAA for IPv6!
+            # TODO: make sure we correctly handle AAAA
             # if q.type != NAME_QTYPE.A
             #     @log.debug "only support 'A' types ATM, deferring request!", {q:q}
             #     @oldDNSLookup(q, res)
