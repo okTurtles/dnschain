@@ -86,7 +86,7 @@ module.exports = (grunt)->
         # prevent watch from spawning. if we don't do this, we won't be able
         # to kill the child when files change.
         grunt.config ['watch', 'options'], spawn: false
-        grunt.task.run 'example:respawn', 'watch'
+        grunt.task.run 'compile', 'example:respawn', 'watch'
 
     child = running: false
 

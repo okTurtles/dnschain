@@ -20,9 +20,9 @@ module.exports = (dnsnmc) ->
         eval "var #{k} = dnsnmc.globals.#{k};"
 
     defaults =
-        log         : dnsnmc.DNSNMC::newLogger('RS')
+        log         : newLogger 'RS'
         stackedDelay: 0
-        resolver    : dnsnmc.defaults.dnsOpts.oldDNS
+        resolver    : config.get 'dns:oldDNS'
         answerFilter: (a) -> a.address
         reqMaker    : (cname) ->
             dns2.Request
@@ -33,10 +33,10 @@ module.exports = (dnsnmc) ->
         constructor: (@opts) ->
             @opts = _.cloneDeep @opts # clone these for safety in case outside code updates them
             @opts.objectMode ?= true
-            defaultProps = _.keys(defaults)
+            defaultProps = _.keys defaults
             # copy property values in @opts for those keys in 'defaults' into this object
             _.assign @, _.pick(_.defaults(@opts, defaults), defaultProps)
-            super _.omit(@opts, defaultProps)
+            super _.omit @opts, defaultProps
 
             @scheduler  = new StackedScheduler @opts
             @requests   = {}
@@ -50,47 +50,48 @@ module.exports = (dnsnmc) ->
             @scheduler.cancelAll()
             @push(null) if andStop
 
-        _transform: (cnames, encoding, callback) ->
-            cnames = [cnames] if typeof cnames is 'string'
+        _transform: (cname, encoding, callback) ->
+            if typeof cname != 'string'
+                tErr "cname isn't a string!", cname
+
             sig = "ResolverStream"
-            cnames.forEach (cname) =>
-                req = @reqMaker(cname)
-                answers = []
-                success = false
-                reqErr  = undefined
+            req = @reqMaker(cname)
+            answers = []
+            success = false
+            reqErr  = undefined
 
-                req.on 'message', (err, answer) =>
-                    if err?
-                        @log.error "should not have an error here!", {fn:sig+'[error]', err:err, answer:answer}
-                        reqErr = new Error(util.format "message error for '%j': %j", cname, err)
-                    else
-                        @log.debug "resolved %j => %j !", req.question, answer.answer, {fn:sig+'[message]', cname:cname}
-                        success = true
-                        answers.push answer.answer...
-                        answer.answer.forEach (a) => @push(@answerFilter(a))
+            req.on 'message', (err, answer) =>
+                if err?
+                    @log.error "should not have an error here!", {fn:sig+':error', err:err, answer:answer}
+                    reqErr = new Error(util.format "message error for '%j': %j", cname, err)
+                else
+                    @log.debug "resolved %j => %j !", req.question, answer.answer, {fn:sig+':message', cname:cname}
+                    success = true
+                    answers.push answer.answer...
+                    answer.answer.forEach (a) => @push(@answerFilter(a))
 
-                req.on 'timeout', =>
-                    @log.debug {fn:sig+'[timeout]', q:req.question}
-                    reqErr = new Error(util.format "timeout for '%j': %j", cname, req)
+            req.on 'timeout', =>
+                @log.debug {fn:sig+':timeout', q:req.question}
+                reqErr = new Error(util.format "timeout for '%j': %j", cname, req)
 
-                req.on 'error', (err) =>
-                    @log.warn {fn:sig+'[error]', q:req.question, err:err}
-                    reqErr = new Error(util.format "error for '%j': %j", cname, err)
+            req.on 'error', (err) =>
+                @log.warn {fn:sig+':error', q:req.question, err:err}
+                reqErr = new Error(util.format "error for '%j': %j", cname, err)
 
-                req.on 'end', =>
-                    delete @requests[req.rsReqID]
-                    if reqErr?
-                        @log.warn "request failed", {fn:sig+'endCb', err:reqErr, req:req}
-                        callback(reqErr)
-                    else
-                        @emit('answers', answers) if success
-                        callback()
-                        # it is possible that neither 'success' is true
-                        # nor is 'reqError' defined. This can happen
-                        # when 'cancelRequests' is called on us.
+            req.on 'end', =>
+                delete @requests[req.rsReqID]
+                if reqErr?
+                    @log.warn "request failed", {fn:sig+'endCb', err:reqErr, req:req}
+                    callback(reqErr)
+                else
+                    @emit('answers', answers) if success
+                    callback()
+                    # it is possible that neither 'success' is true
+                    # nor is 'reqError' defined. This can happen
+                    # when 'cancelRequests' is called on us.
 
-                req.rsReqID = @reqCounter++
+            req.rsReqID = @reqCounter++
 
-                @scheduler.schedule =>
-                    @requests[req.rsReqID] = req
-                    req.send()
+            @scheduler.schedule =>
+                @requests[req.rsReqID] = req
+                req.send()

@@ -24,26 +24,27 @@ module.exports = (dnsnmc) ->
 
     class DNSServer
         constructor: (@dnsnmc) ->
-            # @log = @dnsnmc.log.child server: "DNS"
-            @log = @dnsnmc.newLogger 'DNS'
+            @log = newLogger 'DNS'
             @log.debug "Loading DNSServer..."
 
-            # localize some values from the parent DNSNMC server (to avoid extra typing)
-            _.assign @, _.pick(@dnsnmc, ['dnsOpts', 'nmc'])
+            # this is just for development testing of NODE_DNS method
+            # dns.setServers ['8.8.8.8']
+            
+            if dns.getServers? and consts.oldDNS.NODE_DNS is config.get 'dns:oldDNSMethod'
+                blacklist = _.intersection ['127.0.0.1', '::1', 'localhost'], dns.getServers()
+                if blacklist.length > 0
+                    tErr "Cannot use NODE_DNS method when system DNS lists %j as a resolver! Would lead to infinite loop!", blacklist
 
             @server = dns2.createServer() or tErr "dns2 create"
-            @server.on 'socketError', (err) => @error('socketError', err)
+            @server.on 'socketError', (err) -> tErr err
             @server.on 'request', @callback.bind(@)
-            @server.serve(@dnsOpts.port, @dnsOpts.host)
-            @log.info 'started DNS', {opts: @dnsOpts}
+            @server.serve config.get('dns:port'), config.get('dns:host')
+
+            @log.info 'started DNS', config.get 'dns'
 
         shutdown: ->
             @log.debug 'shutting down!'
             @server.close()
-
-        error: (type, err) ->
-            @log.error {type:type, err: err}
-            if util.isError(err) then throw err else tErr err
 
         namecoinizeDomain: (domain) ->
             nmcDomain = S(domain).chompRight('.bit').s
@@ -52,48 +53,54 @@ module.exports = (dnsnmc) ->
             'd/' + nmcDomain # add 'd/' namespace
 
         oldDNSLookup: (q, res) ->
-            sig = "oldDNS{#{@dnsOpts.oldDNSMethod}}"
-            @log.debug {fn:sig+'[start]', q:q}
+            method = config.get 'dns:oldDNSMethod'
+            sig = "oldDNS{#{method}}"
 
-            if @dnsOpts.oldDNSMethod is consts.oldDNS.NATIVE_DNS
-                req = dns2.Request {question: q, server: @dnsOpts.oldDNS}
+            @log.debug {fn:sig+':start', q:q}
+
+            if method is consts.oldDNS.NATIVE_DNS
+                req = dns2.Request {question: q, server: config.get 'dns:oldDNS'}
                 success = false
 
                 req.on 'message', (err, answer) =>
                     if err?
-                        @log.error "should not have an error here!", {fn:sig+'[error]', err:err, answer:answer}
+                        @log.error "should not have an error here!", {fn:sig+':error', err:err, answer:answer}
                         req.DNSErr ?= err
                     else
                         success = true
                         res.answer.push answer.answer...
-                        @log.debug {fn:sig+'[success]', answer:res.answer, q:q}
+                        @log.debug {fn:sig+':success', answer:res.answer, q:q}
                         res.send()
                 
                 req.on 'error', (err) =>
-                    @log.error {fn:sig+'[error]', err:err, answer:answer}
+                    @log.error {fn:sig+':error', err:err, answer:answer}
                     req.DNSErr = err
 
                 req.on 'end', =>
                     unless success
-                        @log.warn {fn:sig+'[fail]', q:q, err:req.DNSErr}
+                        @log.warn {fn:sig+':fail', q:q, err:req.DNSErr}
                         @sendErr res
-                    @log.debug {fn:sig+'[end]', q:q}
+                    @log.debug {fn:sig+':end', q:q}
 
                 req.send()
             else
                 dns.resolve q.name, QTYPE_NAME[q.type], (err, addrs) =>
                     if err
-                        @log.warn {fn:sig+'[fail]', q:q, err:err}
+                        @log.debug {fn:sig+':fail', q:q, err:err}
                         @sendErr res
                     else
+                        # USING THIS METHOD IS DISCOURAGED BECAUSE IT DOESN'T
+                        # PROVIDE US WITH CORRECT TTL VALUES!!
+                        # TODO: pick an appropriate TTL value!
+                        ttl = Math.floor(Math.random() * 3600) + 30
                         res.answer.push (addrs.map ip2type(q.name, ttl, QTYPE_NAME[q.type]))...
-                        @log.debug {fn:sig+'[success]', answer:res.answer, q:q.name}
+                        @log.debug {fn:sig+':success', answer:res.answer, q:q.name}
                         res.send()
 
 
         sendErr: (res, code) ->
             res.header.rcode = code ? NAME_RCODE.SERVFAIL
-            @log.warn {fn:'sendErr', code:RCODE_NAME[code]}
+            @log.debug {fn:'sendErr', code:RCODE_NAME[code]}
             res.send()
 
         callback: (req, res) ->
@@ -101,9 +108,9 @@ module.exports = (dnsnmc) ->
             # and few servers do it, so we only answer the first question:
             # https://stackoverflow.com/questions/4082081/requesting-a-and-aaaa-records-in-single-dns-query
             q = req.question[0]
-            # TODO: pick an appropriate TTL value
-            ttl = Math.floor(Math.random() * 3600) + 30
-            @log.debug "received question", {q:q}
+            
+            ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
+            @log.debug "received question", q
 
             # TODO: make sure we correctly handle AAAA
             # if q.type != NAME_QTYPE.A
@@ -112,7 +119,10 @@ module.exports = (dnsnmc) ->
 
             if S(q.name).endsWith '.bit'
                 nmcDomain = @namecoinizeDomain q.name
-                @nmc.name_show nmcDomain, (err, result) =>
+                @log.debug {fn: 'cb|.bit', nmcDomain:nmcDomain, q:q}
+
+                @dnsnmc.nmc.resolve nmcDomain, (err, result) =>
+                    @log.debug {fn: 'nmc_show|cb'}
                     if err
                         @log.error {fn:'nmc_show', err:err, result:result, q:q}
                         @sendErr res
@@ -193,8 +203,8 @@ module.exports = (dnsnmc) ->
             
             else if S(q.name).endsWith '.nmc'
                 res.answer.push ip2type(q.name,ttl,QTYPE_NAME[q.type])(externalIP())
-                @log.debug {fn:'.nmc', d:q.name, answer:res.answer}
+                @log.debug {fn:'cb|.nmc', q:q, answer:res.answer}
                 res.send()
             else
-                @log.debug "deferring question", {q:q}
-                @oldDNSLookup(q, res)
+                @log.debug "deferring question", {fn: "cb|else", q:q}
+                @oldDNSLookup q, res
