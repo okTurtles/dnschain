@@ -1,21 +1,21 @@
 ###
 
-dnsnmc
-http://dnsnmc.net
+dnschain
+http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
 Licensed under the BSD 3-Clause license.
 
 ###
 
-module.exports = (dnsnmc) ->
+module.exports = (dnschain) ->
     # expose these into our namespace
-    for k of dnsnmc.globals
-        eval "var #{k} = dnsnmc.globals.#{k};"
+    for k of dnschain.globals
+        eval "var #{k} = dnschain.globals.#{k};"
 
     class HTTPServer
-        constructor: (@dnsnmc) ->
-            # @log = @dnsnmc.log.child server: "HTTP"
+        constructor: (@dnschain) ->
+            # @log = @dnschain.log.child server: "HTTP"
             @log = newLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
 
@@ -34,7 +34,7 @@ module.exports = (dnsnmc) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
             @log.debug {fn:'cb', path:path, url:req.url}
 
-            @dnsnmc.nmc.resolve path, (err,result) =>
+            @dnschain.nmc.resolve path, (err,result) =>
                 if err
                     res.writeHead 404,  'Content-Type': 'text/plain'
                     res.write "Not Found: #{path}"

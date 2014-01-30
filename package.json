@@ -1,13 +1,13 @@
 {
-  "name": "dnsnmc",
+  "name": "dnschain",
   "version": "0.0.1",
-  "main": "lib/dnsnmc.js",
-  "description": "DNSNMC replaces Certificate Authorities with Namecoin and fixes HTTPS security",
+  "main": "lib/dnschain.js",
+  "description": "DNSChain fixes HTTPS security by replacing certificate authorities with blockchain-technology, and more!",
   "repository": {
     "type": "git",
-    "url": "https://github.com/okTurtles/dnsnmc"
+    "url": "https://github.com/okTurtles/dnschain"
   },
-  "homepage": "http://dnsnmc.net",
+  "homepage": "http://dnschain.net",
   "license": "BSD-3-Clause",
   "author": {
     "name": "Greg Slepak",
@@ -22,8 +22,6 @@
     "event-stream": "~3.1.0",
     "lodash-contrib": "~241.3.1",
     "stream-array": "~0.1.3",
-    "inquirer": "~0.4.0",
-    "cli-color": "~0.2.3",
     "winston": "~0.7.2",
     "nconf": "~0.6.9",
     "properties": "~1.1.3"
@@ -31,8 +29,6 @@
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-coffee": "~0.7.0",
-    "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-copy": "~0.4.1",
     "grunt-coffeelint": "~0.0.7",
     "matchdep": "~0.1.2"

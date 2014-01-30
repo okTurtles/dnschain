@@ -1,13 +1,13 @@
-# dnsnmc [![Build Status](https://secure.travis-ci.org/okTurtles/dnsnmc.png?branch=master)](http://travis-ci.org/okTurtles/dnsnmc)
+# dnschain [![Build Status](https://secure.travis-ci.org/okTurtles/dnschain.png?branch=master)](http://travis-ci.org/okTurtles/dnschain)
 
-Fixes HTTPS security on the internet. Your connection to the Namecoin blockchain.
+DNSChain fixes HTTPS security by replacing certificate authorities with blockchain-technology, and more!
 
 ## Getting Started
-<!-- Install the module with: `npm install dnsnmc`
+<!-- Install the module with: `npm install dnschain`
 
 ```javascript
-var dnsnmc = require('dnsnmc');
-dnsnmc.awesome(); // "awesome"
+var dnschain = require('dnschain');
+dnschain.awesome(); // "awesome"
 ```
  -->
 ## Documentation

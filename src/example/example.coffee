@@ -8,4 +8,4 @@ process.on 'SIGINT', die
 process.on 'disconnect', die
 
 console.log "Demo starting..."
-server = (require '../lib/dnsnmc').createServer()
+server = require('../lib/dnschain').createServer()

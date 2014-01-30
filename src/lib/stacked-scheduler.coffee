@@ -1,7 +1,7 @@
 ###
 
-dnsnmc
-http://dnsnmc.net
+dnschain
+http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
 Licensed under the BSD 3-Clause license.
@@ -10,10 +10,10 @@ Licensed under the BSD 3-Clause license.
 
 # TODO: go through 'TODO's!
 
-module.exports = (dnsnmc) ->
+module.exports = (dnschain) ->
     # expose these into our namespace
-    for k of dnsnmc.globals
-        eval "var #{k} = dnsnmc.globals.#{k};"
+    for k of dnschain.globals
+        eval "var #{k} = dnschain.globals.#{k};"
 
     class StackedScheduler
         constructor: ({@stackedDelay}) ->

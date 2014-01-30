@@ -1,7 +1,7 @@
 ###
 
-dnsnmc
-http://dnsnmc.net
+dnschain
+http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
 Licensed under the BSD 3-Clause license.
@@ -12,12 +12,12 @@ Transform = require('stream').Transform
 
 # objectMode is one by default
 
-module.exports = (dnsnmc) ->
-    StackedScheduler = require('./stacked-scheduler')(dnsnmc)
+module.exports = (dnschain) ->
+    StackedScheduler = require('./stacked-scheduler')(dnschain)
 
     # expose these into our namespace
-    for k of dnsnmc.globals
-        eval "var #{k} = dnsnmc.globals.#{k};"
+    for k of dnschain.globals
+        eval "var #{k} = dnschain.globals.#{k};"
 
     defaults =
         log         : newLogger 'RS'

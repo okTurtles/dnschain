@@ -1,7 +1,7 @@
 ###
 
-dnsnmc
-http://dnsnmc.net
+dnschain
+http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
 Licensed under the BSD 3-Clause license.
@@ -10,12 +10,12 @@ Licensed under the BSD 3-Clause license.
 
 # TODO: go through 'TODO's!
 
-module.exports = (dnsnmc) ->
+module.exports = (dnschain) ->
     # expose these into our namespace
-    for k of dnsnmc.globals
-        eval "var #{k} = dnsnmc.globals.#{k};"
+    for k of dnschain.globals
+        eval "var #{k} = dnschain.globals.#{k};"
 
-    ResolverStream = require('./resolver-stream')(dnsnmc)
+    ResolverStream = require('./resolver-stream')(dnschain)
 
     QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
     NAME_QTYPE = dns2.consts.NAME_TO_QTYPE
@@ -23,7 +23,7 @@ module.exports = (dnsnmc) ->
     RCODE_NAME = dns2.consts.RCODE_TO_NAME
 
     class DNSServer
-        constructor: (@dnsnmc) ->
+        constructor: (@dnschain) ->
             @log = newLogger 'DNS'
             @log.debug "Loading DNSServer..."
 
@@ -121,7 +121,7 @@ module.exports = (dnsnmc) ->
                 nmcDomain = @namecoinizeDomain q.name
                 @log.debug {fn: 'cb|.bit', nmcDomain:nmcDomain, q:q}
 
-                @dnsnmc.nmc.resolve nmcDomain, (err, result) =>
+                @dnschain.nmc.resolve nmcDomain, (err, result) =>
                     @log.debug {fn: 'nmc_show|cb'}
                     if err
                         @log.error {fn:'nmc_show', err:err, result:result, q:q}

@@ -1,18 +1,18 @@
 ###
 
-dnsnmc
-http://dnsnmc.net
+dnschain
+http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
 Licensed under the BSD 3-Clause license.
 
 ###
 
-module.exports = (dnsnmc) ->
+module.exports = (dnschain) ->
 
     # 1. global dependencies
 
-    dnsnmc.globals =
+    dnschain.globals =
         rpc    : 'json-rpc2'
         _      : 'lodash-contrib'
         S      : 'string'
@@ -22,15 +22,15 @@ module.exports = (dnsnmc) ->
 
     # no renaming done for these
     ['net', 'dns', 'http', 'url', 'util', 'os', 'path', 'winston'].forEach (d) ->
-        dnsnmc.globals[d] = d
+        dnschain.globals[d] = d
 
-    # replace all the string values in dnsnmc.globals with the module they represent
+    # replace all the string values in dnschain.globals with the module they represent
     # and expose them into this function's namespace
-    for k,v of dnsnmc.globals
-        eval "var #{k} = dnsnmc.globals.#{k} = require('#{v}');"
+    for k,v of dnschain.globals
+        eval "var #{k} = dnschain.globals.#{k} = require('#{v}');"
 
     # 2. global constants
-    _.assign dnsnmc.globals, consts:
+    _.assign dnschain.globals, consts:
         # for questions that the blockchain cannot answer
         # (hopefully these will disappear with time)
         oldDNS:
@@ -44,10 +44,10 @@ module.exports = (dnsnmc) ->
             NODE_DNS: 1 # Prior to node 0.11.x will ignore dnsOpts.oldDNS and use OS-specified DNS. Currently ignores 'dnsOpts.oldDNS' in favor of OS-specified DNS even in node 0.11.x (simply needs to be implemented). TODO: <- this!
     
     # 3. config
-    config = dnsnmc.globals.config = require('./config')(dnsnmc)
+    config = dnschain.globals.config = require('./config')(dnschain)
 
     # 4. create global functions, and then return the entire globals object
-    _.assign dnsnmc.globals, {
+    _.assign dnschain.globals, {
         externalIP: do ->
             cachedIP = null
             faces = os.networkInterfaces()

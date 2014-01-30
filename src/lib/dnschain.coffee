@@ -1,7 +1,7 @@
 ###
 
-dnsnmc
-http://dnsnmc.net
+dnschain
+http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
 Licensed under the BSD 3-Clause license.
@@ -15,8 +15,8 @@ Licensed under the BSD 3-Clause license.
 design:
 
 - configuration:
-    - local in ~/.dnsnmc
-    - global in /etc/dnsnmc
+    - local in ~/.dnschain
+    - global in /etc/dnschain
     - support command line providing configuration (overrides both of the above)
     - options:
         - everything in exports.defaults
@@ -28,7 +28,7 @@ design:
 
 - code
     - design code in a modular library-friendly way in case
-      someone wants to use DNSNMC in a library or to have multiple DNSNMC
+      someone wants to use DNSChain in a library or to have multiple DNSChain
       servers on the same machine (for whatever reason).
 
 
@@ -51,22 +51,22 @@ DNS libraries used and considered:
 for k of require('./globals')(exports)
     eval "var #{k} = exports.globals.#{k};"
 
-exports.createServer = (a...) -> new DNSNMC a...
+exports.createServer = (a...) -> new DNSChain a...
 
 NMCPeer = require('./nmc')(exports)
 DNSServer = require('./dns')(exports)
 HTTPServer = require('./http')(exports)
 
-exports.DNSNMC = class DNSNMC
+exports.DNSChain = class DNSChain
     constructor: ->
-        @log = newLogger 'DNSNMC'
+        @log = newLogger 'DNSChain'
         try
             @nmc = new NMCPeer @
             @dns = new DNSServer @
             @http = new HTTPServer @
-            @log.info "DNSNMC started with externalIP: ", externalIP()
+            @log.info "DNSChain started with externalIP: ", externalIP()
         catch e
-            @log.error "dnsnmc failed to start: ", e
+            @log.error "dnschain failed to start: ", e
             @shutdown()
             throw e # rethrow
 

@@ -1,8 +1,16 @@
-'use strict'
+###
+
+dnschain
+http://dnschain.net
+
+Copyright (c) 2013 Greg Slepak
+Licensed under the BSD 3-Clause license.
+
+###
 
 module.exports = (grunt)->
     # load all grunt tasks
-    (require 'matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks)
+    require('matchdep').filterDev('grunt-*').forEach grunt.loadNpmTasks
 
     _ = grunt.util._
     path = require 'path'
@@ -10,24 +18,15 @@ module.exports = (grunt)->
     child_process = require 'child_process'
 
     # Project configuration.
-    grunt.initConfig { # <-- Per helpful-convention, require braces around long blocks
-    
-        pkg: grunt.file.readJSON('package.json')
+    grunt.initConfig
+        pkg: grunt.file.readJSON 'package.json'
+        example: './src/example/example.coffee'
 
         coffeelint:
             gruntfile: ['<%= watch.gruntfile.files %>']
             src: ['<%= watch.src.files %>']
             options:
                 configFile: "coffeelint.json"
-
-        coffee:
-            src:
-                expand: true
-                cwd: 'src/'
-                src: ['**/*.coffee']
-                dest: 'out/'
-                ext: '.js'
-
         watch:
             options:
                 spawn: true
@@ -36,57 +35,20 @@ module.exports = (grunt)->
                 tasks: ['coffeelint:gruntfile']
             src:
                 files: ['src/**/*.coffee']
-                tasks: ['coffeelint:src', 'coffee:src', 'example:respawn']
-
-        clean: ['out/']
-
-        nodemon:
-            dev:
-                script: 'src/example/example.coffee'
-                watch: ['src']
-                delayTime: 1000 # 1 second
-                ext: 'js,coffee'
-            dev2:
-                watch: ['src']
-                delayTime: 1000 # 1 second
-                ext: 'js,coffee'
-                exec: 'coffee'
-                args: ['src/example/example.coffee', '-n']
-
-        concurrent:
-            dev:
-                tasks: ['nodemon:dev', 'watch']
-                options:
-                    logConcurrentOutput: true
-    
-    } # <-- Per helpful-convention, require braces around long blocks
+                tasks: ['coffeelint:src', 'example:respawn']
 
     grunt.event.on 'watch', (action, files, target)->
         grunt.log.writeln "#{target}: #{files} has #{action}"
-
-        # coffeelint
         grunt.config ['coffeelint', target], src: files
 
-        # coffee
-        if target != 'gruntfile'
-            coffeeData = grunt.config ['coffee', target]
-            files = [files] if _.isString files
-            files = files.map (file)-> path.relative coffeeData.cwd, file
-            coffeeData.src = files
-            grunt.config ['coffee', target], coffeeData
-
     # tasks.
-    grunt.registerTask 'compile', ['coffeelint', 'coffee']
-    grunt.registerTask 'default', ['compile']
-    # grunt.registerTask 'dev', ['compile', 'concurrent:dev']
-    # grunt.registerTask 'dev', ['compile', 'nodemon:dev2']
-
+    grunt.registerTask 'default', ['example']
 
     grunt.registerTask 'example', 'Run Example', ->
         # prevent watch from spawning. if we don't do this, we won't be able
         # to kill the child when files change.
         grunt.config ['watch', 'options'], spawn: false
-        grunt.task.run 'compile', 'example:respawn', 'watch'
+        grunt.task.run 'example:respawn', 'watch'
 
     child = running: false
 
@@ -96,16 +58,16 @@ module.exports = (grunt)->
         if child.running
             grunt.log.writeln "Killing child!"
             child.running = false
-            child.proc.kill('SIGINT') # nicer...
+            child.proc.kill 'SIGINT' # nicer...
 
         spawn = (child) ->
             grunt.log.writeln "example: spawning child..."
-            child.proc = child_process.fork grunt.config('nodemon.dev.script')
+            child.proc = child_process.fork grunt.config 'example'
             child.running = true
             child.proc.on 'exit', (c) ->
                 if child.running
                     grunt.log.error "child exited with code: #{c}"
-                    process.exit(c)
+                    process.exit c
             done()
 
         setTimeout spawn, 1000, child # 1 second later

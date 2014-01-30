@@ -1,21 +1,21 @@
 ###
 
-dnsnmc
-http://dnsnmc.net
+dnschain
+http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
 Licensed under the BSD 3-Clause license.
 
 ###
 
-module.exports = (dnsnmc) ->
+module.exports = (dnschain) ->
     # expose these into our namespace
-    for k of dnsnmc.globals
-        eval "var #{k} = dnsnmc.globals.#{k};"
+    for k of dnschain.globals
+        eval "var #{k} = dnschain.globals.#{k};"
 
     class NMCPeer
-        constructor: (@dnsnmc) ->
-            # @log = @dnsnmc.log.child server: "NMC"
+        constructor: (@dnschain) ->
+            # @log = @dnschain.log.child server: "NMC"
             @log = newLogger 'NMC'
             @log.debug "Loading NMCPeer..."
             
