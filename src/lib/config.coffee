@@ -30,7 +30,7 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    dnschainDefaults =
+    dnscDefs =
         log:
             level: 'debug'
             cli: tty.isatty process.stdout
@@ -49,7 +49,7 @@ module.exports = (dnschain) ->
             tlsPort: 443
             host: '0.0.0.0'
 
-    nmcDefaults =
+    nmcDefs =
         rpcport: 8336
         rpcconnect: '127.0.0.1'
         rpcuser: undefined
@@ -62,33 +62,31 @@ module.exports = (dnschain) ->
     props.parse = _.partialRight props.parse, fileFormatOpts
     props.stringify = _.partialRight props.stringify, fileFormatOpts
     
-    appname = "dnschain"
-    dnschain = nconf.argv().env()
-    nmc = new nconf.Provider()
 
-    if process.env.APPDATA?
-        nmc.file(
-            file: path.join(process.env.APPDATA, "Namecoin/namecoin.conf")
-            format: props
-        )
+    # load our config
+    appname = "dnschain"
+    nconf.argv().env()
 
     if process.env.HOME?
-        dnschain.file(file: path.join(process.env.HOME, ".#{appname}/#{appname}.conf"))
-            .file(file: path.join(process.env.HOME, ".#{appname}.conf"))
-        # namecoin
-        nmc.file(
-            file: path.join(process.env.HOME, ".namecoin/namecoin.conf")
-            format: props
-        ).file(
-            file: path.join(process.env.HOME, "Library/Application Support/Namecoin/namecoin.conf")
-            format: props
-        )
-    
-    dnschain.file file:"/etc/#{appname}/#{appname}.conf"
+        dnscConf = path.join process.env.HOME, ".#{appname}.conf"
+        unless fs.existsSync dnscConf
+            dnscConf = path.join process.env.HOME, ".#{appname}", "#{appname}.conf"
+        nconf.file 'user', {file: dnscConf, format: props}
+
+    nconf.file 'global', {file:"/etc/#{appname}/#{appname}.conf", format:props}
+
+    # namecoin
+    nmcConf = if process.env.APPDATA?
+        path.join process.env.APPDATA, "Namecoin", "namecoin.conf"
+    else if process.env.HOME?
+        path.join process.env.HOME, ".namecoin", "namecoin.conf"
+
+    nmc = new nconf.Provider()
+    nmc.file('user', {file:nmcConf,format:props}) if nmcConf
 
     stores =
-        dnschain: dnschain.defaults dnschainDefaults
-        nmc: nmc.defaults nmcDefaults
+        dnschain: nconf.defaults dnscDefs
+        nmc: nmc.defaults nmcDefs
 
     config =
         get: (key, store="dnschain") -> stores[store].get key

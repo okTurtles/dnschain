@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+if (process.env.NODE_PATH == null) {
+    console.error('ERROR: NODE_PATH not found in environment variables!');
+    process.exit(1);
+}
+
+require('coffee-script').register();
+require(require('path').join(__dirname, '..', 'src', 'lib', 'dnschain')).createServer();
