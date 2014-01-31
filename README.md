@@ -2,6 +2,12 @@
 
 DNSChain fixes HTTPS security by replacing certificate authorities with blockchain-technology, and more!
 
+## Requirements
+
+1. coffee-script 1.7.1 (or higher)
+2. node
+3. npm
+
 ## Getting Started
 <!-- Install the module with: `npm install dnschain`
 
