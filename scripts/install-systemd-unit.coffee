@@ -1,3 +1,5 @@
+#!/usr/bin/env coffee
+
 deps =
     _   : 'lodash-contrib'
     S   : 'string'
