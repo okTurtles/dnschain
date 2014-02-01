@@ -71,11 +71,11 @@ child_process.exec "npm -g bin", (err, stdout, stderr) ->
 
             log.info "\nFinal configuration:\n\n%s\n", unitStr.split('\n').map((l)->"   #{l}").join('\n')
 
-            fs.writeFile answers.path, unitStr, mode: 0o644, (err) ->
-                if err
-                    log.error err.stack
-                else
-                    log.info "Wrote:  #{answers.path.bold.cyan}\n\nNow enable and start the service using the #{'systemctl'.bold.green} command."
-
-
-
+            v = (s) -> /^[yn]/i.test s
+            inquirer.prompt [{name:'yes',message:'Write file? (y/n)',validate:v}], (confirm)->
+                if S(confirm.yes.toLowerCase()).startsWith 'y'
+                    fs.writeFile answers.path, unitStr, mode: 0o644, (err) ->
+                        if err
+                            log.error err.stack
+                        else
+                            log.info "Wrote:  #{answers.path.bold.cyan}\n\nNow enable and start the service using the #{'systemctl'.bold.green} command."
