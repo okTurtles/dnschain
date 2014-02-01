@@ -6,7 +6,7 @@ deps =
     prop: 'properties'
     log : 'winston'
 
-['path', 'fs', 'util', 'os', 'inquirer', 'child_process'].forEach (d)->
+for d in ['path', 'fs', 'util', 'os', 'inquirer', 'child_process']
     deps[d] = d
 
 for k,v of deps
@@ -16,7 +16,6 @@ log.cli()
 
 pOpts =
     sections: true
-    # replacer: -> @assert()
     replacer: ->
         pOpts._separator = "=" # hack to remove spaces b/w keys & vals
                                # to match systemd unit file convention
@@ -34,6 +33,7 @@ child_process.exec "npm -g bin", (err, stdout, stderr) ->
         log.error(stdout) if stdout? and stdout != ''
         log.error(stderr) if stderr? and stderr != ''
         log.error err.stack
+        process.exit 1
     else
         questions = [
             name: 'User'
@@ -71,11 +71,12 @@ child_process.exec "npm -g bin", (err, stdout, stderr) ->
 
             log.info "\nFinal configuration:\n\n%s\n", unitStr.split('\n').map((l)->"   #{l}").join('\n')
 
-            v = (s) -> /^[yn]/i.test s
+            v = (s) -> /^[yn]s*$/i.test s
             inquirer.prompt [{name:'yes',message:'Write file? (y/n)',validate:v}], (confirm)->
-                if S(confirm.yes.toLowerCase()).startsWith 'y'
+                if confirm.yes.toLowerCase() is 'y'
                     fs.writeFile answers.path, unitStr, mode: 0o644, (err) ->
                         if err
                             log.error err.stack
+                            process.exit 1
                         else
                             log.info "Wrote:  #{answers.path.bold.cyan}\n\nNow enable and start the service using the #{'systemctl'.bold.green} command."

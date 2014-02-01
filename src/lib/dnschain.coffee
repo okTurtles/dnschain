@@ -64,7 +64,7 @@ exports.DNSChain = class DNSChain
             @nmc = new NMCPeer @
             @dns = new DNSServer @
             @http = new HTTPServer @
-            @log.info "DNSChain started with externalIP: ", externalIP()
+            @log.info "DNSChain started and advertising on: #{config.get 'dns:externalIP'}"
         catch e
             @log.error "DNSChain failed to start: ", e
             @shutdown()

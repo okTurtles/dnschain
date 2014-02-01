@@ -202,7 +202,7 @@ module.exports = (dnschain) ->
                             @sendErr res, NAME_RCODE.NOTFOUND
             
             else if S(q.name).endsWith '.nmc'
-                res.answer.push ip2type(q.name,ttl,QTYPE_NAME[q.type])(externalIP())
+                res.answer.push ip2type(q.name,ttl,QTYPE_NAME[q.type])(config.get 'dns:externalIP')
                 @log.debug {fn:'cb|.nmc', q:q, answer:res.answer}
                 res.send()
             else

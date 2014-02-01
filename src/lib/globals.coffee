@@ -21,7 +21,7 @@ module.exports = (dnschain) ->
         sa     : 'stream-array'
 
     # no renaming done for these
-    ['net', 'dns', 'http', 'url', 'util', 'os', 'path', 'winston'].forEach (d) ->
+    for d in ['net', 'dns', 'http', 'url', 'util', 'os', 'path', 'winston']
         dnschain.globals[d] = d
 
     # replace all the string values in dnschain.globals with the module they represent
@@ -43,10 +43,7 @@ module.exports = (dnschain) ->
             # !! WARNING !!
             NODE_DNS: 1 # Prior to node 0.11.x will ignore dnsOpts.oldDNS and use OS-specified DNS. Currently ignores 'dnsOpts.oldDNS' in favor of OS-specified DNS even in node 0.11.x (simply needs to be implemented). TODO: <- this!
     
-    # 3. config
-    config = dnschain.globals.config = require('./config')(dnschain)
-
-    # 4. create global functions, and then return the entire globals object
+    # 3. create global functions, and then return the entire globals object
     _.assign dnschain.globals, {
         externalIP: do ->
             cachedIP = null
@@ -86,3 +83,9 @@ module.exports = (dnschain) ->
         ip2type: (d, ttl, type='A') ->
             (ip)-> dns2[type] {name:d, address:ip, ttl:ttl}
     }
+
+    # 4. config
+    config = dnschain.globals.config = require('./config')(dnschain)
+
+    # 5. return the globals object
+    dnschain.globals

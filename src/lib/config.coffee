@@ -11,13 +11,14 @@ Licensed under the BSD 3-Clause license.
 # TODO: go through 'TODO's!
 
 ###
-- configuration:
-    - local in ~/.dnschain
-    - global in /etc/dnschain
-    - support command line providing configuration (overrides both of the above)
-    - options:
-        - everything in exports.defaults
-        - logging options for bunyan
+- DNSChain configuration:
+    - local in ~/.dnschain.conf (or ~/.dnschain/dnschain.conf)
+    - global in /etc/dnschain/dnschain.conf
+- Namecoin
+    - Non-Windows: ~/.namecoin/namecoin.conf
+    - Windows: %APPDATA%\Namecoin\namecoin.conf
+
+All parametrs can be overwritten using command line args and/or environment variables.
 ###
 
 nconf = require 'nconf'
@@ -40,7 +41,8 @@ module.exports = (dnschain) ->
             timestamp: true
         dns:
             port: 53
-            host: '0.0.0.0'
+            host: '0.0.0.0' # what we bind to
+            externalIP: externalIP() # Advertise this IP for "meta-TLDs" like dns.nmc
             oldDNSMethod: consts.oldDNS.NATIVE_DNS # Use NATIVE_DNS until node gives TTLs!
             oldDNS:
                 address: '8.8.8.8' # Google (we recommend running PowerDNS yourself and sending it there)
@@ -49,7 +51,7 @@ module.exports = (dnschain) ->
         http:
             port: 80
             tlsPort: 443
-            host: '0.0.0.0'
+            host: '0.0.0.0' # what we bind to
 
     nmcDefs =
         rpcport: 8336
