@@ -30,6 +30,8 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
+    # TODO: add path to our private key for signing answers
+
     dnscDefs =
         log:
             level: 'debug'
@@ -76,12 +78,13 @@ module.exports = (dnschain) ->
     nconf.file 'global', {file:"/etc/#{appname}/#{appname}.conf", format:props}
 
     # namecoin
+    nmc = (new nconf.Provider()).argv().env()
+    
     nmcConf = if process.env.APPDATA?
         path.join process.env.APPDATA, "Namecoin", "namecoin.conf"
     else if process.env.HOME?
         path.join process.env.HOME, ".namecoin", "namecoin.conf"
 
-    nmc = new nconf.Provider()
     nmc.file('user', {file:nmcConf,format:props}) if nmcConf
 
     stores =

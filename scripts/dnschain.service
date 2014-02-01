@@ -1,0 +1,17 @@
+[Unit]
+Description=dnschain
+After=network.target
+Wants=namecoin.service
+
+[Service]
+ExecStart=/usr/local/bin/dnschain
+Restart=always
+RestartSec=1
+User=dns
+Group=dns
+WorkingDirectory=/home/dns
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

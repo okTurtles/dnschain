@@ -30,6 +30,8 @@ module.exports = (dnschain) ->
             @log.debug 'shutting down!'
             @server.close()
 
+        # TODO: send a signed header proving the authenticity of our answer
+
         callback: (req, res) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
             @log.debug {fn:'cb', path:path, url:req.url}

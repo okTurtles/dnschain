@@ -66,7 +66,7 @@ exports.DNSChain = class DNSChain
             @http = new HTTPServer @
             @log.info "DNSChain started with externalIP: ", externalIP()
         catch e
-            @log.error "dnschain failed to start: ", e
+            @log.error "DNSChain failed to start: ", e
             @shutdown()
             throw e # rethrow
 
