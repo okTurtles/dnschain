@@ -12,6 +12,7 @@ Group=dns
 WorkingDirectory=/home/dns
 PrivateTmp=true
 NoNewPrivileges=true
+Capabilities=CAP_NET_BIND_SERVICE
 
 [Install]
 WantedBy=multi-user.target

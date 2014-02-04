@@ -1,6 +1,11 @@
-# dnschain [![Build Status](https://secure.travis-ci.org/okTurtles/dnschain.png?branch=master)](http://travis-ci.org/okTurtles/dnschain)
+# DNSChain
+<!-- # DNSChain [![Build Status](https://secure.travis-ci.org/okTurtles/dnschain.png?branch=master)](http://travis-ci.org/okTurtles/dnschain) -->
 
 DNSChain fixes HTTPS security by replacing certificate authorities with blockchain-technology, and more!
+
+## How to start using DNSChain _\*right now\*!_
+
+
 
 ## Requirements
 

@@ -201,9 +201,11 @@ module.exports = (dnschain) ->
                             @log.warn {fn: 'nmc_show|404', q:q}
                             @sendErr res, NAME_RCODE.NOTFOUND
             
-            else if S(q.name).endsWith '.nmc'
+            else if S(q.name).endsWith '.dns'
+                # TODO: right now we're doing a catch-all and pretending they asked
+                #       for namecoin.dns...
                 res.answer.push ip2type(q.name,ttl,QTYPE_NAME[q.type])(config.get 'dns:externalIP')
-                @log.debug {fn:'cb|.nmc', q:q, answer:res.answer}
+                @log.debug {fn:'cb|.dns', q:q, answer:res.answer}
                 res.send()
             else
                 @log.debug "deferring question", {fn: "cb|else", q:q}
