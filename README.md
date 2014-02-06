@@ -28,7 +28,19 @@ _(Coming soon)_
 _(Coming soon)_
 
 ## Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Lint and test your code using [Grunt](http://gruntjs.com/).
+
+You can contribute however you would like, but we recommend first chatting with the dev team about your ideas (forums coming soon, for now send an email to hi at okturtles.com, or tweet [@DNSChain](https://twitter.com/dnschain)). This will help minimize wasted efforts.
+
+### Style and Process
+
+To test and develop at the same time, simply run `sudo grunt example` and set your computer's DNS to use `127.0.0.1`. Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
+
+## TODO
+
+- Support command line arguments
+    - `portmap` for `iptables` support.
+    - `-v`
+    - `-h`
 
 ## Release History
 _(Nothing yet)_

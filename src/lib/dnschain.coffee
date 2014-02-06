@@ -65,6 +65,9 @@ exports.DNSChain = class DNSChain
             @dns = new DNSServer @
             @http = new HTTPServer @
             @log.info "DNSChain started and advertising on: #{config.get 'dns:externalIP'}"
+
+            if process.getuid() isnt 0 and config.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
+                @log.warn "DNS port isn't 53!".bold.red, "While testing you should either run me as root or make sure to set standard ports in the configuration!".bold
         catch e
             @log.error "DNSChain failed to start: ", e
             @shutdown()

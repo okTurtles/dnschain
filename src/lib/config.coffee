@@ -32,6 +32,7 @@ module.exports = (dnschain) ->
         eval "var #{k} = dnschain.globals.#{k};"
 
     # TODO: add path to our private key for signing answers
+    amRoot = process.getuid() is 0
 
     dnscDefs =
         log:
@@ -40,7 +41,7 @@ module.exports = (dnschain) ->
             pretty: tty.isatty process.stdout
             timestamp: true
         dns:
-            port: 53
+            port: if amRoot then 53 else 5333
             host: '0.0.0.0' # what we bind to
             externalIP: externalIP() # Advertise this IP for "meta-TLDs" like dns.nmc
             oldDNSMethod: consts.oldDNS.NATIVE_DNS # Use NATIVE_DNS until node gives TTLs!
@@ -49,8 +50,8 @@ module.exports = (dnschain) ->
                 port: 53
                 type: 'udp'
         http:
-            port: 80
-            tlsPort: 443
+            port: if amRoot then 80 else 8088
+            tlsPort: if amRoot then 443 else 4443
             host: '0.0.0.0' # what we bind to
 
     nmcDefs =

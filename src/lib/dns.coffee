@@ -10,9 +10,7 @@ Licensed under the BSD 3-Clause license.
 
 # TODO: go through 'TODO's!
 #       
-# TODO: support ANY query (type=255), seems broken in native-dns
-# TODO: figure out whether we should res.header.ra = 1 (recursion avail)
-# TODO: support edns
+# TODO: check if we're missing any edns support
 
 module.exports = (dnschain) ->
     # expose these into our namespace
@@ -63,8 +61,11 @@ module.exports = (dnschain) ->
             @log.debug {fn:sig+':start', q:q}
 
             if method is consts.oldDNS.NATIVE_DNS
-                req = dns2.Request {question: q, server: config.get 'dns:oldDNS'}
-                # res.header.ra = 1
+                req = new dns2.Request
+                    question: q
+                    server  : config.get 'dns:oldDNS'
+                    try_edns: q.type is NAME_QTYPE.ANY
+                
                 success = false
 
                 req.on 'message', (err, answer) =>
@@ -73,6 +74,9 @@ module.exports = (dnschain) ->
                         req.DNSErr ?= err
                     else
                         success = true
+                        res.edns_version = 0 if req.try_edns
+                        res.header.ra = answer.header.ra
+
                         for a in ['answer', 'authority', 'additional'] when answer[a].length?
                             res[a].push answer[a]...
                         
@@ -84,12 +88,11 @@ module.exports = (dnschain) ->
 
                 req.on 'end', =>
                     if success
-                        @log.debug {fn:sig+':success', q:q, res:res}
+                        @log.debug {fn:sig+':success', q:q, res: _.omit(res, '_socket')}
                         res.send()
                     else
-                        @log.warn {fn:sig+':fail', q:q, err:req.DNSErr}
+                        @log.warn {fn:sig+':fail', q:q, err:req.DNSErr, res:_.omit(res, '_socket')}
                         @sendErr res
-                    @log.debug {fn:sig+':end', q:q}
 
                 req.send()
             else

@@ -5,6 +5,7 @@ Wants=namecoin.service
 
 [Service]
 ExecStart=/usr/local/bin/dnschain
+Environment=DNSCHAIN_SYSD_VER=0.0.1
 PermissionsStartOnly=true
 ExecStartPre=/sbin/sysctl -w net.ipv4.ip_forward=1
 ExecStartPre=-/sbin/iptables -D INPUT -p udp --dport 5333 -j ACCEPT
@@ -21,6 +22,8 @@ WorkingDirectory=/home/dns
 PrivateTmp=true
 NoNewPrivileges=true
 ReadOnlyDirectories=/etc
+
+# Unfortunately, capabilities are basically worthless because they're designed to restrict root daemons. Instead, we use iptables to listen on privileged ports.
 # Capabilities=cap_net_bind_service+pei
 # SecureBits=keep-caps
 
