@@ -14,6 +14,13 @@ for k,v of deps
 
 log.cli()
 
+log.error "Sorry, for now you'll need to manually install and edit the dnschain.service file."
+log.error "You can help us finish implementing this little utility by implementing the", "portmap".bold, "command to dnschain."
+log.error "portmap".bold, "will allow us to only have one", "ExecStartPre".cyan, "key in the service file, making it work with the nodejs properties module."
+log.error "Alternatively, you can help make this work with that module (though that's not the ideal solution)."
+
+process.exit 1
+
 pOpts =
     sections: true
     replacer: ->
