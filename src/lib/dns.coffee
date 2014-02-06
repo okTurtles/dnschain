@@ -9,6 +9,10 @@ Licensed under the BSD 3-Clause license.
 ###
 
 # TODO: go through 'TODO's!
+#       
+# TODO: support ANY query (type=255), seems broken in native-dns
+# TODO: figure out whether we should res.header.ra = 1 (recursion avail)
+# TODO: support edns
 
 module.exports = (dnschain) ->
     # expose these into our namespace
@@ -60,6 +64,7 @@ module.exports = (dnschain) ->
 
             if method is consts.oldDNS.NATIVE_DNS
                 req = dns2.Request {question: q, server: config.get 'dns:oldDNS'}
+                # res.header.ra = 1
                 success = false
 
                 req.on 'message', (err, answer) =>
@@ -68,16 +73,20 @@ module.exports = (dnschain) ->
                         req.DNSErr ?= err
                     else
                         success = true
-                        res.answer.push answer.answer...
-                        @log.debug {fn:sig+':success', answer:res.answer, q:q}
-                        res.send()
+                        for a in ['answer', 'authority', 'additional'] when answer[a].length?
+                            res[a].push answer[a]...
+                        
+                        @log.debug {fn:sig+':message', answer:answer}
                 
                 req.on 'error', (err) =>
                     @log.error {fn:sig+':error', err:err, answer:answer}
                     req.DNSErr = err
 
                 req.on 'end', =>
-                    unless success
+                    if success
+                        @log.debug {fn:sig+':success', q:q, res:res}
+                        res.send()
+                    else
                         @log.warn {fn:sig+':fail', q:q, err:req.DNSErr}
                         @sendErr res
                     @log.debug {fn:sig+':end', q:q}
