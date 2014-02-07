@@ -7,7 +7,12 @@ DNSChain fixes HTTPS security by replacing certificate authorities with blockcha
 
 Just set your DNS settings to 192.184.93.146. [Free encrypted DNS supported too](https://gist.github.com/taoeffect/8855230)!
 
-Or run me on your own server! (This is best of course.)
+Or run me on your own server! (This is best, of course.)
+
+Then try visiting some interesting domains:
+
+- [http://namecoin.dns/d/okturtles](http://namecoin.dns/d/okturtles)
+- [http://okturtles.bit](http://okturtles.bit)
 
 _(More coming soon)_
 
