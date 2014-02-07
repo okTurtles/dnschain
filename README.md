@@ -28,7 +28,7 @@ Some of this info you can get just by using `dns.dnschain.net`, like this:
 Of course, doing that doesn't give you the guarantee of an authentic answer that you'd otherwise get by running your own DNSChain server. (Note, DNSChain is still under development, and signed headers aren't sent yet).
 
 <a name="servers"></a>
-# List of public DNSChain servers
+## List of public DNSChain servers
 
 1. 192.184.93.146
 2. [23.226.227.93 (dnscrypt-only!)](https://gist.github.com/taoeffect/8855230)
