@@ -55,7 +55,7 @@ This section __to-be-finished__! For now I'll quickly note the basic idea, which
 
 DNSChain expects `namecoind` to be running in the background, and will fetch the RPC username and password out of Namecoin's configuration file.
 
-Have a look at [config.coffee](src/lib/config.coffee), it should clear up your questions about all configuration-related matters (if you know CoffeeScript, and you should).
+Have a look at [config.coffee](src/lib/config.coffee), it should clear up your questions about all configuration-related matters (if you know CoffeeScript, and you really should, it's a fine language).
 
 Then, you can start the development & demo server by running `sudo grunt example`. You can also run the `dnschain` binary in the bin folder.
 
