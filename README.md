@@ -23,7 +23,7 @@ Some of this info you can get just by using `dns.dnschain.net`, like this:
 
 - "Who's Greg?" [http://dns.dnschain.net/id/greg](http://dns.dnschain.net/id/greg)
 
-Of course, doing that doesn't give you the guarantee of an authentic answer that you'd otherwise get by using a DNSChain server yourself. (Note, DNSChain is still under development, and signed headers aren't sent yet).
+Of course, doing that doesn't give you the guarantee of an authentic answer that you'd otherwise get by running your own DNSChain server. (Note, DNSChain is still under development, and signed headers aren't sent yet).
 
 _(More coming soon)_
 
