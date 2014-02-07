@@ -5,7 +5,11 @@ DNSChain fixes HTTPS security by replacing certificate authorities with blockcha
 
 ## How to start using DNSChain _\*right now\*!_
 
+Just set your DNS settings to 192.184.93.146.
 
+Or run me on your own server! (This is best of course.)
+
+_(More coming soon)_
 
 ## Requirements
 
@@ -37,6 +41,7 @@ To test and develop at the same time, simply run `sudo grunt example` and set yo
 
 ## TODO
 
+- __BUG:__ Fix ANY resolution for .bit and .dns domains.
 - Support command line arguments
     - `portmap` for `iptables` support.
     - `-v`
