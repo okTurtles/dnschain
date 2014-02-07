@@ -11,8 +11,17 @@ Or run me on your own server! (This is best, of course.)
 
 Then try visiting some interesting domains:
 
-- [http://namecoin.dns/d/okturtles](http://namecoin.dns/d/okturtles)
-- [http://okturtles.bit](http://okturtles.bit)
+- Visit [http://okturtles.bit](http://okturtles.bit)
+- "What's the domain info for `okturtles.bit`?" [http://namecoin.dns/d/okturtles](http://namecoin.dns/d/okturtles)
+- "Who's Greg?" [http://namecoin.dns/id/greg](http://namecoin.dns/id/greg)
+
+Too lazy to change your DNS settings? (Or don't know how and too lazy to [Startpage it](https://startpage.com/do/search?q=how+to+change+DNS+settings)?)
+
+Some of this info you can get just by using `dns.dnschain.net`, like this:
+
+- "Who's Greg?" [http://dns.dnschain.net/id/greg](http://dns.dnschain.net/id/greg)
+
+Of course, doing that doesn't give you the guarantee of an authentic answer that you'd otherwise get by using a DNSChain server yourself. (Note, DNSChain is still under development, and signed headers aren't sent yet).
 
 _(More coming soon)_
 
