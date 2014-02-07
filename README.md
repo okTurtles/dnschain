@@ -15,7 +15,9 @@ Then try visiting some interesting domains:
 - "What's the domain info for `okturtles.bit`?" [http://namecoin.dns/d/okturtles](http://namecoin.dns/d/okturtles)
 - "Who's Greg?" [http://namecoin.dns/id/greg](http://namecoin.dns/id/greg)
 
-Too lazy to change your DNS settings? (Or don't know how and too lazy to [Startpage it](https://startpage.com/do/search?q=how+to+change+DNS+settings)?)
+### Too lazy to change your DNS settings?
+
+*(Or don't know how and too lazy to [Startpage it](https://startpage.com/do/search?q=how+to+change+DNS+settings)?)*
 
 Some of this info you can get just by using `dns.dnschain.net`, like this:
 
