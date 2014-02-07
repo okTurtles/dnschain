@@ -5,7 +5,7 @@ DNSChain fixes HTTPS security by replacing certificate authorities with blockcha
 
 ## How to start using DNSChain _\*right now\*!_
 
-Just set your DNS settings to 192.184.93.146.
+Just set your DNS settings to 192.184.93.146. [Free encrypted DNS supported too](https://gist.github.com/taoeffect/8855230)!
 
 Or run me on your own server! (This is best of course.)
 
