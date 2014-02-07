@@ -1,7 +1,9 @@
 # DNSChain
 <!-- # DNSChain [![Build Status](https://secure.travis-ci.org/okTurtles/dnschain.png?branch=master)](http://travis-ci.org/okTurtles/dnschain) -->
 
-DNSChain fixes HTTPS security by replacing certificate authorities with blockchain-technology, and more!
+DNSChain (formerly DNSNMC), fixes HTTPS security by replacing certificate authorities with blockchain-technology, and more!
+
+(This readme is under construction, but many parts have been filled out already! :)
 
 ## How to start using DNSChain _\*right now\*!_
 
@@ -38,11 +40,29 @@ Tell us about yours by opening an issue and we'll list it here!
 
 ## Requirements
 
-1. coffee-script 1.7.1 (or higher)
-2. node
-3. npm
+1. `coffee-script` (1.7.1 or higher)
+2. `node` and `npm`
+3. `grunt-cli` (installed via `npm`)
+4. `namecoind` (other blockchain networks easily supportable!)
 
-## Getting Started
+## Getting Started for devs and sys admins
+
+This section __to-be-finished__! For now I'll quickly note the basic idea, which is standard NodeJS development:
+
+1. Clone this repo
+2. Install `node` and `npm` using your system's package manager (on OS X, that would be Homebrew). Note that `npm` sometimes is bundled with `node`.
+3. Run `npm install` inside of the cloned repo.
+
+DNSChain expects `namecoind` to be running in the background, and will fetch the RPC username and password out of Namecoin's configuration file.
+
+Have a look at [config.coffee](blob/master/src/lib/config.coffee), it should clear up your questions about all configuration-related matters (if you know CoffeeScript, and you should).
+
+Then, you can start the development & demo server by running `sudo grunt example`. You can also run the `dnschain` binary in the bin folder.
+
+To get DNSChain running on a Linux server we recommend using `systemd`. A unit/service file [is included](blob/master/scripts/dnschain.service) in the scripts folder (that you can copy and customize to your liking).
+
+_(A nicer and more user-friendly "getting started" section is coming soon!)_
+
 <!-- Install the module with: `npm install dnschain`
 
 ```javascript
