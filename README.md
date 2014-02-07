@@ -41,7 +41,10 @@ To test and develop at the same time, simply run `sudo grunt example` and set yo
 
 ## TODO
 
+See TODOs in source, below is only a partial list.
+
 - __BUG:__ Fix ANY resolution for .bit and .dns domains.
+- sign response.
 - Support command line arguments
     - `portmap` for `iptables` support.
     - `-v`
