@@ -5,15 +5,17 @@ DNSChain fixes HTTPS security by replacing certificate authorities with blockcha
 
 ## How to start using DNSChain _\*right now\*!_
 
-Just set your DNS settings to 192.184.93.146. [Free encrypted DNS supported too](https://gist.github.com/taoeffect/8855230)!
-
-Or run me on your own server! (This is best, of course.)
+Set your DNS settings to [one of the public DNSChain servers](#servers). Free [encrypted DNS](https://gist.github.com/taoeffect/8855230) supported too!
 
 Then try visiting some interesting domains:
 
 - Visit [http://okturtles.bit](http://okturtles.bit)
 - "What's the domain info for `okturtles.bit`?" [http://namecoin.dns/d/okturtles](http://namecoin.dns/d/okturtles)
 - "Who's Greg?" [http://namecoin.dns/id/greg](http://namecoin.dns/id/greg)
+
+__Remember, DNSChain is meant to be run by *you!*__
+
+Only use a public server if you absolutely must!
 
 #### Too lazy to change your DNS settings?
 
@@ -25,7 +27,14 @@ Some of this info you can get just by using `dns.dnschain.net`, like this:
 
 Of course, doing that doesn't give you the guarantee of an authentic answer that you'd otherwise get by running your own DNSChain server. (Note, DNSChain is still under development, and signed headers aren't sent yet).
 
-_(More coming soon)_
+<a name="servers"></a>
+# List of public DNSChain servers
+
+1. 192.184.93.146
+2. [23.226.227.93 (dnscrypt-only!)](https://gist.github.com/taoeffect/8855230)
+3. Yours here!
+
+Tell us about yours by opening an issue and we'll list it here!
 
 ## Requirements
 
