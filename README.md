@@ -71,7 +71,7 @@ As a convenience, the first DNSChain server's `.dns` meta-TLD can be accessed ov
 
 - "Who is Greg?" [http://dns.dnschain.net/id/greg](http://dns.dnschain.net/id/greg)
 
-This means you can immediately being writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
+This means you can immediately begin writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
 
 ### Free public DNSChain servers<a name="Free"/>
 
