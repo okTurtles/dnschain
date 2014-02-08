@@ -38,6 +38,9 @@ It's also only about *600 lines of easy to understand CoffeeScript!* This means 
 ![Easily share your GPG key!](https://www.taoeffect.com/includes/images/twitter-gpg-s.jpg)
 
 1. Use `namecoind` to [register](https://github.com/namecoin/wiki/wiki/Register-and-Configure-.bit-Domains) your identity in the `id/` [namespace](https://github.com/namecoin/wiki/wiki/Identity).
+2. Use a DNSChain server that exposes its `.dns` meta-TLD through the traditional DNS, as shown in the screenshot.
+
+It's always best to use your own server, of course. _Note: headers containing crypographic signatures will be sent soon!_
 
 ### Free SSL certificates become possible<a name="Free"/>
 
