@@ -30,7 +30,7 @@ DNSChain fixes this. What is DNSChain?
 - It creates the __.dns meta-TLD__. Each `.dns` "TLD" belongs to just one DNSChain server: the one you're connected to.
 - It's an HTTP server (and in the future, an HTTPS server)
 - It lets you communicate directly with information in blockchains (read, and maybe even write!) from [JavaScript apps](http://okturtles.com)!
-- At its core, it lets you connect to websites, and chat with your friends, and be safe from eavesdroppers and Big Brother-type entities. It gives you the gift of **authentication**.
+- At its core, it lets you connect to websites, chat with your friends, and be safe from eavesdroppers and Big Brother-type entities. It gives you the gift of **authentication**.
 
 It's also only about *600 lines of easy to understand CoffeeScript!* This means that even mere mortals can look at the code, and verify for themselves that it is safe to run on their systems.
 
@@ -43,7 +43,7 @@ Well, simple to share, a little more difficult to register it (at the moment onl
 1. Use `namecoind` to [register](https://github.com/namecoin/wiki/wiki/Register-and-Configure-.bit-Domains) your identity in the `id/` [namespace](https://github.com/namecoin/wiki/wiki/Identity).
 2. Use a DNSChain server that exposes its `.dns` meta-TLD through the traditional DNS, as shown in the screenshot.
 
-It's always best to use your own server, of course. _Note: headers containing crypographic signatures will be sent soon!_
+It's always best to use your own server, of course. _Note: headers containing a crypographic signature will be sent soon!_
 
 ### Free SSL certificates become possible<a name="Free"/>
 
@@ -53,7 +53,7 @@ SSL certificates today [do not provide the security that they claim to provide](
 
 __.dns__ is a "meta-TLD". It is called so because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
 
-When a DNSChain server sees a request to a `.dns` domain, it handles the request itself, looking it up in a blockchain stored on that same server. At the moment, DNSChain uses the Namecoin blockchain, but it easily be configured to use any blockchain.
+When a DNSChain server sees a request to a `.dns` domain, it handles the request itself, looking it up in a blockchain stored on that same server. At the moment, DNSChain uses the Namecoin blockchain, but it can easily be configured to use any blockchain.
 
 ## How do I use it?<a name="Use"/>
 
