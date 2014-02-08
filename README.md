@@ -7,6 +7,7 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [DNSChain "stops the NSA" by fixing HTTPS](#DNSChain)
     - [Simple and secure GPG key distribution](#GPG)
     - [Free SSL certificates become possible](#Free)
+    - [The '.dns' meta-TLD](#metaTLD)
 - [How do I use it?](#Use)
     - [Free public DNSChain servers](#Free)
 - [How do I run my own?](#Run)
@@ -48,6 +49,12 @@ It's always best to use your own server, of course. _Note: headers containing cr
 
 SSL certificates today [do not provide the security that they claim to provide](http://okturtles.com/other/dnsnmc_okturtles_overview.pdf). DNSChain replaces Certificate Authorities by providing a means for distributing public keys in a way that is secure from MITM attacks.
 
+### The '.dns' meta-TLD<a name="metaTLD"/>
+
+__.dns__ is a "meta-TLD". It is called so because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
+
+When a DNSChain server sees a request to a `.dns` domain, it handles the request itself, looking it up in a blockchain stored on that same server. At the moment, DNSChain uses the Namecoin blockchain, but it easily be configured to use any blockchain.
+
 ## How do I use it?<a name="Use"/>
 
 No special software is required, just set your computer's DNS settings to use [one of the public DNSChain servers](#servers) (more secure to run your own though).
@@ -65,13 +72,6 @@ As a convenience, the first DNSChain server's `.dns` meta-TLD can be accessed ov
 - "Who is Greg?" [http://dns.dnschain.net/id/greg](http://dns.dnschain.net/id/greg)
 
 This means you can immediately being writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
-
-__The '.dns' meta-TLD__
-
-__.dns__ is a "meta-TLD". It is called so because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
-
-When a DNSChain server sees a request to a `.dns` domain, it handles the request itself, looking it up in a blockchain stored on that same server. At the moment, DNSChain uses the Namecoin blockchain, but it easily be configured to use any blockchain.
-
 
 ### Free public DNSChain servers<a name="Free"/>
 
