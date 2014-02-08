@@ -123,7 +123,7 @@ _(A nicer and more user-friendly "getting started" section is coming soon!)_
 
 You can contribute however you would like!
 
-Forums, an irc channel, etc. coming soon. For now feel free to open issues & pull requests, send an emails to hi at okturtles.com, and/or tweet [@DNSChain](https://twitter.com/dnschain).
+Forums, an irc channel, etc. coming soon. For now feel free to open issues & pull requests, send email to hi at okturtles.com, and/or tweet [@DNSChain](https://twitter.com/dnschain).
 
 __Style and Process__
 
