@@ -51,7 +51,9 @@ SSL certificates today [do not provide the security that they claim to provide](
 
 ### The '.dns' meta-TLD<a name="metaTLD"/>
 
-__.dns__ is a "meta-TLD". It is called so because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
+__.dns__ is a "meta-TLD". It bears this unique terminology because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
+
+It bears emphasizing that *you cannot register a meta-TLD because you already own them!*
 
 When a DNSChain server sees a request to a `.dns` domain, it handles the request itself, looking it up in a blockchain stored on that same server. At the moment, DNSChain uses the Namecoin blockchain, but it can easily be configured to use any blockchain.
 
