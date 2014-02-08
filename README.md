@@ -35,7 +35,7 @@ It's also only about *600 lines of easy to understand CoffeeScript!* This means 
 
 ### Simple and secure GPG key distribution<a name="GPG"/>
 
-<img src="https://www.taoeffect.com/includes/images/twitter-gpg-sm.jpg" alt="Easily share your GPG key!">
+![Easily share your GPG key!](https://www.taoeffect.com/includes/images/twitter-gpg-sm.jpg)
 
 1. Use `namecoind` to [register](https://github.com/namecoin/wiki/wiki/Register-and-Configure-.bit-Domains) your identity in the `id/` [namespace](https://github.com/namecoin/wiki/wiki/Identity).
 
