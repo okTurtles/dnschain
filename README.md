@@ -7,7 +7,7 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [DNSChain "stops the NSA" by fixing HTTPS/TLS](#DNSChain)
     - [Simple and secure GPG key distribution](#GPG)
     - [Free SSL certificates become possible](#Free)
-    - [The '.dns' meta-TLD](#metaTLD)
+    - [The `.dns` meta-TLD](#metaTLD)
 - [How do I use it?](#Use)
     - [Free public DNSChain servers](#Free)
     - [Registering `.bit` domains and identities](#Registering)
@@ -52,7 +52,7 @@ It's always best to use your own server, of course. _Note: headers containing a 
 
 SSL certificates today [do not provide the security that they claim to provide](http://okturtles.com/other/dnsnmc_okturtles_overview.pdf). DNSChain replaces Certificate Authorities by providing a means for distributing public keys in a way that is secure from MITM attacks.
 
-### The '.dns' meta-TLD<a name="metaTLD"/>
+### The `.dns` meta-TLD<a name="metaTLD"/>
 
 __.dns__ is a "meta-TLD" because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
 
@@ -139,6 +139,18 @@ There are two configurations to be aware of (both loaded using `nconf`): DNSChai
     - `$HOME/.namcoin/namcoin.conf`
 
 DNSChain will fetch the RPC username and password out of Namecoin's configuration file if it can find it. If it can't, you'll either need to fix that, or provide `rpcuser`, `rpcpassword`, etc. to it via command line arguments or environment variables.
+
+The format of the configuration file is similar to INI, and is parsed by the NodeJS [`properties` module](https://github.com/gagle/node-properties). Here's a very basic `dnschain.conf`:
+
+    [log]
+    level=info
+
+    [dns]
+    port=5333
+
+    [http]
+    port=8088
+    tlsPort=4443
 
 **Have a look at [config.coffee](src/lib/config.coffee) to see all the possible configuration options and defaults!**
 
