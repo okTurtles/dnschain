@@ -4,15 +4,18 @@
 DNSChain (formerly DNSNMC) makes it possible to be certain that you're communicating with who you want to communicate with, and connecting to the sites that you want to connect to, *without anyone secretly listening in on your conversations in between.*
 
 - [What is it?](#What)
-    - [DNSChain "stops the NSA" by fixing HTTPS](#DNSChain)
+    - [DNSChain "stops the NSA" by fixing HTTPS/TLS](#DNSChain)
     - [Simple and secure GPG key distribution](#GPG)
     - [Free SSL certificates become possible](#Free)
     - [The '.dns' meta-TLD](#metaTLD)
 - [How do I use it?](#Use)
     - [Free public DNSChain servers](#Free)
-- [How do I run my own?](#Run)
+    - [Registering `.bit` domains and identities](#Registering)
+- [How do I run my own DNSChain server?](#Run)
     - [Requirements](#Requirements)
     - [Getting Started](#Getting)
+    - [Configuration](#Configuration)
+    - [Working with the source](#Working)
 - [Community & Contributing](#Community)
 - [TODO](#TODO)
 - [Release History](#Release)
@@ -20,14 +23,14 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
 
 ## What is it?<a name="What"/>
 
-### DNSChain "stops the NSA" by fixing HTTPS<a name="DNSChain"/>
+### DNSChain "stops the NSA" by fixing HTTPS/TLS<a name="DNSChain"/>
 
 In spite of their names, [SSL/TLS and HTTPS are not secure](http://okturtles.com/other/dnsnmc_okturtles_overview.pdf).
 
 DNSChain fixes this. What is DNSChain?
 
-- It's a DNS server that supports old-school DNS, and blockchain-based DNS (Namecoin currently).
-- It creates the __.dns meta-TLD__. Each `.dns` "TLD" belongs to just one DNSChain server: the one you're connected to.
+- It's a DNS server that supports old-school DNS, and [blockchain](https://en.bitcoin.it/wiki/Block_chain)-based DNS (Namecoin currently), giving you access to `*.bit` websites.
+- It creates the __.dns meta-TLD__. Each `.dns` "[TLD](https://en.wikipedia.org/wiki/Top-level_domain)" belongs to just one DNSChain server: the one you're connected to.
 - It's an HTTP server (and in the future, an HTTPS server)
 - It lets you communicate directly with information in blockchains (read, and maybe even write!) from [JavaScript apps](http://okturtles.com)!
 - At its core, it lets you connect to websites, chat with your friends, and be safe from eavesdroppers and Big Brother-type entities. It gives you the gift of **authentication**.
@@ -93,33 +96,57 @@ Tell us about yours by opening an issue (or any other means) and we'll list it h
 
 We'll list the public keys for these servers here as well when the signing of responses is implemented. Note that for *ENCRYPTED* servers you are already guaranteed the authenticity of responses.
 
+### Registering `.bit` domains and identities<a name="Registering"/>
+
+`.bit` domains and public identities are currently stored in the Namecoin P2P network. It's very similar to the Bitcoin network.
+
+All of this must currently be done using `namecoind`, a daemon that DNSChain requires running in the background to access the Namecoin network.
+
+See the [Namecoin wiki](https://github.com/namecoin/wiki/wiki) for more info:
+
+- [Registering .bit domains](https://github.com/namecoin/wiki/wiki/Register-and-Configure-.bit-Domains)
+- [Global public identities specification](https://github.com/namecoin/wiki/wiki/Identity)
+
 ## How do I run my own?<a name="Run"/>
 
 Get yourself a Linux server (they come as cheap as $2/month), and then make sure you have the following software installed:
 
 #### Requirements<a name="Requirements"/>
 
-1. `nodejs` and `npm`
+1. `nodejs` and `npm` - We recommend using a package manager to install them.
 2. [coffee-script](https://github.com/jashkenas/coffee-script) (version 1.7.1+) - install via `npm install -g coffee-script`
-3. `grunt-cli` - install via `npm install -g grunt-cli`
+3. `grunt-cli` - install via `npm install -g grunt-cli`, provides the `grunt` command.
 4. `namecoind` - [instructions](https://github.com/namecoin/wiki/wiki/Install-and-Configure-Namecoin)
 
 #### Getting Started<a name="Getting"/>
 
-1. Have `namecoind` run in the background _(we recommend running it with `systemd` and naming the unit file `namecoin.service`)_
-2. Clone this repo _(NOTE: It's best to install DNSChain via `npm`! It will be published there soon!)_
-3. Run `npm install` inside of the cloned repo. _(This won't be necessary when installing via `npm`)_
-4. Run `sudo ./bin/dnschain` or `sudo grunt example`
+1. Install DNSChain using: `npm install -g dnschain` (you may need to put `sudo` in front of that).
+2. Run `namecoind` in the background. You can use `systemd` and create a `namecoin.service` file for it based off of [dnschain.service](scripts/dnschain.service).
 
-DNSChain will fetch the RPC username and password out of Namecoin's configuration file.
+Test DNSChain by simply running `dnschain` from the command line. Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](scripts/dnschain.service) that you can use to run it.
 
-Have a look at [config.coffee](src/lib/config.coffee), it should clear up your questions about all configuration-related matters (if you know CoffeeScript, and you really should, it's a fine language).
+#### Configuration<a name="Configuration"/>
 
-To get DNSChain running on a Linux server we recommend using `systemd`. A unit/service file [is included](scripts/dnschain.service) in the scripts folder (that you can copy and customize to your liking).
+DNSChain uses the wonderful [nconf](https://github.com/flatiron/nconf) module for all of its configuration purposes. This means that you can configure it using files, command line arguments, and environment variables.
 
-Developers will notice that while running `sudo grunt example`, grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
+There are two configurations to be aware of (both loaded using `nconf`): DNSChain's, and `namecoind`'s:
 
-_(A nicer and more user-friendly "getting started" section is coming soon!)_
+- `dnschain.conf` locations (in order of preference):
+    - `$HOME/.dnschain.conf`
+    - `$HOME/.dnschain/dnschain.conf`
+    - `/etc/dnschain/dnschain.conf`
+- `namecoin.conf` locations (in order of preference):
+    - `$HOME/.namcoin/namcoin.conf`
+
+DNSChain will fetch the RPC username and password out of Namecoin's configuration file if it can find it. If it can't, you'll either need to fix that, or provide `rpcuser`, `rpcpassword`, etc. to it via command line arguments or environment variables.
+
+**Have a look at [config.coffee](src/lib/config.coffee) to see all the possible configuration options and defaults!**
+
+#### Working with the source<a name="Working"/>
+
+Run `sudo grunt example` from the DNSChain repository that you cloned from here.
+
+Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
 
 ## Community & Contributing<a name="Community"/>
 
@@ -135,7 +162,7 @@ To test and develop at the same time, simply run `sudo grunt example` and set yo
 
 See TODOs in source, below is only a partial list.
 
-- __BUG:__ Fix ANY resolution for .bit and .dns domains.
+- __BUG:__ Fix ANY-record type resolution for .bit and .dns domains.
 - sign response.
 - Support command line arguments
     - `portmap` for `iptables` support.
@@ -144,8 +171,6 @@ See TODOs in source, below is only a partial list.
 
 ## Release History<a name="Release"/>
 
-_(Coming soon)_
+- __0.0.1__ - February 9, 2014 - Published to `npm` under `dnschain`.
 
-## License<a name="License"/>
-
-Copyright (c) 2013 Greg Slepak. Licensed under the BSD 3-Clause license.
+Copyright (c) 2013-2014 Greg Slepak. Licensed under the BSD 3-Clause license.
