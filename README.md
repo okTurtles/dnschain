@@ -127,7 +127,7 @@ Test DNSChain by simply running `dnschain` from the command line. Have a look at
 
 #### Configuration<a name="Configuration"/>
 
-DNSChain uses the wonderful [nconf](https://github.com/flatiron/nconf) module for all of its configuration purposes. This means that you can configure it using files, command line arguments, and environment variables.
+DNSChain uses the wonderful [`nconf` module](https://github.com/flatiron/nconf) for all of its configuration purposes. This means that you can configure it using files, command line arguments, and environment variables.
 
 There are two configurations to be aware of (both loaded using `nconf`): DNSChain's, and `namecoind`'s:
 
@@ -140,7 +140,7 @@ There are two configurations to be aware of (both loaded using `nconf`): DNSChai
 
 DNSChain will fetch the RPC username and password out of Namecoin's configuration file if it can find it. If it can't, you'll either need to fix that, or provide `rpcuser`, `rpcpassword`, etc. to it via command line arguments or environment variables.
 
-The format of the configuration file is similar to INI, and is parsed by the NodeJS [`properties` module](https://github.com/gagle/node-properties). Here's a very basic `dnschain.conf`:
+The format of the configuration file is similar to INI, and is parsed by the NodeJS [`properties` module](https://github.com/gagle/node-properties) (in tandem with `nconf`). Here's a very basic `dnschain.conf`:
 
     [log]
     level=info
