@@ -91,6 +91,8 @@ module.exports = (dnschain) ->
                         @log.debug {fn:sig+':success', q:q, res: _.omit(res, '_socket')}
                         res.send()
                     else
+                        # TODO: this is noisy.
+                        #       also make log output look good in journalctl
                         @log.warn {fn:sig+':fail', q:q, err:req.DNSErr, res:_.omit(res, '_socket')}
                         @sendErr res
 

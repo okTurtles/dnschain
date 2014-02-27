@@ -9,7 +9,7 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [Free SSL certificates become possible](#Free)
     - [The `.dns` meta-TLD](#metaTLD)
 - [How do I use it?](#Use)
-    - [Free public DNSChain servers](#Free)
+    - [Free public DNSChain servers](#Servers)
     - [Registering `.bit` domains and identities](#Registering)
 - [How do I run my own DNSChain server?](#Run)
     - [Requirements](#Requirements)
@@ -62,7 +62,7 @@ When a DNSChain server sees a request to a `.dns` domain, it handles the request
 
 ## How do I use it?<a name="Use"/>
 
-No special software is required, just set your computer's DNS settings to use [one of the public DNSChain servers](#servers) (more secure to run your own though).
+No special software is required, just set your computer's DNS settings to use [one of the public DNSChain servers](#Servers) (more secure to run your own though).
 
 Then try the following:
 
@@ -78,7 +78,7 @@ As a convenience, the first DNSChain server's `.dns` meta-TLD can be accessed ov
 
 This means you can immediately begin writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
 
-### Free public DNSChain servers<a name="Free"/>
+### Free public DNSChain servers<a name="Servers"/>
 
 *DNSChain is meant to be run by individuals!*
 
@@ -117,6 +117,9 @@ Get yourself a Linux server (they come as cheap as $2/month), and then make sure
 2. [coffee-script](https://github.com/jashkenas/coffee-script) (version 1.7.1+) - install via `npm install -g coffee-script`
 3. `grunt-cli` - install via `npm install -g grunt-cli`, provides the `grunt` command.
 4. `namecoind` - [instructions](https://github.com/namecoin/wiki/wiki/Install-and-Configure-Namecoin)
+5. `libgmp` - needed by Mozilla's [jwcrypto](https://github.com/mozilla/jwcrypto), install using `apt-get install libgmp-dev` (Debian) or `brew install gmp` (OS X).
+
+DNSChain __does not use the NodeJS crypto module__ for generating signed headers because that module uses `OpenSSL` (which is considered harmful [1](http://www.peereboom.us/assl/assl/html/openssl.html)[2](https://www.openssl.org/news/vulnerabilities.html)). Instead, Mozilla's [jwcrypto](https://github.com/mozilla/jwcrypto) is used.
 
 #### Getting Started<a name="Getting"/>
 
@@ -162,11 +165,14 @@ Grunt will automatically lint your code to the style used in this project, and w
 
 ## Community & Contributing<a name="Community"/>
 
-You can contribute however you would like!
+- IRC (Freenode): `#dnschain` &rArr; [Webchat](http://webchat.freenode.net/?channels=%23dnschain&uio=MT11bmRlZmluZWQb1)
+- [Forums](https://forums.okturtles.com/) __We use a self-signed cert!__ Tell your browser to store it permanently.
+    - HTTPS SHA1: `1D:1A:D6:59:CD:22:D7:FC:38:32:DF:6D:D0:B7:03:56:27:96:1D:B0`
+    - HTTPS MD5: `16:A8:8C:19:1C:FC:25:8D:18:DA:2C:CE:1C:28:65:CE`
+- Twitter: [@DNSChain](https://twitter.com/dnschain)
+- Email: hi at okturtles.com
 
-Forums, an irc channel, etc. coming soon. For now feel free to open issues & pull requests, send email to hi at okturtles.com, and/or tweet [@DNSChain](https://twitter.com/dnschain).
-
-__Style and Process__
+__Contributing__
 
 To test and develop at the same time, simply run `sudo grunt example` and set your computer's DNS to use `127.0.0.1`. Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
 
