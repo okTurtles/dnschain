@@ -181,7 +181,8 @@ To test and develop at the same time, simply run `sudo grunt example` and set yo
 See TODOs in source, below is only a partial list.
 
 - __BUG:__ Fix ANY-record type resolution for .bit and .dns domains.
-- sign response.
+- sign responses
+- add DANE support
 - Support command line arguments
     - `portmap` for `iptables` support.
     - `-v`
