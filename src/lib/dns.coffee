@@ -50,7 +50,7 @@ module.exports = (dnschain) ->
 
         namecoinizeDomain: (domain) ->
             nmcDomain = S(domain).chompRight('.bit').s
-            if (dotIdx = nmcDomain.indexOf('.')) != -1
+            if (dotIdx = nmcDomain.lastIndexOf('.')) != -1
                 nmcDomain = nmcDomain.slice(dotIdx+1) # rm subdomain
             'd/' + nmcDomain # add 'd/' namespace
 
