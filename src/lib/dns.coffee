@@ -201,20 +201,35 @@ module.exports = (dnschain) ->
                                 @log.debug "sending answers!", {fn:'nmc_show', answers:answers, q:q}
                                 res.send()
 
-                        else if info.ip
-                            # we have its IP! send reply to client
-                            # TODO: pick an appropriate 'ttl' for the response!
-                            # TODO: handle more info! send the rest of the
-                            #       stuff in 'info', and all the IPs!
-                            info.ip = [info.ip] if typeof info.ip is 'string'
-                            # info.ip.forEach (a)-> res.answer.push ip2type(q.name, ttl)(a)
-                            res.answer.push (info.ip.map ip2type(q.name, ttl, QTYPE_NAME[q.type]))...
+                        else
+                            switch q.type
+                              when (NAME_QTYPE.A or NAME_QTYPE.AAAA)
+                                return unless info.ip
+
+                                # we have its IP! send reply to client
+                                # TODO: pick an appropriate 'ttl' for the response!
+                                # TODO: handle more info! send the rest of the
+                                #       stuff in 'info', and all the IPs!
+                                info.ip = [info.ip] if typeof info.ip is 'string'
+                                # info.ip.forEach (a)-> res.answer.push ip2type(q.name, ttl)(a)
+                                res.answer.push (info.ip.map ip2type(q.name, ttl, QTYPE_NAME[q.type]))...
+
+                              when NAME_QTYPE.TLSA
+                                return unless info.tls
+
+                                test = tls2tlsa(info.tls, ttl, q.name)
+                                @log.debug test.length
+
+                                for tlsa in tls2tlsa(info.tls, ttl, q.name)
+                                  res.answer.push(tlsa) if tlsa
+
+                            if res.answer.length is 0
+                                @log.warn {fn: 'nmc_show|404', q:q}
+                                @sendErr res, NAME_RCODE.NOTFOUND
+
                             @log.debug {fn:'nmc_show|ip', q:q, answer:res.answer}
                             res.send()
-                        else
-                            @log.warn {fn: 'nmc_show|404', q:q}
-                            @sendErr res, NAME_RCODE.NOTFOUND
-            
+
             else if S(q.name).endsWith '.dns'
                 # TODO: right now we're doing a catch-all and pretending they asked
                 #       for namecoin.dns...

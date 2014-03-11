@@ -79,9 +79,33 @@ module.exports = (dnschain) ->
             @log?.error e.stack
             throw e
 
-        
+
         ip2type: (d, ttl, type='A') ->
             (ip)-> dns2[type] {name:d, address:ip, ttl:ttl}
+
+        # This function does 2 things
+        # 1. filter out tls info that doesn't match transport ("_tcp")
+        #    and port ("_443")
+        # 2. transform each *coin tls record to a DNS packet
+        tls2tlsa: (tls, ttl, queryname) ->
+            sep = queryname.split(".")
+            return [] unless sep.length >= 4 # _port._protocol.domain.tld
+
+            port = sep[0].replace("_", "")
+            protocol = sep[1].replace("_", "")
+
+            records = []
+            for certinfo in tls[protocol][port]
+              records.push dns2['TLSA'] {
+                  "name": queryname,
+                  "ttl": ttl,
+                  "usage": 3,
+                  "selector": 0,
+                  "matchingtype": certinfo[0],
+                  "data": certinfo[1]
+              }
+
+            records
     }
 
     # 4. config
