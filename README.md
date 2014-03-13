@@ -16,8 +16,10 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [Getting Started](#Getting)
     - [Configuration](#Configuration)
     - [Working with the source](#Working)
-- [Community & Contributing](#Community)
-- [TODO](#TODO)
+- [Community](#Community)
+- [Contributing](#Contributing)
+    - [Contributors](#Contributors)
+    - [TODO](#TODO)
 - [Release History](#Release)
 - [License](#License)
 
@@ -164,7 +166,7 @@ Run `sudo grunt example` from the DNSChain repository that you cloned from here.
 
 Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
 
-## Community & Contributing<a name="Community"/>
+## Community<a name="Community"/>
 
 - IRC (Freenode): `#dnschain` &rArr; [Webchat](http://webchat.freenode.net/?channels=%23dnschain&uio=MT11bmRlZmluZWQb1)
 - [Forums](https://forums.okturtles.com/) __We use a self-signed cert!__ Tell your browser to store it permanently.
@@ -172,17 +174,23 @@ Grunt will automatically lint your code to the style used in this project, and w
 - Twitter: [@DNSChain](https://twitter.com/dnschain)
 - Email: hi at okturtles.com
 
-__Contributing__
+## Contributing<a name="Contributing"/>
 
 To test and develop at the same time, simply run `sudo grunt example` and set your computer's DNS to use `127.0.0.1`. Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
 
-## TODO<a name="TODO"/>
+#### Contributors<a name="Contributors"/>
+
+- [Greg Slepak](https://twitter.com/taoeffect) (Original author and current maintainer)
+- [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA support and misc. fixes)
+- *Your name & link of choice here!*
+
+#### TODO<a name="TODO"/>
 
 See TODOs in source, below is only a partial list.
 
 - __BUG:__ Fix ANY-record type resolution for .bit and .dns domains.
 - sign responses
-- add DANE support
+- add DANE support ([coming soon thanks to @rakoo!](https://github.com/rakoo/dnschain/commit/0dae9ab2cb3dc7df597b4b82511d219a2ff446c0))
 - Support command line arguments
     - `portmap` for `iptables` support.
     - `-v`
