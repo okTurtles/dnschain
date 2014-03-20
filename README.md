@@ -92,7 +92,8 @@ You can, if you must, use a public DNSChain server. Simply [set your computer's 
 
 1. 192.184.93.146
 2. [23.226.227.93](https://gist.github.com/taoeffect/8855230) *ENCRYPTED*
-3. Yours here!
+3. 54.85.5.167 (or whatever `name.thwg.org` resolves to) - Run by [id/wozz](http://dns.dnschain.net/id/wozz)
+4. Yours here!
 
 Tell us about yours by opening an issue (or any other means) and we'll list it here!
 
