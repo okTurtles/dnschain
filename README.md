@@ -99,7 +99,7 @@ You can, if you must, use a public DNSChain server. Simply [set your computer's 
 
 Tell us about yours by opening an issue (or any other means) and we'll list it here!
 
-We'll list the public keys for these servers here as well when the signing of responses is implemented. Note that for *ENCRYPTED* servers you are already guaranteed the authenticity of responses.
+We'll post the public keys for these servers here as well once signed DNS & HTTP responses are implemented. Note that DNSChain + DNSCrypt servers already already guarantee the authenticity of DNS responses.
 
 ### Registering `.bit` domains and identities<a name="Registering"/>
 
