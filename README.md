@@ -203,7 +203,7 @@ See TODOs in source, below is only a partial list.
 
 | Version |       Date       |                                                                                                                                      Notes                                                                                                                                      |
 | ------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0.0.2   | April 15, 2014   | <ul><li>Enabled [namespace syntax](https://github.com/gagle/node-properties#namespaces) for the config file</li><li>Added more public servers added to README.md</li><li>Added example systemd unit files for `namecoind` and `dnscrypt-wrapper` to scripts folder</li> </ul> |
+| 0.0.2   | April 15, 2014   | <ul><li>Enabled [namespace syntax](https://github.com/gagle/node-properties#namespaces) for the config file</li><li>Cherry-picked fix for `namecoinizeDomain` by @rakoo (thanks!)</li><li>Added more public servers added to README.md</li><li>Added example systemd unit files for `namecoind` and `dnscrypt-wrapper` to scripts folder</li> </ul> |
 | 0.0.1   | February 9, 2014 | Published to `npm` under `dnschain`                                                                                                                                                                                                                                             |
 
 Copyright (c) 2013-2014 Greg Slepak. Licensed under the BSD 3-Clause license.
