@@ -88,12 +88,14 @@ Yes, you can use a public DNSChain server, but it's far better to use your own b
 
 Those who do not own their own server or VPS can use their friend's (as long as they trust that person). DNSChain servers will sign all of their responses, thus protecting your from MITM attacks. *(NOTE: signing is not yet implemented, but will be soon)*
 
-You can, if you must, use a public DNSChain server. Simply [set your computer's DNS settings](https://startpage.com/do/search?q=how+to+change+DNS+settings) to one of these. Those marked *ENCRYPTED* require [dnscrypt-proxy](https://github.com/jedisct1/dnscrypt-proxy).
+You can, if you must, use a public DNSChain server. Simply [set your computer's DNS settings](https://startpage.com/do/search?q=how+to+change+DNS+settings) to one of these. Note that some of the servers must be used with [dnscrypt-proxy](https://github.com/jedisct1/dnscrypt-proxy).
 
-1. 192.184.93.146
-2. [23.226.227.93](https://gist.github.com/taoeffect/8855230) *ENCRYPTED*
-3. 54.85.5.167 (or whatever `name.thwg.org` resolves to) - Run by [id/wozz](http://dns.dnschain.net/id/wozz)
-4. Yours here!
+|                          IP or DNSCrypt provider                           |           [DNSCrypt](http://dnscrypt.org/) Info            | Logs |    Location    |                          Owner                          |     Notes      |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------- | ---- | -------------- | ------------------------------------------------------- | -------------- |
+| 192.184.93.146 (aka [d/okturtles](http://dns.dnschain.net/d/okturtles))    | N/A                                                        | No   | Atlanta, GA    | [id/greg](http://dns.dnschain.net/id/greg)              |                |
+| 54.85.5.167 (aka [name.thwg.org](name.thwg.org))                           | N/A                                                        | No   | USA            | [id/wozz](http://dns.dnschain.net/id/wozz)              |                |
+| [2.dnscrypt-cert.okturtles.com](https://gist.github.com/taoeffect/8855230) | [Required Info](https://gist.github.com/taoeffect/8855230) | No   | Atlanta, GA    | [id/greg](http://dns.dnschain.net/id/greg)              |                |
+| [2.dnscrypt-cert.soltysiak.com](http://dc1.soltysiak.com)                  | [Required Info](http://dc1.soltysiak.com)                  | No   | Poznan, Poland | [@maciejsoltysiak](https://twitter.com/maciejsoltysiak) | IPv6 available |
 
 Tell us about yours by opening an issue (or any other means) and we'll list it here!
 
@@ -130,7 +132,7 @@ DNSChain __does not use the NodeJS crypto module__ for generating signed headers
 1. Install DNSChain using: `npm install -g dnschain` (you may need to put `sudo` in front of that).
 2. Run `namecoind` in the background. You can use `systemd` and create a `namecoin.service` file for it based off of [dnschain.service](scripts/dnschain.service).
 
-Test DNSChain by simply running `dnschain` from the command line. Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](scripts/dnschain.service) that you can use to run it.
+Test DNSChain by simply running `dnschain` from the command line (developers [see here](#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](scripts/dnschain.service) that you can use to run it.
 
 #### Configuration<a name="Configuration"/>
 
@@ -199,6 +201,9 @@ See TODOs in source, below is only a partial list.
 
 ## Release History<a name="Release"/>
 
-- __0.0.1__ - February 9, 2014 - Published to `npm` under `dnschain`.
+| Version |       Date       |                                                                                                                                      Notes                                                                                                                                      |
+| ------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.0.2   | April 15, 2014   | <ul><li>Enabled [namespace syntax](https://github.com/gagle/node-properties#namespaces) for the config file</li><li>Added more public servers added to README.md</li><li>Added example systemd unit files for `namecoind` and `dnscrypt-wrapper` to scripts folder</li> </ul> |
+| 0.0.1   | February 9, 2014 | Published to `npm` under `dnschain`                                                                                                                                                                                                                                             |
 
 Copyright (c) 2013-2014 Greg Slepak. Licensed under the BSD 3-Clause license.

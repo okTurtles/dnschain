@@ -1,3 +1,5 @@
+# Example systemd unit file. Some assembly required.
+
 [Unit]
 Description=dnschain
 After=network.target

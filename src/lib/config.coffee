@@ -63,6 +63,7 @@ module.exports = (dnschain) ->
     fileFormatOpts =
         comments: ['#', ';']
         sections: true
+        namespaces: true
 
     props.parse = _.partialRight props.parse, fileFormatOpts
     props.stringify = _.partialRight props.stringify, fileFormatOpts

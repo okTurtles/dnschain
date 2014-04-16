@@ -1,0 +1,47 @@
+# Example systemd unit file. Some assembly required.
+# 
+# !! IMPORTANT !!
+# 1. Replace SERVER_IP with your server's IP address
+# 2. Replace SERVER_NAME with your server's doman name (including the TLD extension)
+# 3. Install software, create users, and update other fields as necessary
+
+[Unit]
+Description=dnscrypt-wrapper
+After=network.target
+Wants=dnschain.service
+
+[Service]
+ExecStart=/usr/local/bin/dnscrypt-wrapper -r 127.0.0.1:5333 -a SERVER_IP:4434 --crypt-secretkey-file=secret.key --crypt-publickey-file=public.key --provider-cert-file=dnscrypt.cert --provider-name=2.dnscrypt-cert.SERVER_NAME
+PermissionsStartOnly=true
+ExecStartPre=/sbin/sysctl -w net.ipv4.ip_forward=1
+
+# UDP_START
+ExecStartPre=-/sbin/iptables -D INPUT -p udp -d SERVER_IP --dport 4434 -j ACCEPT
+ExecStartPre=-/sbin/iptables -t nat -D PREROUTING -p udp -d SERVER_IP --dport 443 -j DNAT --to SERVER_IP:4434
+ExecStartPre=/sbin/iptables -I INPUT -p udp -d SERVER_IP --dport 4434 -j ACCEPT
+ExecStartPre=/sbin/iptables -t nat -A PREROUTING -p udp -d SERVER_IP --dport 443 -j DNAT --to SERVER_IP:4434
+# UDP_STOP
+ExecStopPost=/sbin/iptables -D INPUT -p udp -d SERVER_IP --dport 4434 -j ACCEPT
+ExecStopPost=/sbin/iptables -t nat -D PREROUTING -p udp -d SERVER_IP --dport 443 -j DNAT --to SERVER_IP:4434
+# TCP_START
+ExecStartPre=-/sbin/iptables -D INPUT -p tcp -d SERVER_IP --dport 4434 -j ACCEPT
+ExecStartPre=-/sbin/iptables -t nat -D PREROUTING -p tcp -d SERVER_IP --dport 443 -j DNAT --to SERVER_IP:4434
+ExecStartPre=/sbin/iptables -I INPUT -p tcp -d SERVER_IP --dport 4434 -j ACCEPT
+ExecStartPre=/sbin/iptables -t nat -A PREROUTING -p tcp -d SERVER_IP --dport 443 -j DNAT --to SERVER_IP:4434
+# TCP_STOP
+ExecStopPost=/sbin/iptables -D INPUT -p tcp -d SERVER_IP --dport 4434 -j ACCEPT
+ExecStopPost=/sbin/iptables -t nat -D PREROUTING -p tcp -d SERVER_IP --dport 443 -j DNAT --to SERVER_IP:4434
+
+Restart=always
+RestartSec=5
+User=dns
+Group=dns
+PrivateTmp=true
+NoNewPrivileges=true
+WorkingDirectory=/etc/dnscrypt-wrapper
+InaccessibleDirectories=/home
+ReadOnlyDirectories=/etc
+ReadOnlyDirectories=/usr
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+# Example systemd unit file. Some assembly required.
+
+[Unit]
+Description=namecoind
+After=network.target
+
+[Service]
+Type=forking
+User=namecoin
+Group=namecoin
+WorkingDirectory=/home/namecoin
+ExecStart=/usr/local/bin/namecoind -server -gen=0 -daemon
+ExecStop=/usr/local/bin/namecoind stop
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
