@@ -36,7 +36,7 @@ module.exports = (dnschain) ->
 
     dnscDefs =
         log:
-            level: 'debug'
+            level: if process.env.DNS_EXAMPLE then 'debug' else 'info'
             cli: tty.isatty process.stdout
             pretty: tty.isatty process.stdout
             timestamp: true

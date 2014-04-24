@@ -74,18 +74,17 @@ module.exports = (dnschain) ->
                 ]
 
         tErr: (args...) ->
-            msg = util.format args...
-            e = new Error msg
-            @log?.error e.stack
+            e = new Error util.format args...
+            gLogger.error e.stack
             throw e
-
         
         ip2type: (d, ttl, type='A') ->
             (ip)-> dns2[type] {name:d, address:ip, ttl:ttl}
     }
 
-    # 4. config
+    # 4. vars for use within the map above and elsewhere
     config = dnschain.globals.config = require('./config')(dnschain)
+    gLogger = dnschain.globals.gLogger = dnschain.globals.newLogger 'Global Logger'
 
     # 5. return the globals object
     dnschain.globals

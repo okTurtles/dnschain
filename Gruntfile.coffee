@@ -62,7 +62,11 @@ module.exports = (grunt)->
 
         spawn = (child) ->
             grunt.log.writeln "example: spawning child..."
-            child.proc = child_process.fork grunt.config 'example'
+            spawnOpts =
+                cwd: process.cwd()
+                env: process.env
+                stdio: 'inherit'
+            child.proc = child_process.spawn grunt.config('example'), process.argv, spawnOpts
             child.running = true
             child.proc.on 'exit', (c) ->
                 if child.running

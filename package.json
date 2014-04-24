@@ -1,6 +1,6 @@
 {
   "name": "dnschain",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "A blockchain-based DNS + HTTP server that fixes HTTPS security, and more!",
   "homepage": "https://github.com/okTurtles/dnschain",
   "bugs": "https://github.com/okTurtles/dnschain/issues",
@@ -37,19 +37,19 @@
     "json-rpc2": "~0.3.1",
     "lodash": "~2.4.1",
     "string": "~1.7.0",
-    "native-dns": "~0.4.1",
-    "event-stream": "~3.1.0",
-    "lodash-contrib": "~241.3.1",
+    "native-dns": "git+https://github.com/okTurtles/node-dns.git#64f31c48c9aaf7c6308465623c4c619f0442da85",
+    "event-stream": "~3.1.2",
+    "lodash-contrib": "~241.4.4",
     "stream-array": "~0.1.3",
-    "winston": "~0.7.2",
+    "winston": "~0.7.3",
     "nconf": "~0.6.9",
     "properties": "~1.1.3",
-    "inquirer": "~0.4.0"
+    "inquirer": "~0.4.1"
   },
   "devDependencies": {
-    "grunt": "~0.4.2",
+    "grunt": "~0.4.4",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-coffeelint": "~0.0.7",
+    "grunt-coffeelint": "0.0.10",
     "matchdep": "~0.1.2"
   },
   "engines": {
