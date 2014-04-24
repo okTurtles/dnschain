@@ -42,6 +42,9 @@ module.exports = (dnschain) ->
             # > BECAUSE IT DOES NOT PROVIDE PROVIDE TTL VALUES! <
             # !! WARNING !!
             NODE_DNS: 1 # Prior to node 0.11.x will ignore dnsOpts.oldDNS and use OS-specified DNS. Currently ignores 'dnsOpts.oldDNS' in favor of OS-specified DNS even in node 0.11.x (simply needs to be implemented). TODO: <- this!
+
+            # Refuse to resolve old domains
+            NO_OLD_DNS: 2
     
     # 3. create global functions, and then return the entire globals object
     _.assign dnschain.globals, {

@@ -138,13 +138,17 @@ module.exports = (dnschain) ->
             # dns.setServers ['8.8.8.8']
             
             if @method is consts.oldDNS.NODE_DNS
-                @log.warn "Using", "oldDNS.NODE_DNS".bold, "method is strongly discouraged!"
+                @log.warn "Using".bold.red, "oldDNSMethod = NODE_DNS".bold, "method is strongly discouraged!".bold.red
                 if dns.getServers?
                     blacklist = _.intersection ['127.0.0.1', '::1', 'localhost'], dns.getServers()
                     if blacklist.length > 0
                         tErr "Cannot use NODE_DNS method when system DNS lists %j as a resolver! Would lead to infinite loop!", blacklist
                 else
                     tErr "Node's DNS module doesn't have 'getServers'. Please upgrade NodeJS."
+            else if @method is consts.oldDNS.NO_OLD_DNS
+                @log.warn "oldDNSMethod is set to refuse queries for traditional DNS!".bold.red
+            else if @method isnt consts.oldDNS.NATIVE_DNS
+                tErr "No such oldDNSMethod: #{@method}"
 
             @server = dns2.createServer() or tErr "dns2 create"
             @server.on 'socketError', (err) -> tErr err
@@ -314,7 +318,7 @@ module.exports = (dnschain) ->
                         @sendErr res
                 # @log.debug {fn:"beforesend", req:req2}
                 req2.send()
-            else
+            else if @method is consts.oldDNS.NODE_DNS
                 dns.resolve q.name, QTYPE_NAME[q.type], (err, addrs) =>
                     if err
                         @log.debug {fn:sig+':fail', q:q, err:err}
@@ -327,6 +331,9 @@ module.exports = (dnschain) ->
                         res.answer.push (addrs.map ip2type(q.name, ttl, QTYPE_NAME[q.type]))...
                         @log.debug {fn:sig+':success', answer:res.answer, q:q.name}
                         res.send()
+            else
+                # refuse all such queries
+                @sendErr res, NAME_RCODE.REFUSED
 
 
         sendErr: (res, code=NAME_RCODE.SERVFAIL) ->
