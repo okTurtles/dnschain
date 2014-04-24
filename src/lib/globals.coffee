@@ -4,7 +4,10 @@ dnschain
 http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
-Licensed under the BSD 3-Clause license.
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 
@@ -84,6 +87,7 @@ module.exports = (dnschain) ->
         # TODO: this function should take one parameter: an IP string
         #       and return either 'A' or 'AAAA'
         #       A separate function called type2rec should do what the inner fn does
+        #       https://github.com/okTurtles/dnschain/issues/7
         ip2type: (d, ttl, type='A') ->
             (ip)-> dns2[type] {name:d, address:ip, ttl:ttl}
 
@@ -99,7 +103,7 @@ module.exports = (dnschain) ->
                 dns2.TLSA
                     name: queryname
                     ttl: ttl
-                    usage: 3     # 3 = "Fuck CAs."
+                    usage: 3     # 3 = "Fuck CAs" :P
                     selector: 1  # SubjectPublicKeyInfo: DER-encoded [RFC5280]
                     matchingtype: certinfo[0]
                     buff: new Buffer certinfo[1], 'hex'

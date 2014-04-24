@@ -4,7 +4,10 @@ dnschain
 http://dnschain.net
 
 Copyright (c) 2013 Greg Slepak
-Licensed under the BSD 3-Clause license.
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 

@@ -131,6 +131,7 @@ DNSChain __does not use the NodeJS crypto module__ for generating signed headers
 
 1. Install DNSChain using: `npm install -g dnschain` (you may need to put `sudo` in front of that).
 2. Run `namecoind` in the background. You can use `systemd` and create a `namecoin.service` file for it based off of [dnschain.service](scripts/dnschain.service).
+3. If an update is released, update your copy using `npm update -g dnschain`.
 
 Test DNSChain by simply running `dnschain` from the command line (developers [see here](#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](scripts/dnschain.service) that you can use to run it.
 
@@ -153,11 +154,11 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
 
     [log]
     level=info
-
+    
     [dns]
     port=5333
     oldDNS.address = 8.8.8.8
-
+    
     [http]
     port=8088
     tlsPort=4443
@@ -188,24 +189,56 @@ To test and develop at the same time, simply run `sudo grunt example` and set yo
 #### Contributors<a name="Contributors"/>
 
 - [Greg Slepak](https://twitter.com/taoeffect) (Original author and current maintainer)
-- [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA support and misc. fixes)
+- [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA contributions and misc. fixes)
+- [TJ Fontaine](https://github.com/tjfontaine) (For `native-dns`, `native-dns-packet` modules and related projects)
+- [Simon Grondin](https://github.com/SGrondin) (For answering DNS & code-related questions)
 - *Your name & link of choice here!*
 
 #### TODO<a name="TODO"/>
 
-See TODOs in source, below is only a partial list.
+See TODOs in source, below is only a partial list:
 
 - sign responses
 - Support command line arguments
-    - `portmap` for `iptables` support.
+    - `portmap` for cleaner `iptables` support in the systemd unit files.
     - `-v`
     - `-h`
 
 ## Release History<a name="Release"/>
 
-| Version |       Date       |                                                                                                                                      Notes                                                                                                                                      |
-| ------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0.0.2   | April 15, 2014   | <ul><li>Enabled [namespace syntax](https://github.com/gagle/node-properties#namespaces) for the config file</li><li>Cherry-picked fix for `namecoinizeDomain` by @rakoo (thanks!)</li><li>Added more public servers to README.md</li><li>Added example systemd unit files for `namecoind` and `dnscrypt-wrapper` to scripts folder</li> </ul> |
-| 0.0.1   | February 9, 2014 | Published to `npm` under `dnschain`                                                                                                                                                                                                                                             |
+###### 0.1.0 - April 24, 2014
 
-Copyright (c) 2013-2014 Greg Slepak. Licensed under the BSD 3-Clause license.
+- __New Features:__
+    + DANE/TLSA support for *BOTH* canonical DNS and blockchain DNS!
+    + Added `NO_OLD_DNS` option for `oldDNSMethod` (refuses all non-blockchain queries)
+- __Improvements:__
+    + Redesigned `dns.coffee` and improved its structure
+    + Accurate `ttl` values now returned for namecoin DNS queries based on `expires_in` field
+    + Updated contributors, code and config examples in `README.md`
+    + Improved EDNS support
+    + Improved handling of ANY queries
+    + Updated dependencies to latest versions
+    + `native-dns` is now fetched from the `dnschain` branch of [our fork](https://github.com/okTurtles/node-dns/tree/dnschain).
+    + Comments added all over the place (to `native-dns` &amp; related projects also!)
+    + Many other code improvements both to DNSChain and the NodeJS `native-dns` module
+    + Some performance improvements
+- __Fixes:__
+    + Fixed broken `grunt example`
+    + Fixed some uncaught exceptions (issues #1 and #2)
+    + Fixed broken NAPTR support
+- __Changes:__
+    + DNSChain license is now MPL-2.0 (applies to version 0.1.0 onward)
+    + Default logging level is now `info`
+
+###### 0.0.2 - April 15, 2014
+
+- Enabled [namespace syntax](https://github.com/gagle/node-properties#namespaces) for the config file
+- Cherry-picked fix for `namecoinizeDomain` by @rakoo (thanks!)
+- Added more public servers to README.md
+- Added example systemd unit files for `namecoind` and `dnscrypt-wrapper` to scripts folder
+
+###### 0.0.1 - February 9, 2014
+
+- Published to `npm` under `dnschain`                                                                                                                                                                                                                                                                                                           |
+
+Copyright (c) 2013-2014 Greg Slepak. Licensed under [MPL-2.0 license](http://mozilla.org/MPL/2.0/).
