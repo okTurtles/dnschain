@@ -1,3 +1,5 @@
+*0.1.0 coming real soon! :-)*
+
 # DNSChain
 <!-- # DNSChain [![Build Status](https://secure.travis-ci.org/okTurtles/dnschain.png?branch=master)](http://travis-ci.org/okTurtles/dnschain) -->
 
@@ -156,6 +158,7 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
 
     [dns]
     port=5333
+    oldDNS.address = 8.8.8.8
 
     [http]
     port=8088
@@ -191,9 +194,7 @@ To test and develop at the same time, simply run `sudo grunt example` and set yo
 
 See TODOs in source, below is only a partial list.
 
-- __BUG:__ Fix ANY-record type resolution for .bit and .dns domains.
 - sign responses
-- add DANE support ([coming soon thanks to @rakoo!](https://github.com/rakoo/dnschain/commit/0dae9ab2cb3dc7df597b4b82511d219a2ff446c0))
 - Support command line arguments
     - `portmap` for `iptables` support.
     - `-v`
