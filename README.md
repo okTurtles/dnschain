@@ -1,5 +1,3 @@
-*0.1.0 coming real soon! :-)*
-
 # DNSChain
 <!-- # DNSChain [![Build Status](https://secure.travis-ci.org/okTurtles/dnschain.png?branch=master)](http://travis-ci.org/okTurtles/dnschain) -->
 
@@ -168,7 +166,10 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
 
 #### Working with the source<a name="Working"/>
 
-Run `sudo grunt example` from the DNSChain repository that you cloned from here.
+Make sure you did everything in the [requirements](##Requirements) and then play with these commands from your clone of the DNSChain repository:
+
+- `sudo grunt example` _(runs on privileged ports by default)_
+- `grunt example` _(runs on non-privileged ports by default)_
 
 Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
 
