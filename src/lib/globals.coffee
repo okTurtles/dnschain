@@ -77,9 +77,29 @@ module.exports = (dnschain) ->
             e = new Error util.format args...
             gLogger.error e.stack
             throw e
-        
+
+        # TODO: this function should take one parameter: an IP string
+        #       and return either 'A' or 'AAAA'
+        #       A separate function called type2rec should do what the inner fn does
         ip2type: (d, ttl, type='A') ->
             (ip)-> dns2[type] {name:d, address:ip, ttl:ttl}
+
+        # Currently this function is namecoin-specific.
+        # DANE/TLSA info: https://tools.ietf.org/html/rfc6698
+        # TODO: implement RRSIG from http://tools.ietf.org/html/rfc4034
+        #       as in: dig @8.8.4.4 +dnssec TLSA _443._tcp.good.dane.verisignlabs.com
+        tls2tlsa: (tls, ttl, queryname) ->
+            [port, protocol] = (queryname.split '.')[0..1].map (o)-> o.replace '_',''
+            if !tls?[protocol]?[port]?
+                return []
+            tls[protocol][port].map (certinfo) ->
+                dns2.TLSA
+                    name: queryname
+                    ttl: ttl
+                    usage: 3     # 3 = "Fuck CAs."
+                    selector: 1  # SubjectPublicKeyInfo: DER-encoded [RFC5280]
+                    matchingtype: certinfo[0]
+                    buff: new Buffer certinfo[1], 'hex'
     }
 
     # 4. vars for use within the map above and elsewhere
