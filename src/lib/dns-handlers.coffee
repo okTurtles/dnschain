@@ -16,6 +16,8 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
+    ResolverStream  = require('./resolver-stream')(dnschain)
+
     QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
     NAME_QTYPE = dns2.consts.NAME_TO_QTYPE
     NAME_RCODE = dns2.consts.NAME_TO_RCODE
@@ -42,7 +44,8 @@ module.exports = (dnschain) ->
             A: (req, res, qIdx, data, cb) ->
                 info = data.value
                 q = req.question[qIdx]
-                ttl = data.expires_in? * BLOCKS2SEC
+                # ttl = if isNaN(data.expires_in) then 0 else data.expires_in * BLOCKS2SEC
+                ttl = BLOCKS2SEC # average block creation time.
                 # According to NMC specification, specifying 'ns'
                 # overrules 'ip' value, so check it here and resolve using
                 # old-style DNS.

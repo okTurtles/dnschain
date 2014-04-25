@@ -68,7 +68,7 @@ module.exports = (dnschain) ->
                     @log.error "should not have an error here!", {fn:sig+':error', err:err, answer:answer}
                     reqErr = new Error(util.format "message error for '%j': %j", cname, err)
                 else
-                    @log.debug "resolved %j => %j !", req.question, answer.answer, {fn:sig+':message', cname:cname}
+                    @log.debug  {fn:sig+':message', cname:cname, resolved_q:req.question, to:answer.answer}
                     success = true
                     answers.push answer.answer...
                     answer.answer.forEach (a) => @push(@answerFilter(a))

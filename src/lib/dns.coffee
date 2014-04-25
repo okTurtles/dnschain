@@ -18,7 +18,6 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    ResolverStream  = require('./resolver-stream')(dnschain)
     dnsTypeHandlers = require('./dns-handlers')(dnschain)
 
     QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
@@ -113,21 +112,22 @@ module.exports = (dnschain) ->
 
             if S(q.name).endsWith '.bit'
                 nmcDomain = @namecoinizeDomain q.name
-                @log.debug {fn: 'cb|.bit', nmcDomain:nmcDomain, q:q}
+                @log.debug "resolving via nmc...", {fn: 'cb|.bit', nmcDomain:nmcDomain, q:q}
 
                 @dnschain.nmc.resolve nmcDomain, (err, result) =>
-                    @log.debug fn: fn = 'nmc_show|cb'
+                    fn = 'nmc_show|cb'
 
-                    if err
-                        @log.error {fn:fn, err:err, result:result, q:q}
+                    if err? or !result
+                        @log.error "namecoin failed to resolve", {fn:fn, err:err, result:result, q:q}
                         @sendErr res
                     else
-                        @log.debug {fn:fn, q:q, result:result}
+                        @log.debug "nmc resolved query", {fn:fn, q:q, d:nmcDomain, result:result}
 
                         try
                             result.value = JSON.parse result.value
                         catch e
-                            @log.error "bad JSON!", {fn: fn, exception:e, q:q, result:result}
+                            @log.warn e.stack
+                            @log.warn "bad JSON!", {fn: fn, q:q, result:result}
                             return @sendErr res, NAME_RCODE.FORMERR
 
                         try

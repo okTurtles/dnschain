@@ -32,5 +32,5 @@ module.exports = (dnschain) ->
             # @peer.end() # TODO: fix this!
 
         resolve: (path, cb) ->
-            @log.debug "path: '#{path}'", {fn: 'resolve'}
+            @log.debug {fn: 'resolve', path: path}
             @peer.call 'name_show', [path], cb

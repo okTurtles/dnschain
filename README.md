@@ -206,6 +206,15 @@ See TODOs in source, below is only a partial list:
 
 ## Release History<a name="Release"/>
 
+###### 0.1.1 - April 24, 2014
+
+- __Improvements:__
+    + Some improved logging
+- __Fixes:__
+    + Issue resolving some `.bit` domains introduced in previous release
+    + `ttl` for `.bit` domains is now equal to average block creation time
+    + Outdated license string in `package.json`
+
 ###### 0.1.0 - April 24, 2014
 
 - __New Features:__
@@ -239,6 +248,6 @@ See TODOs in source, below is only a partial list:
 
 ###### 0.0.1 - February 9, 2014
 
-- Published to `npm` under `dnschain`                                                                                                                                                                                                                                                                                                           |
+- Published to `npm` under `dnschain`
 
 Copyright (c) 2013-2014 Greg Slepak. Licensed under [MPL-2.0 license](http://mozilla.org/MPL/2.0/).
