@@ -32,7 +32,7 @@ In spite of their names, [SSL/TLS and HTTPS are not secure](http://okturtles.com
 DNSChain fixes this. What is DNSChain?
 
 - It's a DNS server that supports old-school DNS, and [blockchain](https://en.bitcoin.it/wiki/Block_chain)-based DNS (Namecoin currently), giving you access to `*.bit` websites.
-- It creates the __.dns meta-TLD__. Each `.dns` "[TLD](https://en.wikipedia.org/wiki/Top-level_domain)" belongs to just one DNSChain server: the one you're connected to.
+- It creates the __[.dns meta-TLD](#metaTLD)__, giving HTTP clients secure access to blockchain data.
 - It's an HTTP server (and in the future, an HTTPS server)
 - It lets you communicate directly with information in blockchains (read, and maybe even write!) from [JavaScript apps](http://okturtles.com)!
 - At its core, it lets you connect to websites, chat with your friends, and be safe from eavesdroppers and Big Brother-type entities. It gives you the gift of **authentication**.
@@ -56,11 +56,13 @@ SSL certificates today [do not provide the security that they claim to provide](
 
 ### The `.dns` meta-TLD<a name="metaTLD"/>
 
-__.dns__ is a "meta-TLD" because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
+__.dns__ is [a meta-TLD](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/) because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
 
 It bears emphasizing that *you cannot register a meta-TLD because you already own them!*
 
 When a DNSChain server sees a request to a `.dns` domain, it handles the request itself, looking it up in a blockchain stored on that same server. At the moment, DNSChain uses the Namecoin blockchain, but it can easily be configured to use any blockchain.
+
+- More info: [_Introducing the dotDNS metaTLD_](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/)
 
 ## How do I use it?<a name="Use"/>
 
