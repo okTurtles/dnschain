@@ -42,7 +42,7 @@ module.exports = (dnschain) ->
         # >> Do *NOT* use the numerical values in your config! <<
         # For now they're supported but their use is DEPRECATED and they *WILL* be removed!
         oldDNS:
-            # Recommend method
+            # Recommended method
             NATIVE_DNS: 0 # Use 'native-dns' module (current default). Hopefully merged into NodeJS in the future: https://github.com/joyent/node/issues/6864#issuecomment-32229852
 
             #                    !! WARNING !!

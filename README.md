@@ -152,7 +152,7 @@ There are two configurations to be aware of (both loaded using `nconf`): DNSChai
 
 DNSChain will fetch the RPC username and password out of Namecoin's configuration file if it can find it. If it can't, you'll either need to fix that, or provide `rpcuser`, `rpcpassword`, etc. to it via command line arguments or environment variables.
 
-The format of the configuration file is similar to INI, and is parsed by the NodeJS [`properties` module](https://github.com/gagle/node-properties) (in tandem with `nconf`). Here's a very basic `dnschain.conf`:
+The format of the configuration file is similar to INI, and is parsed by the NodeJS [`properties` module](https://github.com/gagle/node-properties) (in tandem with `nconf`). Here's an example of a possible `dnschain.conf`:
 
     [log]
     level=info
@@ -160,7 +160,9 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     [dns]
     port = 5333
     oldDNS.address = 8.8.8.8  # no quotes around IP
-    oldDNSMethod = NO_OLD_DNS # no quotes around this value either
+
+    # disable traditional DNS resolution (default is NATIVE_DNS)
+    oldDNSMethod = NO_OLD_DNS # no quotes around this either
     
     [http]
     port=8088
