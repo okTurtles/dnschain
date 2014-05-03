@@ -209,7 +209,9 @@ See TODOs in source, below is only a partial list:
 
 ## Release History<a name="Release"/>
 
-###### 0.2.0 - May 2, 2014
+###### 0.2.1 - May 2, 2014
+
+_(NOTE: 0.2.1 is the same as 0.2.0, just forgot to bump NPM version.)_
 
 - __New Features:__
     + oldDNSMethod config options should can now be specified as strings
