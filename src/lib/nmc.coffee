@@ -19,12 +19,12 @@ module.exports = (dnschain) ->
     class NMCPeer
         constructor: (@dnschain) ->
             # @log = @dnschain.log.child server: "NMC"
-            @log = newLogger 'NMC'
+            @log = gNewLogger 'NMC'
             @log.debug "Loading NMCPeer..."
             
             # we want them in this exact order:
-            params = ["port", "connect", "user", "password"].map (x)->config.nmc.get 'rpc'+x
-            @peer = rpc.Client.create(params...) or tErr "rpc create"
+            params = ["port", "connect", "user", "password"].map (x)-> gConf.nmc.get 'rpc'+x
+            @peer = rpc.Client.create(params...) or gErr "rpc create"
             @log.info "connected to namecoind: %s:%d", params[1], params[0]
 
         shutdown: ->

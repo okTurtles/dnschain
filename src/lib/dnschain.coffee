@@ -62,17 +62,17 @@ HTTPServer = require('./http')(exports)
 
 exports.DNSChain = class DNSChain
     constructor: ->
-        @log = newLogger 'DNSChain'
+        @log = gNewLogger 'DNSChain'
         try
             @nmc = new NMCPeer @
             @dns = new DNSServer @
             @http = new HTTPServer @
-            @log.info "DNSChain started and advertising on: #{config.get 'dns:externalIP'}"
+            @log.info "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
 
-            if process.getuid() isnt 0 and config.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
+            if process.getuid() isnt 0 and gConf.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
                 @log.warn "DNS port isn't 53!".bold.red, "While testing you should either run me as root or make sure to set standard ports in the configuration!".bold
         catch e
-            @log.error "DNSChain failed to start: ", e
+            @log.error "DNSChain failed to start: ", e.stack
             @shutdown()
             throw e # rethrow
 

@@ -19,15 +19,15 @@ module.exports = (dnschain) ->
     class HTTPServer
         constructor: (@dnschain) ->
             # @log = @dnschain.log.child server: "HTTP"
-            @log = newLogger 'HTTP'
+            @log = gNewLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
 
-            @server = http.createServer(@callback.bind(@)) or tErr "http create"
-            @server.on 'error', (err) -> tErr err
-            @server.on 'socketError', (err) -> tErr err
-            @server.listen config.get('http:port'), config.get('http:host') or tErr "http listen"
-            # @server.listen(config.get 'http:port') or tErr "http listen"
-            @log.info 'started HTTP', config.get 'http'
+            @server = http.createServer(@callback.bind(@)) or gErr "http create"
+            @server.on 'error', (err) -> gErr err
+            @server.on 'sockegError', (err) -> gErr err
+            @server.listen gConf.get('http:port'), gConf.get('http:host') or gErr "http listen"
+            # @server.listen gConf.get 'http:port') or gErr "http listen"
+            @log.info 'started HTTP', gConf.get 'http'
 
         shutdown: ->
             @log.debug 'shutting down!'

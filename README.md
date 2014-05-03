@@ -158,8 +158,9 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     level=info
     
     [dns]
-    port=5333
-    oldDNS.address = 8.8.8.8
+    port = 5333
+    oldDNS.address = 8.8.8.8  # no quotes around IP
+    oldDNSMethod = NO_OLD_DNS # no quotes around this value either
     
     [http]
     port=8088
@@ -207,6 +208,24 @@ See TODOs in source, below is only a partial list:
     - `-h`
 
 ## Release History<a name="Release"/>
+
+###### 0.2.0 - May 2, 2014
+
+- __New Features:__
+    + oldDNSMethod config options should can now be specified as strings
+      (and should be!)
+    + new oldDNSMethod `NO_OLD_DNS_EVER` prevents resolution in oldDNS
+      even if the blockchain specifies it be done.
+      (see comments in `globals.coffee` for more info and options)
+- __Improvements:__
+    + Improved logging shows file and line number for all warnings
+      and errors (and for some messages of other log levels too)
+    + All injected globals now start with 'g' (except for module names)
+    + Faster `.bit` resolution
+    + Imporved overall code quality and readability
+- __Fixes:__
+    + Fixed #8 (exception on NS timeout)
+    + Fixed #9 (return NXDOMAIN on bad 'ns' in *.bit)
 
 ###### 0.1.1 - April 24, 2014
 

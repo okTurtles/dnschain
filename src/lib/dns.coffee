@@ -27,32 +27,34 @@ module.exports = (dnschain) ->
 
     class DNSServer
         constructor: (@dnschain) ->
-            @log = newLogger 'DNS'
+            @log = gNewLogger 'DNS'
             @log.debug "Loading DNSServer..."
-            @method = config.get 'dns:oldDNSMethod'
+            @method = gConf.get 'dns:oldDNSMethod'
 
             # this is just for development testing of NODE_DNS method
             # dns.setServers ['8.8.8.8']
             
-            if @method is consts.oldDNS.NODE_DNS
+            if @method is gConsts.oldDNS.NODE_DNS
                 @log.warn "Using".bold.red, "oldDNSMethod = NODE_DNS".bold, "method is strongly discouraged!".bold.red
                 if dns.getServers?
                     blacklist = _.intersection ['127.0.0.1', '::1', 'localhost'], dns.getServers()
                     if blacklist.length > 0
-                        tErr "Cannot use NODE_DNS method when system DNS lists %j as a resolver! Would lead to infinite loop!", blacklist
+                        gErr "Cannot use NODE_DNS method when system DNS lists %j as a resolver! Would lead to infinite loop!", blacklist
                 else
-                    tErr "Node's DNS module doesn't have 'getServers'. Please upgrade NodeJS."
-            else if @method is consts.oldDNS.NO_OLD_DNS
-                @log.warn "oldDNSMethod is set to refuse queries for traditional DNS!".bold.red
-            else if @method isnt consts.oldDNS.NATIVE_DNS
-                tErr "No such oldDNSMethod: #{@method}"
+                    gErr "Node's DNS module doesn't have 'getServers'. Please upgrade NodeJS."
+            else if @method is gConsts.oldDNS.NO_OLD_DNS
+                @log.warn "oldDNSMethod is set to refuse queries for traditional DNS!".bold
+            else if @method is gConsts.oldDNS.NO_OLD_DNS_EVER
+                @log.warn "oldDNSMethod is set to refuse *ALL* queries for traditional DNS (even if the blockchain wants us to)!".bold.red
+            else if @method isnt gConsts.oldDNS.NATIVE_DNS
+                gErr "No such oldDNSMethod: #{@method}"
 
-            @server = dns2.createServer() or tErr "dns2 create"
-            @server.on 'socketError', (err) -> tErr err
+            @server = dns2.createServer() or gErr "dns2 create"
+            @server.on 'sockegError', (err) -> gErr err
             @server.on 'request', @callback.bind(@)
-            @server.serve config.get('dns:port'), config.get('dns:host')
+            @server.serve gConf.get('dns:port'), gConf.get('dns:host')
 
-            @log.info 'started DNS', config.get 'dns'
+            @log.info 'started DNS', gConf.get 'dns'
 
         shutdown: ->
             @log.debug 'shutting down!'
@@ -118,7 +120,7 @@ module.exports = (dnschain) ->
                     fn = 'nmc_show|cb'
 
                     if err? or !result
-                        @log.error "namecoin failed to resolve", {fn:fn, err:err, result:result, q:q}
+                        @log.error gLineInfo("namecoin failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res
                     else
                         @log.debug "nmc resolved query", {fn:fn, q:q, d:nmcDomain, result:result}
@@ -127,12 +129,12 @@ module.exports = (dnschain) ->
                             result.value = JSON.parse result.value
                         catch e
                             @log.warn e.stack
-                            @log.warn "bad JSON!", {fn: fn, q:q, result:result}
+                            @log.warn gLineInfo("bad JSON!"), {q:q, result:result}
                             return @sendErr res, NAME_RCODE.FORMERR
 
                         try
                             if !(handler = dnsTypeHandlers.namecoin[QTYPE_NAME[q.type]])
-                                @log.warn "no such handler!", {q:q, type: QTYPE_NAME[q.type]}
+                                @log.warn gLineInfo("no such handler!"), {q:q, type: QTYPE_NAME[q.type]}
                                 return @sendErr res, NAME_RCODE.NOTIMP
 
                             handler.call @, req, res, qIdx, result, (errCode) =>
@@ -143,13 +145,13 @@ module.exports = (dnschain) ->
                                     res.send()
                         catch e
                             @log.error e.stack
-                            @log.error "exception in handler", {fn:fn, q:q, result:result}
+                            @log.error gLineInfo("exception in handler"), {q:q, result:result}
                             return @sendErr res, NAME_RCODE.SERVFAIL
 
             else if S(q.name).endsWith '.dns'
                 # TODO: right now we're doing a catch-all and pretending they asked
                 #       for namecoin.dns...
-                res.answer.push ip2type(q.name,ttl,QTYPE_NAME[q.type])(config.get 'dns:externalIP')
+                res.answer.push gIP2type(q.name,ttl,QTYPE_NAME[q.type])(gConf.get 'dns:externalIP')
                 @log.debug {fn:'cb|.dns', q:q, answer:res.answer}
                 res.send()
             else
@@ -169,22 +171,22 @@ module.exports = (dnschain) ->
 
             @log.debug {fn:sig+':start', q:q}
 
-            if @method is consts.oldDNS.NATIVE_DNS
+            if @method is gConsts.oldDNS.NATIVE_DNS
                 success = false
                 # TODO: retry in TCP-mode on truncated response (like `dig`)
                 #       See: https://github.com/tjfontaine/node-dns/issues/70
                 req2 = new dns2.Request
                     question: q
-                    server  : config.get 'dns:oldDNS'
+                    server  : gConf.get 'dns:oldDNS'
                     try_edns: q.type is NAME_QTYPE.ANY or req.edns?
 
                 # 'answer' is a Packet subclass with the .address and ._socket fields
                 req2.on 'message', (err, answer) =>
                     if err?
-                        @log.error "should not have an error here!", {fn:sig+':error', err:err, answer:answer}
+                        @log.error gLineInfo("should not have an error here!"), {err:err?.message, answer:answer}
                         req2.DNSErr ?= err
                     else
-                        @log.debug {fn:sig+':message', answer:answer}
+                        @log.debug gLineInfo('message'), {answer:answer}
                         success = true
                         res.header.ra = answer.header.ra
                         _.assign res, _.pick answer, [
@@ -192,36 +194,36 @@ module.exports = (dnschain) ->
                             'answer', 'authority', 'additional'
                         ]
 
-                req2.on 'error', (err='unknown error') =>
-                    @log.error {fn:sig+':error', err:err}
+                req2.on 'error', (err={message:'unknown error'}) =>
+                    @log.error gLineInfo('oldDNS lookup error'), {err:err?.message}
                     req2.DNSErr = err
 
-                req2.on 'timeout', (err='timeout') =>
-                    @log.warn {fn:sig+':timeout', err:err}
+                req2.on 'timeout', (err={message:'timeout'}) =>
+                    @log.warn gLineInfo('oldDNS timeout'), {err:err}
                     req2.DNSErr = err
 
                 req2.on 'end', =>
                     if success
-                        @log.debug {fn:sig+':success', q:q, res: _.omit(res, '_socket')}
+                        @log.debug gLineInfo('success!'), {q:q, res: _.omit(res, '_socket')}
                         res.send()
                     else
                         # TODO: this is noisy.
                         #       also make log output look good in journalctl
-                        @log.warn {fn:sig+':fail', q:q, err:req2.DNSErr, response:_.omit(res, '_socket')}
+                        @log.warn gLineInfo('oldDNS lookup failed'), {q:q, err:req2.DNSErr}
                         @sendErr res
                 # @log.debug {fn:"beforesend", req:req2}
                 req2.send()
-            else if @method is consts.oldDNS.NODE_DNS
+            else if @method is gConsts.oldDNS.NODE_DNS
                 dns.resolve q.name, QTYPE_NAME[q.type], (err, addrs) =>
                     if err
-                        @log.debug {fn:sig+':fail', q:q, err:err}
+                        @log.debug {fn:sig+':fail', q:q, err:err?.message}
                         @sendErr res
                     else
                         # USING THIS METHOD IS DISCOURAGED BECAUSE IT DOESN'T
                         # PROVIDE US WITH CORRECT TTL VALUES!!
                         # TODO: pick an appropriate TTL value!
                         ttl = Math.floor(Math.random() * 3600) + 30
-                        res.answer.push (addrs.map ip2type(q.name, ttl, QTYPE_NAME[q.type]))...
+                        res.answer.push (addrs.map gIP2type(q.name, ttl, QTYPE_NAME[q.type]))...
                         @log.debug {fn:sig+':success', answer:res.answer, q:q.name}
                         res.send()
             else
@@ -231,6 +233,6 @@ module.exports = (dnschain) ->
 
         sendErr: (res, code=NAME_RCODE.SERVFAIL) ->
             res.header.rcode = code
-            @log.debug {fn:'sendErr', code:code, name:RCODE_NAME[code]}
+            @log.debug gLineInfo(), {code:code, name:RCODE_NAME[code]}
             res.send()
             false # helps other functions pass back an error value

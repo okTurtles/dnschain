@@ -37,7 +37,7 @@ module.exports = (dnschain) ->
     # TODO: add path to our private key for signing answers
     amRoot = process.getuid() is 0
 
-    dnscDefs =
+    defaults =
         log:
             level: if process.env.DNS_EXAMPLE then 'debug' else 'info'
             cli: tty.isatty process.stdout
@@ -46,8 +46,8 @@ module.exports = (dnschain) ->
         dns:
             port: if amRoot then 53 else 5333
             host: '0.0.0.0' # what we bind to
-            externalIP: externalIP() # Advertise this IP for "meta-TLDs" like dns.nmc
-            oldDNSMethod: consts.oldDNS.NATIVE_DNS # Use NATIVE_DNS until node gives TTLs!
+            externalIP: gExternalIP() # Advertise this IP for "meta-TLDs" like dns.nmc
+            oldDNSMethod: 'NATIVE_DNS' # see 'globals.coffee' for possible values
             oldDNS:
                 address: '8.8.8.8' # Google (we recommend running PowerDNS yourself and sending it there)
                 port: 53
@@ -95,7 +95,7 @@ module.exports = (dnschain) ->
     nmc.file('user', {file:nmcConf,format:props}) if nmcConf
 
     stores =
-        dnschain: nconf.defaults dnscDefs
+        dnschain: nconf.defaults defaults
         nmc: nmc.defaults nmcDefs
 
     config =
