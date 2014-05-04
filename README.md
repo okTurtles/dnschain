@@ -211,6 +211,11 @@ See TODOs in source, below is only a partial list:
 
 ## Release History<a name="Release"/>
 
+###### 0.2.2 - May 3, 2014
+
+- Corrected StackedSchedule scheduling
+- Copied old release notes to HISTORY.md
+
 ###### 0.2.1 - May 2, 2014
 
 _(NOTE: 0.2.1 is the same as 0.2.0, just forgot to bump NPM version.)_
@@ -264,15 +269,6 @@ _(NOTE: 0.2.1 is the same as 0.2.0, just forgot to bump NPM version.)_
     + DNSChain license is now MPL-2.0 (applies to version 0.1.0 onward)
     + Default logging level is now `info`
 
-###### 0.0.2 - April 15, 2014
-
-- Enabled [namespace syntax](https://github.com/gagle/node-properties#namespaces) for the config file
-- Cherry-picked fix for `namecoinizeDomain` by @rakoo (thanks!)
-- Added more public servers to README.md
-- Added example systemd unit files for `namecoind` and `dnscrypt-wrapper` to scripts folder
-
-###### 0.0.1 - February 9, 2014
-
-- Published to `npm` under `dnschain`
+_(For complete release history see [HISTORY.md](HISTORY.md))_
 
 Copyright (c) 2013-2014 Greg Slepak. Licensed under [MPL-2.0 license](http://mozilla.org/MPL/2.0/).

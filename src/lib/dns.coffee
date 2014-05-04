@@ -189,10 +189,8 @@ module.exports = (dnschain) ->
                         @log.debug gLineInfo('message'), {answer:answer}
                         success = true
                         res.header.ra = answer.header.ra
-                        _.assign res, _.pick answer, [
-                            'edns_version', 'edns_options', 'edns',
-                            'answer', 'authority', 'additional'
-                        ]
+                        _.assign res, _.pick answer, ['edns_version', 'edns_options',
+                            'edns', 'answer', 'authority', 'additional']
 
                 req2.on 'error', (err={message:'unknown error'}) =>
                     @log.error gLineInfo('oldDNS lookup error'), {err:err?.message}

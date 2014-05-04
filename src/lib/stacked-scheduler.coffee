@@ -32,17 +32,12 @@ module.exports = (dnschain) ->
                 delete @tasks[key]
 
         schedule: (callback) ->
-            diffMillis = Date.now() - @nextRunTime
-            @nextRunTime += diffMillis + @stackedDelay
+            diffMillis = @nextRunTime - Date.now()
+            @nextRunTime += @stackedDelay - Math.min(diffMillis, 0)
             nonce = @taskCounter++
-            
-            cbAndCleanup = =>
-                delete @tasks[nonce]
-                callback()
-
-            if diffMillis >= @stackedDelay or _.size(@tasks) is 0
-                diffMillis = 0
-
             @tasks[nonce] =
                 callback: callback # for 'cancelAll'
-                tid: setTimeout cbAndCleanup, diffMillis
+                tid: setTimeout =>
+                    delete @tasks[nonce]
+                    callback()
+                , Math.max diffMillis, 0
