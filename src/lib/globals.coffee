@@ -141,7 +141,7 @@ module.exports = (dnschain) ->
     if typeof method isnt 'string'
         method = _.keys(_.pick gConsts.oldDNS, (v,k)-> v is method)[0]
         gLogger.warn "Specifying 'oldDNSMethod' as a number is DEPRECATED!".bold.red
-        gLogger.warn "Please specify it as the string value:".bold.red, "'#{method}'".bold
+        gLogger.warn "Please specify the string value instead:".bold.red, "#{method}".bold
     else
         if (method_num = gConsts.oldDNS[method])?
             # kinda hackish... but makes for easy and quick comparisons
