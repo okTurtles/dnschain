@@ -181,6 +181,8 @@ Grunt will automatically lint your code to the style used in this project, and w
 
 ## Community<a name="Community"/>
 
+- Forums: __Neglected initially, but we got a [free HTTPS cert](https://forums.okturtles.com/index.php?topic=5.0) for them so they're easier to use.__
+    + [__We ask you: Forums or Mailing List?__](https://forums.okturtles.com/index.php?topic=5.0)
 - IRC (Freenode): `#dnschain` &rArr; [Webchat](http://webchat.freenode.net/?channels=%23dnschain&uio=MT11bmRlZmluZWQb1)
 - Twitter: [@DNSChain](https://twitter.com/dnschain)
 - Email: hi at okturtles.com
