@@ -211,6 +211,11 @@ See TODOs in source, below is only a partial list:
 
 ## Release History<a name="Release"/>
 
+###### 0.2.3 - May 27, 2014
+
+- Updated native-dns module
+- Fixed [#16](https://github.com/okTurtles/dnschain/issues/16) (unhandled exceptions). DNSSEC and other "unhandled" packets should be relayed now as a result.
+
 ###### 0.2.2 - May 3, 2014
 
 - Corrected StackedSchedule scheduling
