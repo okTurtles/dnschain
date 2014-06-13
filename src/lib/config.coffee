@@ -1,7 +1,7 @@
 ###
 
 dnschain
-http://dnschain.net
+http://dnschain.org
 
 Copyright (c) 2014 okTurtles Foundation
 
@@ -76,7 +76,7 @@ module.exports = (dnschain) ->
 
     props.parse = _.partialRight props.parse, fileFormatOpts
     props.stringify = _.partialRight props.stringify, fileFormatOpts
-    
+
 
     # load our config
     appname = "dnschain"
@@ -95,7 +95,6 @@ module.exports = (dnschain) ->
 
     # namecoin
     nmc = (new nconf.Provider()).argv().env()
-    
     # TODO: use the same _.find technique as done below for bdnsConf
     nmcConf = if process.env.APPDATA?
         path.join process.env.APPDATA, "Namecoin", "namecoin.conf"

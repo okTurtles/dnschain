@@ -1,7 +1,7 @@
 ###
 
 dnschain
-http://dnschain.net
+http://dnschain.org
 
 Copyright (c) 2014 okTurtles Foundation
 
@@ -21,7 +21,7 @@ module.exports = (dnschain) ->
             # @log = @dnschain.log.child server: "NMC"
             @log = gNewLogger 'NMC'
             @log.debug "Loading NMCPeer..."
-            
+
             # we want them in this exact order:
             params = ["port", "connect", "user", "password"].map (x)-> gConf.nmc.get 'rpc'+x
             @peer = rpc.Client.$create(params...) or gErr "rpc create"

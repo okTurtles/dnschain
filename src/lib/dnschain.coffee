@@ -1,7 +1,7 @@
 ###
 
 dnschain
-http://dnschain.net
+http://dnschain.org
 
 Copyright (c) 2014 okTurtles Foundation
 
@@ -37,7 +37,7 @@ design:
 
 security:
 
-- protect against DDoS DNS amplification attacks. 
+- protect against DDoS DNS amplification attacks.
 
 DNS libraries used and considered:
 

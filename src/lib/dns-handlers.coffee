@@ -1,9 +1,9 @@
 ###
 
 dnschain
-http://dnschain.net
+http://dnschain.org
 
-Copyright (c) 2013-2014 Greg Slepak
+Copyright (c) 2014 okTurtles Foundation
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -36,18 +36,18 @@ module.exports = (dnschain) ->
     # It is the hander's job to add answers to 'res' but *NOT* to send them!
     # Instead, it should call the callback function 'cb'.
     # Pass in a NAME_RCODE to 'cb' on error, or nothing on success.
-    # 
-    # IMPORTANT: these functions __*MUST*__ be bound to the DNSServer instance 
+    #
+    # IMPORTANT: these functions __*MUST*__ be bound to the DNSServer instance
     #            that calls them!
     dnsTypeHandlers =
         namecoin:
             # TODO: handle all the types specified in the specification!
             #       https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Value_field
-            #       
+            #
             # TODO: handle other info outside of the specification!
             #       - GNS support
             #       - DNSSEC support?
-            #       
+            #
             # *ALL* namecoin handlers must be of the this type
             A: (req, res, qIdx, data, cb) ->
                 # @log.warn gLineInfo('debug A handler...'), {data: data}
@@ -63,7 +63,7 @@ module.exports = (dnschain) ->
                     # 2. Send request to each of the servers, separated by `stackedDelay`.
                     #    On receiving the first answer from any of them, cancel all other
                     #    pending requests and respond to our client.
-                    # 
+                    #
                     # TODO: handle ns = IPv6 addr!
                     [nsIPs, nsCNAMEs] = [[],[]]
 
@@ -152,7 +152,7 @@ module.exports = (dnschain) ->
             # TODO: implement this!
             AAAA: (req, res, qIdx, data, cb) ->
                 cb NAME_RCODE.NOTIMP
-            
+
             TLSA: (req, res, qIdx, data, cb) ->
                 len = res.answer.length
                 ttl = data.expires_in? * BLOCKS2SEC
