@@ -32,12 +32,13 @@ module.exports = (dnschain) ->
             @server = http.createServer(@callback.bind(@)) or gErr "http create"
             @server.on 'error', (err) -> gErr err
             @server.on 'sockegError', (err) -> gErr err
+            @server.on 'close', -> gErr new Error 'Client closed the connection early.'
             @server.listen gConf.get('http:port'), gConf.get('http:host') or gErr "http listen"
             # @server.listen gConf.get 'http:port') or gErr "http listen"
             @log.info 'started HTTP', gConf.get 'http'
 
         shutdown: ->
-            @log.debug 'shutting down!'
+            @log.debug 'HTTP shutting down!'
             @server.close()
 
         # TODO: send a signed header proving the authenticity of our answer
@@ -71,3 +72,4 @@ module.exports = (dnschain) ->
                     @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
                     res.write @dnschain[resolver].toJSONstr result
                     res.end()
+
