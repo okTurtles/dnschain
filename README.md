@@ -34,18 +34,18 @@ It's what we have to get rid of, and DNSChain provides a scalable, distributed, 
 "authority figures":
 ︎
 
-|                                                                              | DNSChain | X.509 PKI |
-|------------------------------------------------------------------------------|----------|-----------|
-| __MITM-proof authentication__ <sup>[[1]](#metaTLD)</sup>                     | ✅        | :x:       |
-| __Secure and simple [GPG key distribution](#GPG)__                           | ✅        | :x:       |
-| __Free and actually-secure SSL certificates__ <sup>[[2]](#Free)</sup>        | ✅        | :x:       |
-| __Stops many denial-of-service attacks__ <sup>[[3]](#DDoS)</sup>             | ✅        | :x:       |
-| __Certificate revocation that actually works__ <sup>[[4]](#Revocation)</sup> | ✅        | :x:       |
-| __DNS-based censorship circumvention__ <sup>[[5]](#Censorship)</sup>         | ✅        | :x:       |
-| __Prevents [domain theft](http://okturtles.com/#open-source) ("seizures")__  | ✅        | :x:       |
-| __Access blockchain-based [domains like `.bit`](#Use)__                      | ✅        | :x:       |
-| __RESTful API to blockchain via [.dns metaTLD](#metaTLD)__                   | ✅        | :x:       |
-| __Simple design fits in about *600 lines of CoffeeScript!*__                 | ✅        | :x:       |
+|                                                                              | DNSChain | X.509 PKI [with or w/out Certificate Transparency](http://www.ietf.org/mail-archive/web/trans/current/msg00233.html) |
+|------------------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------------------------------|
+| __MITM-proof authentication__ <sup>[[1]](#metaTLD)</sup>                     | ✅        | :x:                                                                                                                  |
+| __Secure and simple [GPG key distribution](#GPG)__                           | ✅        | :x:                                                                                                                  |
+| __Free and actually-secure SSL certificates__ <sup>[[2]](#Free)</sup>        | ✅        | :x:                                                                                                                  |
+| __Stops many denial-of-service attacks__ <sup>[[3]](#DDoS)</sup>             | ✅        | :x:                                                                                                                  |
+| __Certificate revocation that actually works__ <sup>[[4]](#Revocation)</sup> | ✅        | :x:                                                                                                                  |
+| __DNS-based censorship circumvention__ <sup>[[5]](#Censorship)</sup>         | ✅        | :x:                                                                                                                  |
+| __Prevents [domain theft](http://okturtles.com/#open-source) ("seizures")__  | ✅        | :x:                                                                                                                  |
+| __Access blockchain-based [domains like `.bit`](#Use)__                      | ✅        | :x:                                                                                                                  |
+| __RESTful API to blockchain via [.dns metaTLD](#metaTLD)__                   | ✅        | :x:                                                                                                                  |
+| __Simple design fits in about *600 lines of CoffeeScript!*__                 | ✅        | :x:                                                                                                                  |
 
 ### Simple and secure GPG key distribution<a name="GPG"/>
 
