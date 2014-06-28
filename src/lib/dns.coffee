@@ -117,7 +117,7 @@ module.exports = (dnschain) ->
                 @log.debug "resolving via nmc...", {fn: 'cb|.bit', nmcDomain:nmcDomain, q:q}
 
                 @dnschain.nmc.resolve nmcDomain, (err, result) =>
-                    fn = 'nmc_show|cb'
+                    fn = 'nmc_show|cb' # TODO: replace with gLineInfo
 
                     if err? or !result
                         @log.error gLineInfo("namecoin failed to resolve"), {err:err?.message, result:result, q:q}
@@ -207,6 +207,7 @@ module.exports = (dnschain) ->
                     else
                         # TODO: this is noisy.
                         #       also make log output look good in journalctl
+                        # you can log IP with: res._socket.remote.address
                         @log.warn gLineInfo('oldDNS lookup failed'), {q:q, err:req2.DNSErr}
                         @sendErr res
                 # @log.debug {fn:"beforesend", req:req2}

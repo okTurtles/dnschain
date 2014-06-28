@@ -24,6 +24,13 @@ module.exports = (dnschain) ->
     RCODE_NAME = dns2.consts.RCODE_TO_NAME
     BLOCKS2SEC = 10 * 60
 
+    LOCALHOSTS = _.uniq [
+        "127.0.0.", "10.0.0.", "192.168.", "::1", "fe80::"
+        gConf.get('dns:host'), gConf.get('http:host')
+        gConf.get('dns:externalIP'), gExternalIP()
+        gConf.nmc.get('rpcconnect')
+    ].filter (o)-> typeof(o) is 'string'
+
     # instanceNum = 0 # debugging
 
     # It is the hander's job to add answers to 'res' but *NOT* to send them!
@@ -65,10 +72,25 @@ module.exports = (dnschain) ->
                     if @method is gConsts.oldDNS.NO_OLD_DNS_EVER
                         nsCNAMEs = []
 
+                    # IMPORTANT! This DNSChain server might have a bi-directional relationship
+                    #            with another local resolver for oldDNS (like PowerDNS). We
+                    #            don't want malicious data in the blockchain to result in
+                    #            queries being sent back and forth between them ad-infinitum!
+                    #            Namecoin's specification states that these should only be
+                    #            oldDNS TLDs anyway. Use 'delegate', 'import', or 'map' to
+                    #            refer to other blockchain locations:
+                    #            https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Value_field
+                    # WARNING!   Because of this issue, it's probably best to not create a
+                    #            bi-directional relationship like this between two resolvers.
+                    #            It's far safer to tell DNSChain to use a different resolver
+                    #            that won't re-ask DNSChain any questions.
+                    nsCNAMEs = _.reject nsCNAMEs, (ns)->/\.(bit|dns)$/.test ns
+                    # IPs like 127.0.0.1 are checked below against LOCALHOSTS array
+
                     if nsIPs.length == nsCNAMEs.length == 0
                         return cb NAME_RCODE.REFUSED
 
-                    # TODO: use these staticallyinstead of creating new instances for each request
+                    # TODO: use these statically instead of creating new instances for each request
                     #       See: https://github.com/okTurtles/dnschain/issues/11
                     nsCNAME2IP   = new ResolverStream
                         name        : 'nsCNAME2IP' # +'-'+(instanceNum++)
@@ -92,7 +114,11 @@ module.exports = (dnschain) ->
                         cb code
 
                     nsIPs.on 'data', (nsIP) =>
-                        stackedQuery.write(nsIP)
+                        if _.find(LOCALHOSTS, (ip)->S(nsIP).startsWith ip)
+                            # avoid the possible infinite-loop on some (perhaps poorly) configured systems
+                            @log.warn gLineInfo('dropping query, NMC NS ~= localhost!'), {q:q, nsIP:nsIP, info:info}
+                        else
+                            stackedQuery.write(nsIP)
 
                     nsCNAME2IP.on 'failed', (err) =>
                         @log.warn gLineInfo('nsCNAME2IP error'), {error:err?.message, q:q}

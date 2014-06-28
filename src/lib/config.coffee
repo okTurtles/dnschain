@@ -40,9 +40,9 @@ module.exports = (dnschain) ->
     defaults =
         log:
             level: if process.env.DNS_EXAMPLE then 'debug' else 'info'
-            cli: tty.isatty process.stdout
+            colors: true
             pretty: tty.isatty process.stdout
-            timestamp: true
+            timestamp: tty.isatty process.stdout
         dns:
             port: if amRoot then 53 else 5333
             host: '0.0.0.0' # what we bind to

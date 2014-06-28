@@ -84,7 +84,7 @@ module.exports = (dnschain) ->
                     new winston.transports.Console
                         label:name
                         level: gConf.get 'log:level'
-                        colorize: gConf.get 'log:cli'
+                        colorize: gConf.get 'log:colors'
                         prettyPrint: gConf.get 'log:pretty'
                         timestamp: gConf.get 'log:timestamp'
                 ]

@@ -3,3 +3,4 @@ npm-debug.log
 *.log
 *.DS_Store
 out/
+notes/
