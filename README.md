@@ -34,7 +34,7 @@ It's what we have to get rid of, and DNSChain provides a scalable, distributed, 
 "authority figures":
 ︎
 
-|                                                                              | DNSChain | X.509 PKI [with or w/out Certificate Transparency](http://www.ietf.org/mail-archive/web/trans/current/msg00233.html) |
+|                                                                              | DNSChain | X.509 PKI [with or without Certificate Transparency](http://www.ietf.org/mail-archive/web/trans/current/msg00233.html) |
 |------------------------------------------------------------------------------|----------|----------------------------------------------------------------------------------------------------------------------|
 | __MITM-proof authentication__ <sup>[[1]](#metaTLD)</sup>                     | ✅        | :x:                                                                                                                  |
 | __Secure and simple [GPG key distribution](#GPG)__                           | ✅        | :x:                                                                                                                  |
@@ -79,7 +79,7 @@ TODO: [OCSP](https://news.ycombinator.com/item?id=7556909) + DoS.
 
 The developers of [Unblock.us.org](https://github.com/SGrondin/unblock.us.org) and DNSChain are teaming up to bring the anti-censorship features of Unblock.us into DNSChain. Each project benefits from the other: DNSChain ensures MITM-free communication and Unblock.us ensures that the communication passes through firewalls.
 
-The Unblock.us feature is optional and is up to the server administrator to enable and configure to their needs. It uses MITM attacks to defeat censorship at its own game.
+The Unblock.us feature is optional and is up to the server administrator to enable and configure to their needs. It uses MITM to defeat censorship at its own game.
 
 Unblock.us works by hijacking the DNS lookups for the domains on a list defined by the server administrator. The server then accepts all HTTP and HTTPS traffic addressed to those domains and forwards it intelligently. Even though it can't decrypt SSL traffic, it can still forward it. It's as fast as a VPN (unlike Tor) and ONLY tunnels the traffic to those domains, meaning that it doesn't affect other online activites (unlike VPNs and Tor) and isn't costly in server bandwidth. Finally, there's no software to install, only DNS settings to change. It has been confirmed to work in Turkey, UK, Kuwait, UAE and many additional Middle Eastern countries.
 
