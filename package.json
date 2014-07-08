@@ -37,7 +37,7 @@
     "url": "git://github.com/okTurtles/dnschain.git"
   },
   "dependencies": {
-    "json-rpc2": "~0.3.1",
+    "json-rpc2": "0.6.x",
     "lodash": "~2.4.1",
     "string": "~1.7.0",
     "native-dns": "git+https://github.com/okTurtles/node-dns.git#08433ec98f517eed3c6d5e47bdf62603539cd402",
