@@ -45,6 +45,9 @@ module.exports = (dnschain) ->
 
         callback: (req, res) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
+
+            # IF HIJACKED GOES HERE
+
             @log.debug gLineInfo('request'), {path:path, url:req.url}
 
             notFound = =>

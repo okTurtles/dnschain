@@ -54,8 +54,21 @@ module.exports = (dnschain) ->
                 type: 'udp'
         http:
             port: if amRoot then 80 else 8088
-            tlsPort: if amRoot then 443 else 4443
             host: '0.0.0.0' # what we bind to
+
+        https:
+            port: if amRoot then 443
+            host: '0.0.0.0'
+
+        unblock :
+            enabled: true
+            domainList : {
+                "youtube.com":"youtube.com"
+                "ggpht.com":"ggpht.com"
+                "ytimg.com":"ytimg.com"
+                "youtube-nocookie.com":"youtube-nocookie.com"
+                "youtu.be":"youtu.be"
+            }
 
     nmcDefs =
         rpcport: 8336

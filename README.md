@@ -197,7 +197,6 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     
     [http]
     port=8088
-    tlsPort=4443
 
 **Have a look at [config.coffee](src/lib/config.coffee) to see all the possible configuration options and defaults!**
 

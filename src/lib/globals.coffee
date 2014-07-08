@@ -151,17 +151,5 @@ module.exports = (dnschain) ->
             process.exit 1
 
 
-    # 5 Import the Unblock.us configuration
-    unblockSettings = require "./unblock/settings"
-    dnsSettings = gConf.get "dns"
-
-    unblockSettings.IPv4 = dnsSettings.externalIP
-    # TODO: Add IPv6 support... cmon it's 2014 already! And TCP too! And TCP Ipv6!
-    unblockSettings.forwardDNS = dnsSettings.oldDNS.address
-    unblockSettings.forwardDNSPort = dnsSettings.oldDNS.port
-
-    dnschain.globals.unblockSettings = unblockSettings
-
-
-    # 6. return the globals object
+    # 5. return the globals object
     dnschain.globals

@@ -60,6 +60,7 @@ NMCPeer = require('./nmc')(exports)
 BDNSPeer = require('./bdns')(exports)
 DNSServer = require('./dns')(exports)
 HTTPServer = require('./http')(exports)
+UnblockServer = require('./unblock/index')(exports)
 
 exports.DNSChain = class DNSChain
     constructor: ->
@@ -69,6 +70,7 @@ exports.DNSChain = class DNSChain
             @bdns = new BDNSPeer @
             @dns = new DNSServer @
             @http = new HTTPServer @
+            @unblock = new UnblockServer @
             @log.info "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
 
             if process.getuid() isnt 0 and gConf.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
