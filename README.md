@@ -227,6 +227,10 @@ Grunt will automatically lint your code to the style used in this project, and w
 
 ## Release History<a name="Release"/>
 
+###### 0.2.5 - July 10, 2014
+
+- Fixed `.bit` resolution bug introduced in `0.2.4`
+
 ###### 0.2.4 - July 10, 2014
 
 - Fixed installation issue caused by `json-rpc2`
