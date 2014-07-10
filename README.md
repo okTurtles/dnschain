@@ -227,6 +227,13 @@ Grunt will automatically lint your code to the style used in this project, and w
 
 ## Release History<a name="Release"/>
 
+###### 0.2.4 - July 10, 2014
+
+- Fixed installation issue caused by `json-rpc2`
+- Fixed exception (issue #20)
+- Prevented possible DoS on in certain server setup where DNSChain
+  is combined with another DNS server
+
 ###### 0.2.3 - May 27, 2014
 
 - Updated native-dns module

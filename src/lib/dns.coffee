@@ -132,21 +132,21 @@ module.exports = (dnschain) ->
                             @log.warn gLineInfo("bad JSON!"), {q:q, result:result}
                             return @sendErr res, NAME_RCODE.FORMERR
 
-                        try
                             if !(handler = dnsTypeHandlers.namecoin[QTYPE_NAME[q.type]])
                                 @log.warn gLineInfo("no such handler!"), {q:q, type: QTYPE_NAME[q.type]}
                                 return @sendErr res, NAME_RCODE.NOTIMP
 
                             handler.call @, req, res, qIdx, result, (errCode) =>
-                                if errCode
-                                    @sendErr res, errCode
-                                else
-                                    @log.debug "sending response!", {fn:'cb', res:_.omit(res, '_socket')}
-                                    res.send()
-                        catch e
-                            @log.error e.stack
-                            @log.error gLineInfo("exception in handler"), {q:q, result:result}
-                            return @sendErr res, NAME_RCODE.SERVFAIL
+                                try
+                                    if errCode
+                                        @sendErr res, errCode
+                                    else
+                                        @log.debug "sending response!", {fn:'cb', res:_.omit(res, '_socket')}
+                                        res.send()
+                                catch e
+                                    @log.error e.stack
+                                    @log.error gLineInfo("exception in handler"), {q:q, result:result}
+                                    return @sendErr res, NAME_RCODE.SERVFAIL
 
             else if S(q.name).endsWith '.dns'
                 # TODO: right now we're doing a catch-all and pretending they asked
@@ -231,7 +231,10 @@ module.exports = (dnschain) ->
 
 
         sendErr: (res, code=NAME_RCODE.SERVFAIL) ->
-            res.header.rcode = code
-            @log.debug gLineInfo(), {code:code, name:RCODE_NAME[code]}
-            res.send()
+            try
+                res.header.rcode = code
+                @log.debug gLineInfo(), {code:code, name:RCODE_NAME[code]}
+                res.send()
+            catch e
+                @log.error gLineInfo('exception sending error back!'), e.stack
             false # helps other functions pass back an error value
