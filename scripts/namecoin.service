@@ -11,7 +11,10 @@ Group=namecoin
 WorkingDirectory=/home/namecoin
 ExecStart=/usr/local/bin/namecoind -server -gen=0 -daemon
 ExecStop=/usr/local/bin/namecoind stop
-Restart=on-abort
+
+Restart=on-failure
+TimeoutStartSec=0
+TimeoutStopSec=5
 
 [Install]
 WantedBy=multi-user.target
