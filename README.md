@@ -179,7 +179,7 @@ There are two configurations to be aware of (both loaded using `nconf`): DNSChai
     - `$HOME/.dnschain/dnschain.conf`
     - `/etc/dnschain/dnschain.conf`
 - `namecoin.conf` locations (in order of preference):
-    - `$HOME/.namcoin/namcoin.conf`
+    - `$HOME/.namecoin/namecoin.conf`
 
 DNSChain will fetch the RPC username and password out of Namecoin's configuration file if it can find it. If it can't, you'll either need to fix that, or provide `rpcuser`, `rpcpassword`, etc. to it via command line arguments or environment variables.
 
