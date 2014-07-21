@@ -63,11 +63,11 @@ module.exports = (dnschain) ->
         unblock :
             enabled: true
             domainList : {
-                "youtube.com":"youtube.com"
-                "ggpht.com":"ggpht.com"
-                "ytimg.com":"ytimg.com"
-                "youtube-nocookie.com":"youtube-nocookie.com"
-                "youtu.be":"youtu.be"
+                "youtube.com"
+                "ggpht.com"
+                "ytimg.com"
+                "youtube-nocookie.com"
+                "youtu.be"
             }
 
     nmcDefs =

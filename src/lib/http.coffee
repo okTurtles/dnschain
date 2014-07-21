@@ -23,6 +23,17 @@ module.exports = (dnschain) ->
     # - https://wiki.namecoin.info/index.php?title=Namecoin_Specification
     VALID_NMC_DOMAINS = /^[a-zA-Z]+\/.+/
 
+    unblockSettings = gConf.get "unblock"
+    if unblockSettings.enabled
+        unblockLog = gNewLogger "Unblock"
+        unblockUtils = require('./unblock/utils')(dnschain)
+        unblockProxy = require 'http-proxy'
+        proxyServer = unblockProxy.createProxyServer {}
+        proxyServer.on "error", (err, req, res) ->
+            unblockLog.error "HTTP tunnel failed: "+req.headers.host+" for "+req.connection?.remoteAddress
+            res.writeHead 500
+            res.end()
+
     class HTTPServer
         constructor: (@dnschain) ->
             # @log = @dnschain.log.child server: "HTTP"
@@ -46,9 +57,14 @@ module.exports = (dnschain) ->
         callback: (req, res) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
 
-            # IF HIJACKED GOES HERE
+        # IF HIJACKED GOES HERE
 
-            @log.debug gLineInfo('request'), {path:path, url:req.url}
+        @log.debug gLineInfo('request'), {path:path, url:req.url}
+
+        if unblockSettings.enabled and unblockUtils.isHijacked(req.headers.host)
+            proxyServer.web req, res, {target: "http://"+req.headers.host, secure:false}
+            unblockLog.debug "HTTP tunnel: "+req.headers.host+" for "+req.connection?.remoteAddress
+        else
 
             notFound = =>
                 res.writeHead 404,  'Content-Type': 'text/plain'
@@ -75,4 +91,3 @@ module.exports = (dnschain) ->
                     @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
                     res.write @dnschain[resolver].toJSONstr result
                     res.end()
-

@@ -80,5 +80,5 @@ exports.DNSChain = class DNSChain
             @shutdown()
             throw e # rethrow
 
-    shutdown: -> [@nmc, @dns, @http].forEach (s) -> s?.shutdown?()
+    shutdown: -> [@nmc, @dns, @http, @unblock].forEach (s) -> s?.shutdown?()
 
