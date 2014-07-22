@@ -15,6 +15,6 @@ module.exports = (dnschain) ->
             }
             res.header.aa = 1
             res.send()
-            log.debug "Hijacked "+req.question[0].name
-            log.debug res.answer[0]
+            log.debug gLineInfo "Hijacked "+req.question[0].name
+            log.debug gLineInfo res.answer[0]
     }

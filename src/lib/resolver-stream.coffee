@@ -55,7 +55,7 @@ module.exports = (dnschain) ->
 
             # cancell all active requests (those that were sent)
             for id,req of @requests
-                @log.debug "cancelling req-#{req.rsReqID} (should have same id: #{id})"
+                @log.debug gLineInfo "cancelling req-#{req.rsReqID} (should have same id: #{id})"
                 req.cancel()
                 delete @requests[id]
 

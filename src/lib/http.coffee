@@ -31,7 +31,7 @@ module.exports = (dnschain) ->
         constructor: (@dnschain) -> # WARNING!!! This dnschain object IS NOT the same as dnschain everywhere else...
             # @log = @dnschain.log.child server: "HTTP"
             @log = gNewLogger 'HTTP'
-            @log.debug "Loading HTTPServer..."
+            @log.debug gLineInfo "Loading HTTPServer..."
 
             @server = http.createServer(@callback.bind(@)) or gErr "http create"
             @server.on 'error', (err) -> gErr err
@@ -39,7 +39,7 @@ module.exports = (dnschain) ->
             @server.on 'close', -> gErr 'Client closed the connection early.'
             @server.listen gConf.get('http:port'), gConf.get('http:host') or gErr "http listen"
             # @server.listen gConf.get 'http:port') or gErr "http listen"
-            @log.info 'started HTTP', gConf.get 'http'
+            @log.info gLineInfo('started HTTP'), gConf.get 'http'
 
             if unblockSettings.enabled
                 @proxy = unblockProxy.createProxyServer {}
@@ -50,7 +50,7 @@ module.exports = (dnschain) ->
 
 
         shutdown: ->
-            @log.debug 'shutting down!'
+            @log.debug gLineInfo 'shutting down!'
             @server.close()
 
         # TODO: send a signed header proving the authenticity of our answer
@@ -58,14 +58,11 @@ module.exports = (dnschain) ->
         callback: (req, res) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
 
-        # IF HIJACKED GOES HERE
-
-        @log.debug gLineInfo('request'), {path:path, url:req.url}
-
         if unblockSettings.enabled and unblockUtils.isHijacked(req.headers.host)
-                proxy.web req, res, {target: "http://"+req.headers.host, secure:false}
-                @log.debug "HTTP tunnel: "+req.headers.host
+            @proxy.web req, res, {target: "http://"+req.headers.host, secure:false}
+            @log.debug gLineInfo "HTTP tunnel: "+req.headers.host
         else
+            @log.debug gLineInfo('request'), {path:path, url:req.url}
 
             notFound = =>
                 res.writeHead 404,  'Content-Type': 'text/plain'

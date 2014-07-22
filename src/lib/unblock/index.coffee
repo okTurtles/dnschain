@@ -9,7 +9,7 @@ module.exports = (dnschain) ->
     class UnblockServer
         constructor: (@dnschain) ->
             @log = gNewLogger "Unblock"
-            @log.debug "Loading Unblock HTTPS server..."
+            @log.debug gLineInfo "Loading Unblock HTTPS server..."
 
             unblockSettings = gConf.get "unblock"
             httpsSettings = gConf.get "https"
@@ -17,24 +17,24 @@ module.exports = (dnschain) ->
             @HTTPSserver = net.createServer (c) ->
                 libHTTPS.getClientHello c, (err, host, received) ->
                     if err?
-                        @log.error "HTTPS tunnel failed: "+err.message
+                        @log.error gLineInfo "HTTPS tunnel failed: "+err.message
                         return c?.destroy()
 
                     if not libUtils.isHijacked(host)? then return @log.error "Illegal domain (#{host})"
                     libHTTPS.getStream host, 443, (err, stream) ->
                         if err?
-                            @log.error "HTTPS tunnel failed: Could not connect to "+host
+                            @log.error gLineInfo "HTTPS tunnel failed: Could not connect to "+host
                             c?.destroy()
                             return stream?.destroy()
                         stream.write received
                         c.pipe(stream).pipe(c)
                         c.resume()
-                        @log.debug "HTTPS tunnel: "+host
+                        @log.debug gLineInfo "HTTPS tunnel: "+host
 
             @HTTPSserver.on "error", (err) -> gErr err
             @HTTPSserver.on "close", -> gErr "Unblock HTTPS server was closed unexpectedly."
-            @HTTPSserver.listen httpsSettings.port, httpsSettings.host, => @log.info "started Unblock HTTPS server ", httpsSettings
+            @HTTPSserver.listen httpsSettings.port, httpsSettings.host, => @log.info gLineInfo("started Unblock HTTPS server "), httpsSettings
 
         shutdown: ->
-            @log.debug "Unblock servers shutting down!"
+            @log.debug gLineInfo "Unblock servers shutting down!"
             @HTTPSserver.close()

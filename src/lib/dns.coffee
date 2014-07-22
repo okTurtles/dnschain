@@ -33,14 +33,14 @@ module.exports = (dnschain) ->
     class DNSServer
         constructor: (@dnschain) ->
             @log = gNewLogger 'DNS'
-            @log.debug "Loading DNSServer..."
+            @log.debug gLineInfo "Loading DNSServer..."
             @method = gConf.get 'dns:oldDNSMethod'
 
             # this is just for development testing of NODE_DNS method
             # dns.setServers ['8.8.8.8']
 
             if @method is gConsts.oldDNS.NODE_DNS
-                @log.warn "Using".bold.red, "oldDNSMethod = NODE_DNS".bold, "method is strongly discouraged!".bold.red
+                @log.warn gLineInfo("Using".bold.red), "oldDNSMethod = NODE_DNS".bold, "method is strongly discouraged!".bold.red
                 if dns.getServers?
                     blacklist = _.intersection ['127.0.0.1', '::1', 'localhost'], dns.getServers()
                     if blacklist.length > 0
@@ -48,9 +48,9 @@ module.exports = (dnschain) ->
                 else
                     gErr "Node's DNS module doesn't have 'getServers'. Please upgrade NodeJS."
             else if @method is gConsts.oldDNS.NO_OLD_DNS
-                @log.warn "oldDNSMethod is set to refuse queries for traditional DNS!".bold
+                @log.warn gLineInfo "oldDNSMethod is set to refuse queries for traditional DNS!".bold
             else if @method is gConsts.oldDNS.NO_OLD_DNS_EVER
-                @log.warn "oldDNSMethod is set to refuse *ALL* queries for traditional DNS (even if the blockchain wants us to)!".bold.red
+                @log.warn gLineInfo "oldDNSMethod is set to refuse *ALL* queries for traditional DNS (even if the blockchain wants us to)!".bold.red
             else if @method isnt gConsts.oldDNS.NATIVE_DNS
                 gErr "No such oldDNSMethod: #{@method}"
 
@@ -59,10 +59,10 @@ module.exports = (dnschain) ->
             @server.on 'request', @callback.bind(@)
             @server.serve gConf.get('dns:port'), gConf.get('dns:host')
 
-            @log.info 'started DNS', gConf.get 'dns'
+            @log.info gLineInfo('started DNS'), gConf.get 'dns'
 
         shutdown: ->
-            @log.debug 'shutting down!'
+            @log.debug gLineInfo 'shutting down!'
             @server.close()
 
         # (Notes on 'native-dns' version <=0.6.x, which I'd like to see changed.)
@@ -115,8 +115,9 @@ module.exports = (dnschain) ->
             q.name = q.name.toLowerCase()
 
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
-            @log.debug "received question", q
+            @log.debug gLineInfo("received question"), q
 
+<<<<<<< HEAD
             if /\.(bit|p2p)$/.test q.name
                 if S(q.name).endsWith '.bit'
                     nmcDomain = @namecoinizeDomain q.name
@@ -130,11 +131,24 @@ module.exports = (dnschain) ->
 
                 @dnschain[resolver].resolve nmcDomain, (err, result) =>
                     # @log.warn gLineInfo('blah!'), {result: result}
+=======
+            if S(q.name).endsWith '.bit'
+                nmcDomain = @namecoinizeDomain q.name
+                @log.debug gLineInfo("resolving via nmc..."), {fn: 'cb|.bit', nmcDomain:nmcDomain, q:q}
+
+                @dnschain.nmc.resolve nmcDomain, (err, result) =>
+                    fn = 'nmc_show|cb' # TODO: replace with gLineInfo
+
+>>>>>>> Fix #36
                     if err? or !result
                         @log.error gLineInfo("#{resolver} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res
                     else
+<<<<<<< HEAD
                         @log.debug gLineInfo("#{resolver} resolved query"), {q:q, d:nmcDomain, result:result}
+=======
+                        @log.debug gLineInfo("nmc resolved query"), {fn:fn, q:q, d:nmcDomain, result:result}
+>>>>>>> Fix #36
 
                         try
                             # result.value = JSON.parse result.value
@@ -143,7 +157,7 @@ module.exports = (dnschain) ->
                             #       organize all this code in a generic way to support all blockchains.
                             result.value = @dnschain[resolver].toJSONobj result
                         catch e
-                            @log.warn e.stack
+                            @log.warn gLineInfo(), e.stack
                             @log.warn gLineInfo("bad JSON!"), {q:q, result:result}
                             return @sendErr res, NAME_RCODE.FORMERR
 
@@ -159,7 +173,7 @@ module.exports = (dnschain) ->
                                     @log.debug gLineInfo("sending response!"), {resolver:resolver, res:_.omit(res, '_socket')}
                                     res.send()
                             catch e
-                                @log.error e.stack
+                                @log.error gLineInfo(), e.stack
                                 @log.error gLineInfo("exception in handler"), {q:q, result:result}
                                 return @sendErr res, NAME_RCODE.SERVFAIL
 
@@ -186,7 +200,7 @@ module.exports = (dnschain) ->
             sig = "oldDNS{#{@method}}"
             q = req.question[0]
 
-            @log.debug {fn:sig+':start', q:q}
+            @log.debug gLineInfo(), {fn:sig+':start', q:q}
 
             if @method is gConsts.oldDNS.NATIVE_DNS
                 success = false
@@ -232,7 +246,7 @@ module.exports = (dnschain) ->
             else if @method is gConsts.oldDNS.NODE_DNS
                 dns.resolve q.name, QTYPE_NAME[q.type], (err, addrs) =>
                     if err
-                        @log.debug {fn:sig+':fail', q:q, err:err?.message}
+                        @log.debug gLineInfo(), {fn:sig+':fail', q:q, err:err?.message}
                         @sendErr res
                     else
                         # USING THIS METHOD IS DISCOURAGED BECAUSE IT DOESN'T
@@ -240,7 +254,7 @@ module.exports = (dnschain) ->
                         # TODO: pick an appropriate TTL value!
                         ttl = Math.floor(Math.random() * 3600) + 30
                         res.answer.push (addrs.map gIP2type(q.name, ttl, QTYPE_NAME[q.type]))...
-                        @log.debug {fn:sig+':success', answer:res.answer, q:q.name}
+                        @log.debug gLineInfo(), {fn:sig+':success', answer:res.answer, q:q.name}
                         res.send()
             else
                 # refuse all such queries

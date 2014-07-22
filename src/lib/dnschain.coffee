@@ -71,12 +71,12 @@ exports.DNSChain = class DNSChain
             @dns = new DNSServer @
             @http = new HTTPServer @
             @unblock = new UnblockServer @
-            @log.info "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
+            @log.info gLineInfo "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
 
             if process.getuid() isnt 0 and gConf.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
-                @log.warn "DNS port isn't 53!".bold.red, "While testing you should either run me as root or make sure to set standard ports in the configuration!".bold
+                @log.warn gLineInfo("DNS port isn't 53!".bold.red), "While testing you should either run me as root or make sure to set standard ports in the configuration!".bold
         catch e
-            @log.error "DNSChain failed to start: ", e.stack
+            @log.error gLineInfo("DNSChain failed to start: "), e.stack
             @shutdown()
             throw e # rethrow
 

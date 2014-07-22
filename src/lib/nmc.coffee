@@ -20,7 +20,7 @@ module.exports = (dnschain) ->
         constructor: (@dnschain) ->
             # @log = @dnschain.log.child server: "NMC"
             @log = gNewLogger 'NMC'
-            @log.debug "Loading NMCPeer..."
+            @log.debug gLineInfo "Loading NMCPeer..."
 
             # we want them in this exact order:
             params = ["port", "connect", "user", "password"].map (x)-> gConf.nmc.get 'rpc'+x
@@ -32,7 +32,7 @@ module.exports = (dnschain) ->
             # TODO: if namecoin.conf isn't found, disable like in bdns.coffee
 
         shutdown: ->
-            @log.debug 'shutting down!'
+            @log.debug gLineInfo 'shutting down!'
             # @peer.end() # TODO: fix this!
 
         resolve: (path, cb) ->
