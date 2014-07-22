@@ -26,7 +26,6 @@ All parametrs can be overwritten using command line args and/or environment vari
 
 nconf = require 'nconf'
 props = require 'properties'
-fs = require 'fs'
 tty = require 'tty'
 
 module.exports = (dnschain) ->
@@ -62,6 +61,14 @@ module.exports = (dnschain) ->
 
         unblock :
             enabled: true
+            hostTunneling: {
+                port: 44555
+                host : '0.0.0.0'
+                internalPort: 44666
+                internalHost: '127.0.0.1'
+                getKey: -> fs.readFileSync __dirname+'/unblock/key.pem'
+                getCert: -> fs.readFileSync __dirname+'/unblock/cert.pem'
+            }
             domainList : {
                 # Youtube domains
                 "youtube.com"

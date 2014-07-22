@@ -24,7 +24,7 @@ module.exports = (dnschain) ->
     VALID_NMC_DOMAINS = /^[a-zA-Z]+\/.+/
     unblockSettings = gConf.get "unblock"
     if unblockSettings.enabled
-        unblockHTTP = require('./unblock/http')(dnschain)
+        unblockTunnel = require('./unblock/tunnel')(dnschain)
         unblockUtils = require('./unblock/utils')(dnschain)
 
     class HTTPServer
@@ -36,7 +36,7 @@ module.exports = (dnschain) ->
             @server = http.createServer(@callback.bind(@)) or gErr "http create"
             @server.on 'error', (err) -> gErr err
             @server.on 'sockegError', (err) -> gErr err
-            @server.on 'close', -> gErr 'Client closed the connection early.'
+            @server.on 'close', => @log.error gLineInfo 'Client closed the connection early.'
             @server.listen gConf.get('http:port'), gConf.get('http:host') or gErr "http listen"
             # @server.listen gConf.get 'http:port') or gErr "http listen"
             @log.info gLineInfo('started HTTP'), gConf.get 'http'
@@ -52,7 +52,7 @@ module.exports = (dnschain) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
 
         if unblockSettings.enabled and unblockUtils.isHijacked(req.headers.host)
-                unblockHTTP.tunnel req, res
+                unblockTunnel.tunnelHTTP req, res
                 @log.debug gLineInfo "HTTP tunnel: "+req.headers.host
         else
             @log.debug gLineInfo('request'), {path:path, url:req.url}

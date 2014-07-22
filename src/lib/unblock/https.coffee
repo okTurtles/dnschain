@@ -105,4 +105,28 @@ getClientHello = (c, cb) ->
         c.destroy()
         done new Error "HTTPS socket closed"
 
-module.exports = {getClientHello, getStream}
+# Same as getClientHello, but for the "HTTPS" flag of Host Tunneling
+getBrowserExtensionFlag = (c, cb) ->
+    received = []
+    buf = new Buffer []
+    done = (err, host, buf) ->
+        c.removeAllListeners("data")
+        done = ->
+        cb err, host, buf
+    c.on "data", (data) ->
+        c.pause()
+        if not data? or data.length < 5 then return done new Error "Invalid first block"
+        if data[0..4].toString("utf8") == "HTTPS"
+            done null, true, data[5..]
+        else
+            done null, false, data
+    c.on "timeout", ->
+        c.destroy()
+        done new Error "HTTPS getBrowserExtensionFlag timeout"
+    c.on "error", (err) ->
+        c.destroy()
+        done err
+    c.on "close", ->
+        c.destroy()
+        done new Error "HTTPS socket closed"
+module.exports = {getClientHello, getStream, getBrowserExtensionFlag}

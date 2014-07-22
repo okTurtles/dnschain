@@ -26,6 +26,8 @@ module.exports = (dnschain) ->
         res.writeHead 500
         res.end()
     {
-        tunnel : (req, res) ->
+        tunnelHTTP : (req, res) ->
             proxy.web req, res, {target: "http://"+req.headers.host, secure:false}
+        tunnelHTTPS : (req, res) ->
+            proxy.web req, res, {target: "https://"+req.headers.host, secure:true}
     }

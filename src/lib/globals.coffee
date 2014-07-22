@@ -27,7 +27,7 @@ module.exports = (dnschain) ->
         sa     : 'stream-array'
 
     # no renaming done for these
-    for d in ['net', 'dns', 'http', 'url', 'util', 'os', 'path', 'winston']
+    for d in ['net', 'tls', 'dns', 'http', 'url', 'util', 'fs', 'os', 'path', 'winston']
         dnschain.globals[d] = d
 
     # replace all the string values in dnschain.globals with the module they represent
