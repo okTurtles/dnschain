@@ -24,8 +24,8 @@ module.exports = (dnschain) ->
     VALID_NMC_DOMAINS = /^[a-zA-Z]+\/.+/
     unblockSettings = gConf.get "unblock"
     if unblockSettings.enabled
+        unblockHTTP = require('./unblock/http')(dnschain)
         unblockUtils = require('./unblock/utils')(dnschain)
-        unblockProxy = require 'http-proxy'
 
     class HTTPServer
         constructor: (@dnschain) -> # WARNING!!! This dnschain object IS NOT the same as dnschain everywhere else...
@@ -41,13 +41,6 @@ module.exports = (dnschain) ->
             # @server.listen gConf.get 'http:port') or gErr "http listen"
             @log.info gLineInfo('started HTTP'), gConf.get 'http'
 
-            if unblockSettings.enabled
-                @proxy = unblockProxy.createProxyServer {}
-                @proxy.on "error", (err, req, res) ->
-                    @log.error "HTTP tunnel failed: "+req.headers.host
-                    res.writeHead 500
-                    res.end()
-
 
         shutdown: ->
             @log.debug gLineInfo 'shutting down!'
@@ -59,8 +52,8 @@ module.exports = (dnschain) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
 
         if unblockSettings.enabled and unblockUtils.isHijacked(req.headers.host)
-            @proxy.web req, res, {target: "http://"+req.headers.host, secure:false}
-            @log.debug gLineInfo "HTTP tunnel: "+req.headers.host
+                unblockHTTP.tunnel req, res
+                @log.debug gLineInfo "HTTP tunnel: "+req.headers.host
         else
             @log.debug gLineInfo('request'), {path:path, url:req.url}
 

@@ -27,14 +27,14 @@ module.exports = (dnschain) ->
             unblockSettings = gConf.get "unblock"
             httpsSettings = gConf.get "https"
 
-            @HTTPSserver = net.createServer (c) ->
-                libHTTPS.getClientHello c, (err, host, received) ->
+            @HTTPSserver = net.createServer (c) =>
+                libHTTPS.getClientHello c, (err, host, received) =>
                     if err?
                         @log.error gLineInfo "HTTPS tunnel failed: "+err.message
                         return c?.destroy()
 
                     if not libUtils.isHijacked(host)? then return @log.error "Illegal domain (#{host})"
-                    libHTTPS.getStream host, 443, (err, stream) ->
+                    libHTTPS.getStream host, 443, (err, stream) =>
                         if err?
                             @log.error gLineInfo "HTTPS tunnel failed: Could not connect to "+host
                             c?.destroy()
