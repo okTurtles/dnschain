@@ -1,4 +1,17 @@
-net = require "net"
+###
+
+dnschain
+http://dnschain.org
+
+Copyright (c) 2014 okTurtles Foundation
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+###
+
+net = require "net" # TODO: Fix this, it's in the globals.
 
 parse2Bytes = (buf) -> (buf[0] << 8) | buf[1]
 parse3Bytes = (buf) -> (buf[0] << 16) | (buf[1] << 8) | buf[2]
