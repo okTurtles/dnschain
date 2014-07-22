@@ -22,20 +22,13 @@ module.exports = (dnschain) ->
     # - https://wiki.namecoin.info/index.php?title=Category:NEP
     # - https://wiki.namecoin.info/index.php?title=Namecoin_Specification
     VALID_NMC_DOMAINS = /^[a-zA-Z]+\/.+/
-
     unblockSettings = gConf.get "unblock"
     if unblockSettings.enabled
-        unblockLog = gNewLogger "Unblock"
         unblockUtils = require('./unblock/utils')(dnschain)
         unblockProxy = require 'http-proxy'
-        proxyServer = unblockProxy.createProxyServer {}
-        proxyServer.on "error", (err, req, res) ->
-            unblockLog.error "HTTP tunnel failed: "+req.headers.host+" for "+req.connection?.remoteAddress
-            res.writeHead 500
-            res.end()
 
     class HTTPServer
-        constructor: (@dnschain) ->
+        constructor: (@dnschain) -> # WARNING!!! This dnschain object IS NOT the same as dnschain everywhere else...
             # @log = @dnschain.log.child server: "HTTP"
             @log = gNewLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
@@ -43,13 +36,21 @@ module.exports = (dnschain) ->
             @server = http.createServer(@callback.bind(@)) or gErr "http create"
             @server.on 'error', (err) -> gErr err
             @server.on 'sockegError', (err) -> gErr err
-            @server.on 'close', -> gErr new Error 'Client closed the connection early.'
+            @server.on 'close', -> gErr 'Client closed the connection early.'
             @server.listen gConf.get('http:port'), gConf.get('http:host') or gErr "http listen"
             # @server.listen gConf.get 'http:port') or gErr "http listen"
             @log.info 'started HTTP', gConf.get 'http'
 
+            if unblockSettings.enabled
+                @proxy = unblockProxy.createProxyServer {}
+                @proxy.on "error", (err, req, res) ->
+                    @log.error "HTTP tunnel failed: "+req.headers.host
+                    res.writeHead 500
+                    res.end()
+
+
         shutdown: ->
-            @log.debug 'HTTP shutting down!'
+            @log.debug 'shutting down!'
             @server.close()
 
         # TODO: send a signed header proving the authenticity of our answer
@@ -62,8 +63,8 @@ module.exports = (dnschain) ->
         @log.debug gLineInfo('request'), {path:path, url:req.url}
 
         if unblockSettings.enabled and unblockUtils.isHijacked(req.headers.host)
-            proxyServer.web req, res, {target: "http://"+req.headers.host, secure:false}
-            unblockLog.debug "HTTP tunnel: "+req.headers.host+" for "+req.connection?.remoteAddress
+                proxy.web req, res, {target: "http://"+req.headers.host, secure:false}
+                @log.debug "HTTP tunnel: "+req.headers.host
         else
 
             notFound = =>

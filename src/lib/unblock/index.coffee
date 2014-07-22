@@ -17,24 +17,24 @@ module.exports = (dnschain) ->
             @HTTPSserver = net.createServer (c) ->
                 libHTTPS.getClientHello c, (err, host, received) ->
                     if err?
-                        @log.error "HTTPS tunnel failed: "+err.message+" for "+c.remoteAddress
-                        c?.destroy()
-                    domain = libUtils.isHijacked host
+                        @log.error "HTTPS tunnel failed: "+err.message
+                        return c?.destroy()
 
+                    if not libUtils.isHijacked(host)? then return @log.error "Illegal domain (#{host})"
                     libHTTPS.getStream host, 443, (err, stream) ->
                         if err?
-                            @log.error "HTTPS tunnel failed: Could not connect to "+host+" for "+c.remoteAddress
+                            @log.error "HTTPS tunnel failed: Could not connect to "+host
                             c?.destroy()
-                            stream?.destroy()
+                            return stream?.destroy()
                         stream.write received
                         c.pipe(stream).pipe(c)
                         c.resume()
-                        @log.debug "HTTPS tunnel: "+host+" for "+c.remoteAddress
+                        @log.debug "HTTPS tunnel: "+host
 
             @HTTPSserver.on "error", (err) -> gErr err
-            @HTTPSserver.on "close", -> gErr new Error "Unblock HTTPS server was closed unexpectedly."
+            @HTTPSserver.on "close", -> gErr "Unblock HTTPS server was closed unexpectedly."
             @HTTPSserver.listen httpsSettings.port, httpsSettings.host, => @log.info "started Unblock HTTPS server ", httpsSettings
 
         shutdown: ->
-            console.log "Unblock servers shutting down!"
+            @log.debug "Unblock servers shutting down!"
             @HTTPSserver.close()

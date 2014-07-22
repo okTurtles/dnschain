@@ -3,11 +3,10 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    unblockSettings = gConf.get "unblock"
-    @log = gNewLogger "Unblock"
+    unblockSettings = dnschain.globals.gConf.get "unblock"
 
-    @isHijacked = (domain) ->
-        name = domain.split "."
-        unblockSettings.domainList[name[-2..].join(".")] or unblockSettings.domainList[name[-3..].join(".")] or null
-
-    @
+    {
+    	isHijacked : (domain) ->
+	        name = domain.split "."
+	        unblockSettings.domainList[name[-2..].join(".")] or unblockSettings.domainList[name[-3..].join(".")] or null
+    }

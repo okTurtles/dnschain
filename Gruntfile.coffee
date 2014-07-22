@@ -1,7 +1,7 @@
 ###
 
 dnschain
-http://dnschain.org
+http://dnschain.net
 
 Copyright (c) 2014 okTurtles Foundation
 

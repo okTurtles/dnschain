@@ -170,7 +170,7 @@ module.exports = (dnschain) ->
                 @log.debug gLineInfo('cb|.dns'), {q:q, answer:res.answer}
                 res.send()
             else if unblockSettings.enabled and unblockUtils.isHijacked(q.name) and q.type == 1 # TODO: ipv6 here
-                unblockUtils.hijack req, res
+                unblockDNS.hijack req, res
             else
                 @log.debug gLineInfo("deferring request"), {q:q}
                 @oldDNSLookup req, res

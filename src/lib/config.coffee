@@ -57,17 +57,22 @@ module.exports = (dnschain) ->
             host: '0.0.0.0' # what we bind to
 
         https:
-            port: if amRoot then 443
+            port: if amRoot then 443 # This is only used when Unblock is enabled.
             host: '0.0.0.0'
 
         unblock :
             enabled: true
             domainList : {
+                # Youtube domains
                 "youtube.com"
                 "ggpht.com"
                 "ytimg.com"
                 "youtube-nocookie.com"
                 "youtu.be"
+                # Twitter domains
+                "twimg.com"
+                "twitter.com"
+                "t.co"
             }
 
     nmcDefs =
