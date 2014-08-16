@@ -60,7 +60,7 @@ It's always best to use your own server, of course. _Note: headers containing a 
 
 ### Free SSL certificates become possible<a name="Free"/>
 
-SSL certificates today [do not provide the security that they claim to provide](http://okturtles.com/other/dnsnmc_okturtles_overview.pdf). DNSChain replaces Certificate Authorities by providing a means for distributing public keys in a way that is secure from MITM attacks.
+SSL certificates today __[do not provide the security that they claim to provide](http://okturtles.com/#not-secure)__. DNSChain replaces Certificate Authorities by providing a means for distributing public keys in a way that is secure from MITM attacks.
 
 ### Prevents DDoS attacks<a name="DDoS"/>
 
