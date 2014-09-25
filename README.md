@@ -34,18 +34,18 @@ It's what we have to get rid of, and DNSChain provides a scalable, distributed, 
 "authority figures":
 ︎
 
-|                                                                              |      DNSChain      | X.509 PKI [with or without Certificate Transparency](http://www.ietf.org/mail-archive/web/trans/current/msg00233.html) |
-|------------------------------------------------------------------------------|--------------------|------------------------------------------------------------------------------------------------------------------------|
-| __MITM-proof authentication__ <sup>[[1]](#metaTLD)</sup>                     | :white_check_mark: | :x:                                                                                                                    |
-| __Secure and simple [GPG key distribution](#GPG)__                           | :white_check_mark: | :x:                                                                                                                    |
-| __Free and actually-secure SSL certificates__ <sup>[[2]](#Free)</sup>        | :white_check_mark: | :x:                                                                                                                    |
-| __Stops many denial-of-service attacks__ <sup>[[3]](#DDoS)</sup>             | :white_check_mark: | :x:                                                                                                                    |
-| __Certificate revocation that actually works__ <sup>[[4]](#Revocation)</sup> | :white_check_mark: | :x:                                                                                                                    |
-| __DNS-based censorship circumvention__ <sup>[[5]](#Censorship)</sup>         | :white_check_mark: | :x:                                                                                                                    |
-| __Prevents [domain theft](http://okturtles.com/#open-source) ("seizures")__  | :white_check_mark: | :x:                                                                                                                    |
-| __Access blockchain-based [domains like `.bit`](#Use)__                      | :white_check_mark: | :x:                                                                                                                    |
-| __RESTful API to blockchain via [.dns metaTLD](#metaTLD)__                   | :white_check_mark: | :x:                                                                                                                    |
-| __Simple design fits in about *600 lines of CoffeeScript!*__                 | :white_check_mark: | :x:                                                                                                                    |
+|                                                                              |      DNSChain      | X.509 PKI [with or without Certificate Transparency](http://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/) |
+|------------------------------------------------------------------------------|--------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| __MITM-proof authentication__ <sup>[[1]](#metaTLD)</sup>                     | :white_check_mark: | :x:                                                                                                                                |
+| __Secure and simple [GPG key distribution](#GPG)__                           | :white_check_mark: | :x:                                                                                                                                |
+| __Free and actually-secure SSL certificates__ <sup>[[2]](#Free)</sup>        | :white_check_mark: | :x:                                                                                                                                |
+| __Stops many denial-of-service attacks__ <sup>[[3]](#DDoS)</sup>             | :white_check_mark: | :x:                                                                                                                                |
+| __Certificate revocation that actually works__ <sup>[[4]](#Revocation)</sup> | :white_check_mark: | :x:                                                                                                                                |
+| __DNS-based censorship circumvention__ <sup>[[5]](#Censorship)</sup>         | :white_check_mark: | :x:                                                                                                                                |
+| __Prevents [domain theft](http://okturtles.com/#open-source) ("seizures")__  | :white_check_mark: | :x:                                                                                                                                |
+| __Access blockchain-based [domains like `.bit`](#Use)__                      | :white_check_mark: | :x:                                                                                                                                |
+| __RESTful API to blockchain via [.dns metaTLD](#metaTLD)__                   | :white_check_mark: | :x:                                                                                                                                |
+| __Simple design fits in about *600 lines of CoffeeScript!*__                 | :white_check_mark: | :x:                                                                                                                                |
 
 ### Simple and secure GPG key distribution<a name="GPG"/>
 
