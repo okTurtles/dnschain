@@ -16,14 +16,14 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    class NMCPeer
+    class BDNSPeer
         constructor: (@dnschain) ->
-            # @log = @dnschain.log.child server: "NMC"
-            @log = gNewLogger 'NMC'
-            @log.debug "Loading NMCPeer..."
+            # @log = @dnschain.log.child server: "BDNS"
+            @log = gNewLogger 'BDNS'
+            @log.debug "Loading BDNSPeer..."
             
             # we want them in this exact order:
-            params = ["port", "connect", "user", "password"].map (x)-> gConf.nmc.get 'rpc'+x
+            params = ["port", "connect", "user", "password"].map (x)-> gConf.bdns.get 'rpc'+x
             @peer = rpc.Client.$create(params...) or gErr "rpc create"
             @log.info "connected to namecoind: %s:%d", params[1], params[0]
 
@@ -33,4 +33,4 @@ module.exports = (dnschain) ->
 
         resolve: (path, cb) ->
             @log.debug {fn: 'resolve', path: path}
-            @peer.call 'name_show', [path], cb
+            @peer.call 'wallet_get_account', [path], cb

@@ -1,6 +1,7 @@
 /node_modules/
-npm-debug.log
-*.log
-*.DS_Store
 out/
 notes/
+*.log
+*.DS_Store
+*.sublime-workspace
+npm-debug.log
