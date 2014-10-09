@@ -22,15 +22,28 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'BDNS'
             @log.debug "Loading BDNSPeer..."
             
-            # we want them in this exact order:
-            params = ["port", "connect", "user", "password"].map (x)-> gConf.bdns.get 'rpc'+x
-            @peer = rpc.Client.$create(params...) or gErr "rpc create"
-            @log.info "connected to namecoind: %s:%d", params[1], params[0]
+            get = gConf.bdns.get
+            [host, port] = get('rpc:httpd_endpoint')?.split ':'
+            if host?
+                port = parseInt port
+                @peer = rpc.Client.$create port, host, get('rpc:rpc_user'), get('rpc:rpc_password')
+                gErr "rpc $create bdns" unless @peer
+                @log.info "rpc to bitshares_client on: %s:%d/rpc", host, port
+            else
+                @log.info 'BDNS disabled. (config.json not found)'
 
         shutdown: ->
             @log.debug 'shutting down!'
             # @peer.end() # TODO: fix this!
 
         resolve: (path, cb) ->
-            @log.debug {fn: 'resolve', path: path}
-            @peer.call 'wallet_get_account', [path], cb
+            @log.debug gLineInfo('bdns resolve'), {path:path}
+            @peer.call 'dotp2p_show', [path], path:'/rpc', cb
+
+        # TODO: this is a bit ugly...
+        extractData: (json) ->
+            if 'string' is typeof json
+                json
+            else
+                @log.warn gLineInfo('type not string!'), {json: json}
+                JSON.stringify {}

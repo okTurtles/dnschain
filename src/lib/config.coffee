@@ -63,6 +63,12 @@ module.exports = (dnschain) ->
         rpcuser: undefined
         rpcpassword: undefined
 
+    bdnsDefs =
+        rpc:
+            rpc_user: undefined
+            rpc_password: undefined
+            httpd_endpoint: undefined
+    
     fileFormatOpts =
         comments: ['#', ';']
         sections: true
@@ -84,9 +90,13 @@ module.exports = (dnschain) ->
 
     nconf.file 'global', {file:"/etc/#{appname}/#{appname}.conf", format:props}
 
+    # TODO: this blockchain-specific config stuff should be moved out of
+    #       this file and into the constructors (NMCPeer, BDNSPeer, etc.)
+
     # namecoin
     nmc = (new nconf.Provider()).argv().env()
     
+    # TODO: use the same _.find technique as done below for bdnsConf
     nmcConf = if process.env.APPDATA?
         path.join process.env.APPDATA, "Namecoin", "namecoin.conf"
     else if process.env.HOME?
@@ -94,9 +104,24 @@ module.exports = (dnschain) ->
 
     nmc.file('user', {file:nmcConf,format:props}) if nmcConf
 
+    # bdns
+    bdns = (new nconf.Provider()).argv().env()
+    bdnsConf = _.find _.filter([
+        [process.env.APPDATA, "KeyID"],
+        [process.env.HOME, ".KeyID"],
+        [process.env.HOME, "Library", "Application Support", "KeyID"]]
+    , (x) -> !!x[0])
+    , (x) -> fs.existsSync path.join x...
+
+    if bdnsConf
+        bdns.file 'user', file: path.join(bdnsConf..., 'config.json')
+    else
+        # TODO: this!
+
     stores =
         dnschain: nconf.defaults defaults
         nmc: nmc.defaults nmcDefs
+        bdns: bdns.defaults bdnsDefs
 
     config =
         get: (key, store="dnschain") -> stores[store].get key
@@ -105,3 +130,6 @@ module.exports = (dnschain) ->
         nmc:
             get: (key)-> config.get key, 'nmc'
             set: (key, value)-> config.set key, value, 'nmc'
+        bdns:
+            get: (key)-> config.get key, 'bdns'
+            set: (key, value)-> config.set key, value, 'bdns'

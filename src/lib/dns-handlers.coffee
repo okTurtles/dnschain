@@ -50,6 +50,7 @@ module.exports = (dnschain) ->
             #       
             # *ALL* namecoin handlers must be of the this type
             A: (req, res, qIdx, data, cb) ->
+                # @log.warn gLineInfo('debug A handler...'), {data: data}
                 info = data.value
                 q = req.question[qIdx]
                 ttl = BLOCKS2SEC # average block creation time. TODO: make even more accurate value

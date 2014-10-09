@@ -112,21 +112,31 @@ module.exports = (dnschain) ->
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
             @log.debug "received question", q
 
-            if S(q.name).endsWith '.bit'
-                nmcDomain = @namecoinizeDomain q.name
-                @log.debug "resolving via nmc...", {fn: 'cb|.bit', nmcDomain:nmcDomain, q:q}
+            if /\.(bit|p2p)$/.test q.name
+                if S(q.name).endsWith '.bit'
+                    nmcDomain = @namecoinizeDomain q.name
+                    resolver = 'nmc'
+                else
+                    # TODO: bdns-izeDomain
+                    nmcDomain = S(q.name).chompRight('.p2p').s
+                    resolver = 'bdns'
+                
+                @log.debug gLineInfo("resolving via #{resolver}..."), {nmcDomain:nmcDomain, q:q}
 
-                @dnschain.nmc.resolve nmcDomain, (err, result) =>
-                    fn = 'nmc_show|cb' # TODO: replace with gLineInfo
-
+                @dnschain[resolver].resolve nmcDomain, (err, result) =>
+                    # @log.warn gLineInfo('blah!'), {result: result}
                     if err? or !result
-                        @log.error gLineInfo("namecoin failed to resolve"), {err:err?.message, result:result, q:q}
+                        @log.error gLineInfo("#{resolver} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res
                     else
-                        @log.debug "nmc resolved query", {fn:fn, q:q, d:nmcDomain, result:result}
+                        @log.debug gLineInfo("#{resolver} resolved query"), {q:q, d:nmcDomain, result:result}
 
                         try
-                            result.value = JSON.parse result.value
+                            # result.value = JSON.parse result.value
+                            # TODO: [BDNS] this! also, note that we're converting JSON multiple times
+                            #       this is ineffecient and ugly.
+                            #       organize all this code in a generic way to support all blockchains.
+                            result.value = JSON.parse @dnschain[resolver].extractData result
                         catch e
                             @log.warn e.stack
                             @log.warn gLineInfo("bad JSON!"), {q:q, result:result}
@@ -141,7 +151,7 @@ module.exports = (dnschain) ->
                                 if errCode
                                     @sendErr res, errCode
                                 else
-                                    @log.debug "sending response!", {fn:'cb', res:_.omit(res, '_socket')}
+                                    @log.debug gLineInfo("sending response!"), {resolver:resolver, res:_.omit(res, '_socket')}
                                     res.send()
                             catch e
                                 @log.error e.stack
@@ -152,10 +162,10 @@ module.exports = (dnschain) ->
                 # TODO: right now we're doing a catch-all and pretending they asked
                 #       for namecoin.dns...
                 res.answer.push gIP2type(q.name,ttl,QTYPE_NAME[q.type])(gConf.get 'dns:externalIP')
-                @log.debug {fn:'cb|.dns', q:q, answer:res.answer}
+                @log.debug gLineInfo('cb|.dns'), {q:q, answer:res.answer}
                 res.send()
             else
-                @log.debug "deferring request", {fn: "cb|else", q:q}
+                @log.debug gLineInfo("deferring request"), {q:q}
                 @oldDNSLookup req, res
         # / end callback
 
