@@ -29,6 +29,7 @@ module.exports = (dnschain) ->
             # TODO: $create doesn't actually connect. you need to open a raw socket
             #       or an http socket and see if that works before declaring it works
             @log.info "rpc to namecoind on: %s:%d", params[1], params[0]
+            # TODO: if namecoin.conf isn't found, disable like in bdns.coffee
 
         shutdown: ->
             @log.debug 'shutting down!'
@@ -38,4 +39,6 @@ module.exports = (dnschain) ->
             @log.debug gLineInfo('nmc resolve'), {path:path}
             @peer.call 'name_show', [path], cb
 
-        extractData: (json) -> json.value
+        # TODO: make this cleaner. this is kinda ugly.
+        toJSONstr: (json) -> json.value
+        toJSONobj: (json) -> JSON.parse json.value

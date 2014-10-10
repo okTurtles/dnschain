@@ -136,7 +136,7 @@ module.exports = (dnschain) ->
                             # TODO: [BDNS] this! also, note that we're converting JSON multiple times
                             #       this is ineffecient and ugly.
                             #       organize all this code in a generic way to support all blockchains.
-                            result.value = JSON.parse @dnschain[resolver].extractData result
+                            result.value = @dnschain[resolver].toJSONobj result
                         catch e
                             @log.warn e.stack
                             @log.warn gLineInfo("bad JSON!"), {q:q, result:result}

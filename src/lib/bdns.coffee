@@ -40,10 +40,22 @@ module.exports = (dnschain) ->
             @log.debug gLineInfo('bdns resolve'), {path:path}
             @peer.call 'dotp2p_show', [path], path:'/rpc', cb
 
-        # TODO: this is a bit ugly...
-        extractData: (json) ->
-            if 'string' is typeof json
+        # TODO: this is a bit ugly... fix it.
+        toJSONstr: (json) ->
+            # @log.debug gLineInfo('json type'), {type: typeof json, json: json}
+            if _.isObject json
+                JSON.stringify json
+            else if _.isString json
                 json
             else
-                @log.warn gLineInfo('type not string!'), {json: json}
+                @log.warn gLineInfo('type not object!'), {json: json, type: typeof(json)}
                 JSON.stringify {}
+
+        toJSONobj: (json) ->
+            if _.isString json
+                JSON.parse json
+            else if _.isObject json
+                json
+            else
+                @log.warn gLineInfo('type not string!'), {json: json, type: typeof(json)}
+                {}
