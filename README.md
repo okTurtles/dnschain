@@ -13,17 +13,19 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [MITM-proof authentication via `.dns` metaTLD](#metaTLD)
 - [How do I use it?](#Use)
     - [Free public DNSChain servers](#Servers)
-    - [:book:](wiki/.bit-Domains-and-Identities) [Registering `.bit` domains and identities](wiki/.bit-Domains-and-Identities)
-- [:book:](How-do-I-run-my-own) [How do I run my own DNSChain server?](How-do-I-run-my-own)
-- [:book:](PowerDNS-and-DNSChain) [PowerDNS and DNSChain](PowerDNS-and-DNSChain)
+    - [:book:](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities) [Registering `.bit` domains and identities](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities)
+- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own) [How do I run my own DNSChain server?](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own)
+- [:book:](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain) [PowerDNS and DNSChain](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain)
 - [Community](#Community)
 - [Contributors](#Contributors)
 - [Release History](#Release)
 - [License](#License)
 
-## What is it?<a name="What"/>
+<a name="What"/>
+## What is it?
 
-### DNSChain replaces X.509 PKI with the blockchain<a name="DNSChain"/>
+<a name="DNSChain"/>
+### DNSChain replaces X.509 PKI with the blockchain
 
 [X.509 PKI](https://en.wikipedia.org/wiki/X.509) makes and breaks today's Internet security. It's what makes your browser
 think ["The connection to this website is secure"](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/) when [it's not](http://okturtles.com/#not-secure).
