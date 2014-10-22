@@ -13,7 +13,7 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [MITM-proof authentication via `.dns` metaTLD](#metaTLD)
 - [How do I use it?](#Use)
     - [Free public DNSChain servers](#Servers)
-    - [:book:](.bit-Domains-and-Identities) [Registering `.bit` domains and identities](.bit-Domains-and-Identities)
+    - [:book:](wiki/.bit-Domains-and-Identities) [Registering `.bit` domains and identities](wiki/.bit-Domains-and-Identities)
 - [:book:](How-do-I-run-my-own) [How do I run my own DNSChain server?](How-do-I-run-my-own)
 - [:book:](PowerDNS-and-DNSChain) [PowerDNS and DNSChain](PowerDNS-and-DNSChain)
 - [Community](#Community)
