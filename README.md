@@ -13,9 +13,9 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [MITM-proof authentication via `.dns` metaTLD](#metaTLD)
 - [How do I use it?](#Use)
     - [Free public DNSChain servers](#Servers)
-    - [:book:](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities) [Registering `.bit` domains and identities](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities)
-- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own) [How do I run my own DNSChain server?](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own)
-- [:book:](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain) [PowerDNS and DNSChain](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain)
+    - [Registering `.bit` domains and identities](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities)
+- [How do I run my own DNSChain server?](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own)
+- [PowerDNS and DNSChain](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain)
 - [Community](#Community)
 - [Contributors](#Contributors)
 - [Release History](#Release)
@@ -73,7 +73,8 @@ such requirement because *all* of the data necessary to answer queries is stored
 
 Another DoS attack relates to the centralized manner in which today's SSL certificates are checked for revocation:
 
-### Certificate revocation that actually works<a name="Revocation"/>
+<a name="Revocation"/>
+### Certificate revocation that actually works
 
 TODO: [OCSP](https://news.ycombinator.com/item?id=7556909) + DoS.
 
@@ -138,8 +139,25 @@ You can, if you must, use a public DNSChain server. Simply [set your computer's 
 
 Tell us about yours by opening an issue (or any other means) and we'll list it here!
 
-We'll post the public keys for these servers here as well once signed DNS & HTTP responses are implemented. Note that DNSChain + DNSCrypt servers already guarantee the authenticity of DNS responses.
+We'll post the public keys for these servers here as well once signed DNS &amp; HTTP responses are implemented. Note that DNSChain + DNSCrypt servers already guarantee the authenticity of DNS responses.
 
+<a name="Registering"/>
+## Registering `.bit` domains and identities
+
+[:book:](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities) [Registering `.bit` domains and identities]( https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities)
+
+<a name="Run"/>
+## How do I run my own DNSChain server?
+
+[:book:](https://github.com/okTurtles/dnschain/dnschain/wiki/How-do-I-run-my-own) [How do I run my own DNSChain server?](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own)
+- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Requirements) [Requirements](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Requirements)
+- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Getting) [Getting Started](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Getting)
+- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Configuration) [Configuration](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Configuration)
+- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Working) [Working with the source](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Working)
+
+<a name="PowerDNS"/>
+## PowerDNS and DNSChain
+[:book:](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain) [PowerDNS and DNSChain](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain)
 
 <a name="Community"/>
 ## Community
