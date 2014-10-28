@@ -174,6 +174,7 @@ We'll post the public keys for these servers here as well once signed DNS &amp; 
 - [Simon Grondin](https://github.com/SGrondin) (DNS-based censorship circumvention)
 - [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA contributions and misc. fixes)
 - [TJ Fontaine](https://github.com/tjfontaine) (For `native-dns`, `native-dns-packet` modules and related projects)
+- [@zancas](https://twitter.com/zancas) (For work on @okTurtles/pydnschain)
 - *Your name & link of choice here!*
 
 <a name="Release"/>
