@@ -51,35 +51,35 @@ module.exports = (dnschain) ->
         callback: (req, res) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
 
-        # This is reached when someone uses an Unblock server without the browser extension
-        if unblockSettings.enabled and unblockUtils.isHijacked(req.headers.host)
-                unblockTunnel.tunnelHTTP req, res
-                @log.debug gLineInfo "HTTP tunnel: "+req.headers.host
-        else
-            @log.debug gLineInfo('request'), {path:path, url:req.url}
+            # This is reached when someone uses an Unblock server without the browser extension
+            if unblockSettings.enabled and unblockUtils.isHijacked(req.headers.host)
+                    unblockTunnel.tunnelHTTP req, res
+                    @log.debug gLineInfo "HTTP tunnel: "+req.headers.host
+            else
+                @log.debug gLineInfo('request'), {path:path, url:req.url}
 
-            notFound = =>
-                res.writeHead 404,  'Content-Type': 'text/plain'
-                res.write "Not Found: #{path}"
-                res.end()
-
-            resolver = switch req.headers.host
-                when 'namecoin.dns' then 'nmc'
-                when 'bitshares.dns' then 'bdns'
-                else
-                    @log.warn gLineInfo "unknown host type: #{req.headers.host} -- defaulting to namecoin.dns!"
-                    'nmc'
-
-            if resolver is 'nmc' and not VALID_NMC_DOMAINS.test path
-                @log.debug gLineInfo "ignoring request for: #{path}"
-                return notFound()
-
-            @dnschain[resolver].resolve path, (err,result) =>
-                if err
-                    @log.debug gLineInfo('resolver failed'), {err:err}
-                    return notFound()
-                else
-                    res.writeHead 200, 'Content-Type': 'application/json'
-                    @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
-                    res.write @dnschain[resolver].toJSONstr result
+                notFound = =>
+                    res.writeHead 404,  'Content-Type': 'text/plain'
+                    res.write "Not Found: #{path}"
                     res.end()
+
+                resolver = switch req.headers.host
+                    when 'namecoin.dns' then 'nmc'
+                    when 'bitshares.dns' then 'bdns'
+                    else
+                        @log.warn gLineInfo "unknown host type: #{req.headers.host} -- defaulting to namecoin.dns!"
+                        'nmc'
+
+                if resolver is 'nmc' and not VALID_NMC_DOMAINS.test path
+                    @log.debug gLineInfo "ignoring request for: #{path}"
+                    return notFound()
+
+                @dnschain[resolver].resolve path, (err,result) =>
+                    if err
+                        @log.debug gLineInfo('resolver failed'), {err:err}
+                        return notFound()
+                    else
+                        res.writeHead 200, 'Content-Type': 'application/json'
+                        @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
+                        res.write @dnschain[resolver].toJSONstr result
+                        res.end()

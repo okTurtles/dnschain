@@ -105,4 +105,4 @@ getClientHello = (c, cb) ->
         c.destroy()
         done new Error "HTTPS socket closed"
 
-module.exports = {getClientHello, getStream, getBrowserExtensionFlag}
+module.exports = {getClientHello, getStream}

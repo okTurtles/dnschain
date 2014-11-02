@@ -117,7 +117,6 @@ module.exports = (dnschain) ->
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
             @log.debug gLineInfo("received question"), q
 
-<<<<<<< HEAD
             if /\.(bit|p2p)$/.test q.name
                 if S(q.name).endsWith '.bit'
                     nmcDomain = @namecoinizeDomain q.name
@@ -126,29 +125,16 @@ module.exports = (dnschain) ->
                     # TODO: bdns-izeDomain
                     nmcDomain = S(q.name).chompRight('.p2p').s
                     resolver = 'bdns'
-                
+
                 @log.debug gLineInfo("resolving via #{resolver}..."), {nmcDomain:nmcDomain, q:q}
 
                 @dnschain[resolver].resolve nmcDomain, (err, result) =>
                     # @log.warn gLineInfo('blah!'), {result: result}
-=======
-            if S(q.name).endsWith '.bit'
-                nmcDomain = @namecoinizeDomain q.name
-                @log.debug gLineInfo("resolving via nmc..."), {fn: 'cb|.bit', nmcDomain:nmcDomain, q:q}
-
-                @dnschain.nmc.resolve nmcDomain, (err, result) =>
-                    fn = 'nmc_show|cb' # TODO: replace with gLineInfo
-
->>>>>>> Fix #36
                     if err? or !result
                         @log.error gLineInfo("#{resolver} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res
                     else
-<<<<<<< HEAD
                         @log.debug gLineInfo("#{resolver} resolved query"), {q:q, d:nmcDomain, result:result}
-=======
-                        @log.debug gLineInfo("nmc resolved query"), {fn:fn, q:q, d:nmcDomain, result:result}
->>>>>>> Fix #36
 
                         try
                             # result.value = JSON.parse result.value
