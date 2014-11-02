@@ -51,24 +51,23 @@ module.exports = (dnschain) ->
                 address: '8.8.8.8' # Google (we recommend running PowerDNS yourself and sending it there)
                 port: 53
                 type: 'udp'
+
+
+        # This is how ports are used:
+        #
+        # 80: Used by DNSChain and Unblock (when the browser extension is not in use)
+        # 443: Will be used by DNSChain and Unblock (when the browser extension is not in use)
+
         http:
             port: if amRoot then 80 else 8088
             host: '0.0.0.0' # what we bind to
 
         https:
-            port: if amRoot then 443 # This is only used when Unblock is enabled.
+            port: 443 # This is only used when Unblock is enabled.
             host: '0.0.0.0'
 
         unblock :
             enabled: true
-            hostTunneling: {
-                port: 44555
-                host : '0.0.0.0'
-                internalPort: 44666
-                internalHost: '127.0.0.1'
-                getKey: -> fs.readFileSync __dirname+'/unblock/key.pem'
-                getCert: -> fs.readFileSync __dirname+'/unblock/cert.pem'
-            }
             domainList : {
                 # Youtube domains
                 "youtube.com"
@@ -93,7 +92,7 @@ module.exports = (dnschain) ->
             rpc_user: undefined
             rpc_password: undefined
             httpd_endpoint: undefined
-    
+
     fileFormatOpts =
         comments: ['#', ';']
         sections: true

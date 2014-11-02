@@ -51,6 +51,7 @@ module.exports = (dnschain) ->
         callback: (req, res) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
 
+        # This is reached when someone uses an Unblock server without the browser extension
         if unblockSettings.enabled and unblockUtils.isHijacked(req.headers.host)
                 unblockTunnel.tunnelHTTP req, res
                 @log.debug gLineInfo "HTTP tunnel: "+req.headers.host
