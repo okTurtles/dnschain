@@ -23,9 +23,9 @@ module.exports = (dnschain) ->
             @log.debug "Loading BDNSPeer..."
             
             get = gConf.bdns.get
-            [host, port] = get('rpc:httpd_endpoint')?.split ':'
-            if host?
-                port = parseInt port
+            endpoint = get('rpc:httpd_endpoint')?.split ':'
+            if endpoint?
+                [host, port] = [endpoint[0], parseInt endpoint[1]]
                 @peer = rpc.Client.$create port, host, get('rpc:rpc_user'), get('rpc:rpc_password')
                 gErr "rpc $create bdns" unless @peer
                 @log.info "rpc to bitshares_client on: %s:%d/rpc", host, port
