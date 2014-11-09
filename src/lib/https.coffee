@@ -19,26 +19,6 @@ module.exports = (dnschain) ->
     libHTTPS = require "./unblock/https"
     libUtils = require("./unblock/utils")(dnschain)
 
-    unauthorized = (c) =>
-        c?.destroy()
-        @log.error "Illegal domain (#{host})"
-
-    handlers = [
-        (c) => # MagicByte == 0
-        (c, host, received) => # Unblock : MagicByte == 1
-            if not libUtils.isHijacked(host)? then return unauthorized()
-            libHTTPS.getStream host, 443, (err, stream) =>
-                if err?
-                    @log.error gLineInfo "HTTPS tunnel failed: Could not connect to "+host
-                    c?.destroy()
-                    return stream?.destroy()
-                stream.write received
-                c.pipe(stream).pipe(c)
-                c.resume()
-                @log.debug gLineInfo "HTTPS tunnel: "+host
-
-    ]
-
     class HTTPSServer
         constructor: (@dnschain) ->
             @log = gNewLogger "HTTPS"
@@ -51,13 +31,25 @@ module.exports = (dnschain) ->
 
             ##### Handle the HTTPS Stream depending on magicByte #####
             @HTTPSserver = net.createServer (c) =>
-                libHTTPS.getConnectionHandshake c, (err, magicByte, args...) =>
+                libHTTPS.getClientHello c, (err, host, buf) =>
                     if err?
+                        # No valid SNI found
                         @log.error gLineInfo "HTTPS handling: "+err.message
                         return c?.destroy()
 
-                    if magicByte < handlers.length then return unauthorized()
-                    handlers[magicByte].apply [c].concat args
+                    if not libUtils.isHijacked(host)?
+                        @log.error "Illegal domain (#{host})"
+                        return c?.destroy()
+
+                    libHTTPS.getStream host, 443, (err, stream) =>
+                    if err?
+                        @log.error gLineInfo "HTTPS tunnel failed: Could not connect to "+host
+                        c?.destroy()
+                        return stream?.destroy()
+                    stream.write buf
+                    c.pipe(stream).pipe(c)
+                    c.resume()
+                    @log.debug gLineInfo "HTTPS tunnel: "+host
 
             @HTTPSserver.on "error", (err) -> gErr err
             @HTTPSserver.on "close", -> gErr "HTTPS server was closed unexpectedly."
