@@ -66,8 +66,8 @@ module.exports = (dnschain) ->
             port: 443
             host: '0.0.0.0'
             internalTLSPort: 15001
-            key: () -> fs.readFileSync "./key.pem"
-            cert: () -> fs.readFileSync "./cert.pem"
+            key: "./key.pem"
+            cert: "./cert.pem"
 
         unblock :
             enabled: true

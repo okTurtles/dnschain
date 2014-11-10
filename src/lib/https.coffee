@@ -83,8 +83,8 @@ module.exports = (dnschain) ->
     # This is the 'internal' TLS server used to unwrap the TLS layer.
     # It is only accessible from this file.
     options = {
-        key: httpsSettings.key()
-        cert: httpsSettings.cert()
+        key: fs.readFileSync httpsSettings.key
+        cert: fs.readFileSync httpsSettings.cert
     }
     internalTLSServer = tls.createServer options, (c) ->
         libHTTPS.getClientHello c, (err, host, buf) =>
