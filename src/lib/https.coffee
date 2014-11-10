@@ -92,17 +92,22 @@ module.exports = (dnschain) ->
             console.log "TLS!!", err, host, buf
             if err?
                 return console.log gLineInfo "TLS handling error: "+err.message
-
             else if not host?
-                ###############################################
-                ###############################################
                 if not buf?
                     console.log "No buffer!!", buf
                     return c.destroy()
 
                 console.log buf.toString "utf8"
 
-                return c.destroy()
+                # line = buf.toString("utf8").replace(/\r/g, "").split("\n")[0]
+                # [method, destination] = line.split(" ")
+                # if method.toUpperCase() != "CONNECT"
+                #     console.log "method was "+method
+                #     return c.destroy()
+                # console.log "Host: "+destination
+
+                # c.write [0,1,2,3,4,5]
+                # c.end host, "utf8"
 
                 libHTTPS.getStream "127.0.0.1", 15002, (err, stream) =>
                     if err?
@@ -112,11 +117,9 @@ module.exports = (dnschain) ->
                     stream.write buf
                     c.pipe(stream).pipe(c)
                     c.resume()
-                #     console.log gLineInfo "HTTP DEMO Tunnel"
-                    # return c?.destroy()
-                ###############################################
-                ###############################################
+                    console.log gLineInfo "HTTP DEMO Tunnel"
             else
+                # A miracle happened and we have HTTPS here
                 isUnblock = libUtils.isHijacked(host)?
                 isDNSChain = host.split(".")[-1..][0] == ".bit"
 
@@ -141,11 +144,40 @@ module.exports = (dnschain) ->
 
     internalTLSServer.listen httpsSettings.internalTLSPort, "127.0.0.1", () -> console.log "Listening"
 
-    # internalHTTPServer = http.createServer (req, res) ->
-    #     console.log "!!!!!!"
-    #     console.log req.headers
-    #     unblockTunnel.tunnelHTTPDEMO req, resume
+    internalHTTPServer = http.createServer (req, res) ->
+        unblockTunnel.tunnelHTTP req, res
 
-    # internalHTTPServer.listen 15002, "127.0.0.1", () -> console.log "Listening2"
+    internalHTTPServer.listen 15002, "0.0.0.0", () -> console.log "Listening2"
+
+    # internalHTTPServer = net.createServer (c) ->
+    #     libHTTPS.getClientHello c, (err, host, buf) =>
+    #         console.log "DEMOOO!!", err, host, buf
+    #         if err?
+    #             return console.log gLineInfo "DEMOOO handling error: "+err.message
+    #         else if not host?
+    #             if not buf?
+    #                 console.log "No buffer!!", buf
+    #                 return c.destroy()
+
+    #             console.log buf.toString "utf8"
+
+    #             line = buf.toString("utf8").replace(/\r/g, "").split("\n")[0]
+    #             [method, destination] = line.split(" ")
+    #             console.log "Host: "+destination
+
+    #             # c.write [0,1,2,3,4,5]
+    #             # c.end host, "utf8"
+
+    #             libHTTPS.getStream destination, 80, (err, stream) =>
+    #                 if err?
+    #                     console.log gLineInfo "HTTP DEMO failed: Could not connect to "+host
+    #                     c?.destroy()
+    #                     return stream?.destroy()
+    #                 stream.write buf
+    #                 c.pipe(stream).pipe(c)
+    #                 c.resume()
+    #                 console.log gLineInfo "HTTP DEMOOODEMOOODEMOOO Tunnel"
+
+    # internalHTTPServer.listen 15002, "0.0.0.0", () -> console.log "Listening2"
 
     exported
