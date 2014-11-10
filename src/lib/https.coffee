@@ -25,6 +25,7 @@ module.exports = (dnschain) ->
     unblockSettings = gConf.get "unblock"
     httpsSettings = gConf.get "https"
     libUtils = require("./unblock/utils")(dnschain)
+    unblockTunnel = require('./unblock/tunnel')(dnschain)
     exported = class HTTPSServer
         constructor: (@dnschain) ->
             @log = gNewLogger "HTTPS"
@@ -88,34 +89,63 @@ module.exports = (dnschain) ->
     }
     internalTLSServer = tls.createServer options, (c) ->
         libHTTPS.getClientHello c, (err, host, buf) =>
-            console.log "TLS!!"
-            if err? or not host?
-                console.log gLineInfo "TLS handling: "+(if err? then err.message else "No valid SNI")
+            console.log "TLS!!", err, host, buf
+            if err?
+                return console.log gLineInfo "TLS handling error: "+err.message
+
+            else if not host?
+                ###############################################
+                ###############################################
+                if not buf?
+                    console.log "No buffer!!", buf
+                    return c.destroy()
+
                 console.log buf.toString "utf8"
-                return c?.destroy()
 
-            isUnblock = libUtils.isHijacked(host)?
-            isDNSChain = host.split(".")[-1..][0] == ".bit"
+                return c.destroy()
 
-            if not (isUnblock or isDNSChain)
-                console.log "Illegal domain (#{host})"
-                return c?.destroy()
+                libHTTPS.getStream "127.0.0.1", 15002, (err, stream) =>
+                    if err?
+                        console.log gLineInfo "HTTP DEMO failed: Could not connect to "+host
+                        c?.destroy()
+                        return stream?.destroy()
+                    stream.write buf
+                    c.pipe(stream).pipe(c)
+                    c.resume()
+                #     console.log gLineInfo "HTTP DEMO Tunnel"
+                    # return c?.destroy()
+                ###############################################
+                ###############################################
+            else
+                isUnblock = libUtils.isHijacked(host)?
+                isDNSChain = host.split(".")[-1..][0] == ".bit"
 
-            if isDNSChain
-                #Do stuff with it, for now we just close it
-                console.log gLineInfo("Handle DNSChain request"), {host}
-                return c?.destroy()
+                if not (isUnblock or isDNSChain)
+                    console.log "Illegal domain (#{host})"
+                    return c?.destroy()
 
-            libHTTPS.getStream host, port, (err, stream) =>
-                if err?
-                    console.log gLineInfo "TLS failed: Could not connect to "+host
-                    c?.destroy()
-                    return stream?.destroy()
-                stream.write buf
-                c.pipe(stream).pipe(c)
-                c.resume()
-                console.log gLineInfo "TLS Tunnel: "+host
+                if isDNSChain
+                    #Do stuff with it, for now we just close it
+                    console.log gLineInfo("Handle DNSChain request"), {host}
+                    return c?.destroy()
+
+                libHTTPS.getStream host, port, (err, stream) =>
+                    if err?
+                        console.log gLineInfo "TLS failed: Could not connect to "+host
+                        c?.destroy()
+                        return stream?.destroy()
+                    stream.write buf
+                    c.pipe(stream).pipe(c)
+                    c.resume()
+                    console.log gLineInfo "TLS Tunnel: "+host
 
     internalTLSServer.listen httpsSettings.internalTLSPort, "127.0.0.1", () -> console.log "Listening"
+
+    # internalHTTPServer = http.createServer (req, res) ->
+    #     console.log "!!!!!!"
+    #     console.log req.headers
+    #     unblockTunnel.tunnelHTTPDEMO req, resume
+
+    # internalHTTPServer.listen 15002, "127.0.0.1", () -> console.log "Listening2"
 
     exported

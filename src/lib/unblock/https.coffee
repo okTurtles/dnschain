@@ -61,14 +61,12 @@ parseHTTPS = (packet) ->
         res.extensions = {}
 
         while pos < extensionsEnd
-            # console.log pos+"__"+extensionsEnd
             ext = {}
             ext.type = packet.readUInt16BE pos
             ext.length = packet.readUInt16BE (pos+2)
             jump = ext.length+4
             ext.body = packet[pos..(pos+jump-1)]
             res.extensions[ext.type] = ext
-            # console.log ext.type
             pos += jump
 
         if res.extensions["0"]?
@@ -132,7 +130,7 @@ getClientHello = (c, cb) ->
             when categories.INCOMPLETE
                 c.resume()
             else
-                done new Error "Unimplemented"
+                done new Error "Unimplemented", null, buf
     c.on "timeout", ->
         c.destroy()
         done new Error "HTTPS getClientHello timeout"

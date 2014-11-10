@@ -28,4 +28,6 @@ module.exports = (dnschain) ->
     {
         tunnelHTTP : (req, res) ->
             proxy.web req, res, {target: "http://"+req.headers.host, secure:false}
+        tunnelHTTPDEMO : (req, res) ->
+            proxy.web req, res, {target: "http://"+req.headers.host, secure:false}
     }
