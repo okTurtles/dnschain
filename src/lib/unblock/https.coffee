@@ -13,8 +13,6 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 net = require "net" # TODO: Fix this, it's in the globals.
 
-parse2Bytes = (buf) -> (buf[0] << 8) | buf[1]
-
 categories = {
     SNI : 0
     NO_SNI : 1
@@ -31,15 +29,15 @@ parseHTTPS = (packet) ->
         if res.contentType != 22 then return [categories.NOT_HTTPS, {}]
 
         res.recordVersionMajor = packet.readUInt8 1
-        if res.contentType >= 7 then return [categories.NOT_HTTPS, {}]
+        if res.recordVersionMajor >= 7 then return [categories.NOT_HTTPS, {}]
 
         res.recordVersionMinor = packet.readUInt8 2
-        if res.contentType >= 7 then return [categories.NOT_HTTPS, {}]
+        if res.recordVersionMinor >= 7 then return [categories.NOT_HTTPS, {}]
 
-        res.recordLength = parse2Bytes packet.readUInt16BE 3
+        res.recordLength = packet.readUInt16BE 3
 
         res.handshakeType = packet.readUInt8 5
-        if res.contentType != 1 then return [categories.NOT_HTTPS, {}]
+        if res.handshakeType != 1 then return [categories.NOT_HTTPS, {}]
 
         res.handshakeLength = packet[6..8]
         res.handshakeVersion = packet.readUInt16BE 9
@@ -73,10 +71,10 @@ parseHTTPS = (packet) ->
         pos += 7
         # The SNI type number is 0. An SNI length shorter than 4 bytes indicates an invalid header.
         if res.type == 0 and res.SNIlength >= 4
-            res.hostLength = packetreadUInt16BE pos
+            res.hostLength = packet.readUInt16BE pos
             pos += 2
             sliced = packet[pos..(pos+res.hostLength-1)]
-            if sliced.length != hostLength then throw new Error "Incomplete"
+            if sliced.length != res.hostLength then throw new Error "Incomplete"
             res.host = sliced.toString "utf8"
             return [categories.SNI, res]
         else
@@ -115,19 +113,18 @@ getClientHello = (c, cb) ->
         buf = Buffer.concat received
 
         [category, parsed] = parseHTTPS buf
-        if category == categories.SNI
-            done null, parsed.host, buf
-        else if category == categories.NO_SNI
-            c.destroy()
-            done new Error "No SNI found"
-        else if category == categories.NOT_HTTPS
-            # This needs to be sent to the internal TLS
-            # server for decryption
-            done new Error "No TLS support for now"
-        else if category == categories.INCOMPLETE
-            c.resume()
-        else
-            done new Error "Unimplemented"
+        switch category
+            when categories.SNI
+                done null, parsed.host, buf
+            when categories.NO_SNI
+                c.destroy()
+                done new Error "No SNI found"
+            when categories.NOT_HTTPS
+                done null, null, buf
+            when categories.INCOMPLETE
+                c.resume()
+            else
+                done new Error "Unimplemented"
     c.on "timeout", ->
         c.destroy()
         done new Error "HTTPS getClientHello timeout"

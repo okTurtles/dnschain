@@ -11,45 +11,63 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 
+###
+This file contains the logic to handle connections on port 443
+These connections can be naked HTTPS or wrapped inside of TLS
+###
+
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
     libHTTPS = require "./unblock/https"
+    unblockSettings = gConf.get "unblock"
+    httpsSettings = gConf.get "https"
     libUtils = require("./unblock/utils")(dnschain)
-
-    class HTTPSServer
+    exported = class HTTPSServer
         constructor: (@dnschain) ->
             @log = gNewLogger "HTTPS"
             @log.debug gLineInfo "Loading HTTPS..."
 
-            unblockSettings = gConf.get "unblock"
-            httpsSettings = gConf.get "https"
-
-            @sourceProtocols = {} # TODO : This will be refactored in issue #34
-
-            ##### Handle the HTTPS Stream depending on magicByte #####
             @HTTPSserver = net.createServer (c) =>
+                @log.info "HTTPS!!!"
                 libHTTPS.getClientHello c, (err, host, buf) =>
+                    @log.info err, host, buf
                     if err?
-                        # No valid SNI found
-                        @log.error gLineInfo "HTTPS handling: "+err.message
+                        # Connection is neither a TLS stream nor an HTTPS stream containing an SNI
+                        @log.error gLineInfo "TCP handling: "+err.message
                         return c?.destroy()
 
-                    if not libUtils.isHijacked(host)?
+                    if not host?
+                        # This means we have a TLS stream
+                        host = "127.0.0.1"
+                        port = httpsSettings.internalTLSPort
+                    else
+                        # This means we have an HTTPS stream with an SNI
+                        port = 443
+
+                    isUnblock = libUtils.isHijacked(host)?
+                    isDNSChain = host.split(".")[-1..][0] == ".bit"
+
+                    if not (isUnblock or isDNSChain)
                         @log.error "Illegal domain (#{host})"
                         return c?.destroy()
 
-                    libHTTPS.getStream host, 443, (err, stream) =>
-                    if err?
-                        @log.error gLineInfo "HTTPS tunnel failed: Could not connect to "+host
-                        c?.destroy()
-                        return stream?.destroy()
-                    stream.write buf
-                    c.pipe(stream).pipe(c)
-                    c.resume()
-                    @log.debug gLineInfo "HTTPS tunnel: "+host
+                    if isDNSChain
+                        #Do stuff with it, for now we just close it
+                        @log.debug gLineInfo("Handle DNSChain request"), {host}
+                        return c?.destroy()
+
+                    libHTTPS.getStream host, port, (err, stream) =>
+                        if err?
+                            @log.error gLineInfo "Tunnel failed: Could not connect to "+host
+                            c?.destroy()
+                            return stream?.destroy()
+                        stream.write buf
+                        c.pipe(stream).pipe(c)
+                        c.resume()
+                        @log.debug gLineInfo "Tunnel: "+host
 
             @HTTPSserver.on "error", (err) -> gErr err
             @HTTPSserver.on "close", -> gErr "HTTPS server was closed unexpectedly."
@@ -60,5 +78,43 @@ module.exports = (dnschain) ->
         shutdown: ->
             @log.debug gLineInfo "HTTPS servers shutting down!"
             @HTTPSserver.close()
-            @hostTunnelingServer.close()
-            @internal.close()
+            internalTLSServer.close()
+
+    # This is the 'internal' TLS server used to unwrap the TLS layer.
+    # It is only accessible from this file.
+    options = {
+        key: httpsSettings.key()
+        cert: httpsSettings.cert()
+    }
+    internalTLSServer = tls.createServer options, (c) ->
+        libHTTPS.getClientHello c, (err, host, buf) =>
+            @log.info "TLS!!"
+            if err? or not host?
+                @log.error gLineInfo "TLS handling: "+(if err? then err.message else "No valid SNI")
+                return c?.destroy()
+
+                isUnblock = libUtils.isHijacked(host)?
+                isDNSChain = host.split(".")[-1..][0] == ".bit"
+
+                if not (isUnblock or isDNSChain)
+                    @log.error "Illegal domain (#{host})"
+                    return c?.destroy()
+
+                if isDNSChain
+                    #Do stuff with it, for now we just close it
+                    @log.debug gLineInfo("Handle DNSChain request"), {host}
+                    return c?.destroy()
+
+            libHTTPS.getStream host, port, (err, stream) =>
+                if err?
+                    @log.error gLineInfo "TLS failed: Could not connect to "+host
+                    c?.destroy()
+                    return stream?.destroy()
+                stream.write buf
+                c.pipe(stream).pipe(c)
+                c.resume()
+                @log.debug gLineInfo "TLS Tunnel: "+host
+
+    internalTLSServer.listen httpsSettings.internalTLSPort, "127.0.0.1", () -> console.log "Listening"
+
+    exported

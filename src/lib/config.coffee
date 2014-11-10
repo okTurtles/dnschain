@@ -63,8 +63,11 @@ module.exports = (dnschain) ->
             host: '0.0.0.0' # what we bind to
 
         https:
-            port: 443 # This is only used when Unblock is enabled.
+            port: 443
             host: '0.0.0.0'
+            internalTLSPort: 15001
+            key: () -> fs.readFileSync "./key.pem"
+            cert: () -> fs.readFileSync "./cert.pem"
 
         unblock :
             enabled: true
