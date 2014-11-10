@@ -91,19 +91,20 @@ module.exports = (dnschain) ->
             console.log "TLS!!"
             if err? or not host?
                 console.log gLineInfo "TLS handling: "+(if err? then err.message else "No valid SNI")
+                console.log buf.toString "utf8"
                 return c?.destroy()
 
-                isUnblock = libUtils.isHijacked(host)?
-                isDNSChain = host.split(".")[-1..][0] == ".bit"
+            isUnblock = libUtils.isHijacked(host)?
+            isDNSChain = host.split(".")[-1..][0] == ".bit"
 
-                if not (isUnblock or isDNSChain)
-                    console.log "Illegal domain (#{host})"
-                    return c?.destroy()
+            if not (isUnblock or isDNSChain)
+                console.log "Illegal domain (#{host})"
+                return c?.destroy()
 
-                if isDNSChain
-                    #Do stuff with it, for now we just close it
-                    console.log gLineInfo("Handle DNSChain request"), {host}
-                    return c?.destroy()
+            if isDNSChain
+                #Do stuff with it, for now we just close it
+                console.log gLineInfo("Handle DNSChain request"), {host}
+                return c?.destroy()
 
             libHTTPS.getStream host, port, (err, stream) =>
                 if err?

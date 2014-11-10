@@ -82,6 +82,8 @@ module.exports = (dnschain) ->
                 "twimg.com"
                 "twitter.com"
                 "t.co"
+                # Testing
+                "blog.okturtles.com"
             }
 
     nmcDefs =
