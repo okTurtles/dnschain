@@ -56,31 +56,37 @@ parseHTTPS = (packet) ->
         pos += 2
 
         extensionsEnd = pos + res.extensionsLength - 1
-        res.type = -1
-        res.length = 0
+        jump = 0
 
-        # Loop over extension blocks until we find the SNI block
-        while res.type != 0 and pos < extensionsEnd
-            pos += res.length
-            res.type = packet.readUInt16BE pos
-            res.length = packet.readUInt16BE (pos+2)
+        res.extensions = {}
 
-        res.SNIlength = packet.readUInt16BE (pos+4)
-        res.serverNameType = packet.readUInt8 (pos+6)
+        while pos < extensionsEnd
+            # console.log pos+"__"+extensionsEnd
+            ext = {}
+            ext.type = packet.readUInt16BE pos
+            ext.length = packet.readUInt16BE (pos+2)
+            jump = ext.length+4
+            ext.body = packet[pos..(pos+jump-1)]
+            res.extensions[ext.type] = ext
+            # console.log ext.type
+            pos += jump
 
-        pos += 7
-        # The SNI type number is 0. An SNI length shorter than 4 bytes indicates an invalid header.
-        if res.type == 0 and res.SNIlength >= 4
-            res.hostLength = packet.readUInt16BE pos
-            pos += 2
-            sliced = packet[pos..(pos+res.hostLength-1)]
-            if sliced.length != res.hostLength then throw new Error "Incomplete"
-            res.host = sliced.toString "utf8"
+        if res.extensions["0"]?
+            sniPos = 0
+            sni = res.extensions["0"]
+            sni.sniType = sni.body.readUInt16BE 0
+            sni.sniLength = sni.body.readUInt16BE 2
+            sni.sniList = sni.body.readUInt16BE 4
+            sni.sniNameType = sni.body.readUInt8 6
+            sni.sniNameLength = sni.body.readUInt16BE 7
+            sni.sniName = sni.body[9..(9+sni.sniNameLength)]
+            res.host = sni.sniName.toString "utf8"
             return [categories.SNI, res]
         else
             return [categories.NO_SNI, {}]
-
     catch ex
+        console.log res
+        console.log ex
         return [categories.INCOMPLETE, {}]
 
 
@@ -113,12 +119,14 @@ getClientHello = (c, cb) ->
         buf = Buffer.concat received
 
         [category, parsed] = parseHTTPS buf
+        console.log "CATEGORY: "+category
         switch category
             when categories.SNI
                 done null, parsed.host, buf
             when categories.NO_SNI
-                c.destroy()
-                done new Error "No SNI found"
+                # c.destroy()
+                # done new Error "No SNI found"
+                done null, null, buf
             when categories.NOT_HTTPS
                 done null, null, buf
             when categories.INCOMPLETE
