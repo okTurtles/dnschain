@@ -97,18 +97,20 @@ module.exports = (dnschain) ->
                 return c.destroy()
 
             if not host?
+                # console.log "Hello world"
+                # return c.end "<html><body>Hello World</body></html>"
 
                 console.log buf.toString "utf8"
 
-                libHTTPS.getStream "127.0.0.1", 15002, (err, stream) =>
+                libHTTPS.getStream "127.0.0.1", 15003, (err, stream) =>
                     if err?
-                        console.log gLineInfo "HTTP DEMO failed: Could not connect to "+host
+                        console.log gLineInfo "SOCKS DEMO failed: Could not connect to "+host
                         c?.destroy()
                         return stream?.destroy()
                     stream.write buf
                     c.pipe(stream).pipe(c)
                     c.resume()
-                    console.log gLineInfo "HTTP DEMO Tunnel"
+                    console.log gLineInfo "SOCKS DEMO Tunnel"
             else
                 # A miracle happened and we have HTTPS here
                 # This section works great, it expects something wrapped in HTTPS
