@@ -37,7 +37,7 @@ module.exports = (dnschain) ->
             path_args = path.split '/'
             if path_args.length is 1
                 path_args = [{
-                    address: ''
+                    address: 'DnsReg'
                     key: path_args[0]}]
             else
                 path_args = [{
