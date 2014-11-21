@@ -47,4 +47,4 @@ module.exports = (dnschain) ->
 
         # TODO: make this cleaner. this is kinda ugly.
         toJSONstr: (json) -> json
-        toJSONobj: (json) -> JSON.parse json.value
+        toJSONobj: (json) -> JSON.parse json
