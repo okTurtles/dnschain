@@ -54,6 +54,7 @@ module.exports = (dnschain) ->
             resolver = switch req.headers.host
                 when 'namecoin.dns' then 'nmc'
                 when 'bitshares.dns' then 'bdns'
+                when 'ethereum.dns' then 'eth'
                 else
                     @log.warn gLineInfo "unknown host type: #{req.headers.host} -- defaulting to namecoin.dns!"
                     'nmc'

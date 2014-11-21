@@ -20,6 +20,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 - Namecoin
     - Non-Windows: ~/.namecoin/namecoin.conf
     - Windows: %APPDATA%\Namecoin\namecoin.conf
+- Ethereum
+    - local in ~/.ethereum/conf.ini -- not used
 
 All parametrs can be overwritten using command line args and/or environment variables.
 ###
@@ -69,6 +71,10 @@ module.exports = (dnschain) ->
             rpc_password: undefined
             httpd_endpoint: undefined
     
+    ethDefs =
+        rpcport: 8081 # will certainly change
+        rpcconnect: '127.0.0.1'
+
     fileFormatOpts =
         comments: ['#', ';']
         sections: true
@@ -118,10 +124,14 @@ module.exports = (dnschain) ->
     else
         # TODO: this!
 
+    # ethereum
+    eth = (new nconf.Provider()).argv().env()
+
     stores =
         dnschain: nconf.defaults defaults
         nmc: nmc.defaults nmcDefs
         bdns: bdns.defaults bdnsDefs
+        eth: eth.defaults ethDefs
 
     config =
         get: (key, store="dnschain") -> stores[store].get key
@@ -133,3 +143,6 @@ module.exports = (dnschain) ->
         bdns:
             get: (key)-> config.get key, 'bdns'
             set: (key, value)-> config.set key, value, 'bdns'
+        eth:
+            get: (key)-> config.get key, 'eth'
+            set: (key, value)-> config.set key, value, 'eth'
