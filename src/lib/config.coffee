@@ -72,7 +72,7 @@ module.exports = (dnschain) ->
             httpd_endpoint: undefined
     
     ethDefs =
-        rpcport: 8081 # will certainly change
+        rpcport: 8080 # will certainly change
         rpcconnect: '127.0.0.1'
 
     fileFormatOpts =

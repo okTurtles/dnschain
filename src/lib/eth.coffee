@@ -26,8 +26,6 @@ module.exports = (dnschain) ->
             params = ["rpcport", "rpcconnect"].map (x)-> gConf.eth.get x
             @peer = rpc.Client.$create(params...).connectSocket(->) or gErr "rpc create"
 
-            # TODO: $create doesn't actually connect. you need to open a raw socket
-            #       or an http socket and see if that works before declaring it works
             @log.info "rpc to ethereum on: %s:%d", params[1], params[0]
 
         shutdown: ->
