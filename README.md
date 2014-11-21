@@ -223,6 +223,7 @@ Grunt will automatically lint your code to the style used in this project, and w
 - [Simon Grondin](https://github.com/SGrondin) (DNS-based censorship circumvention)
 - [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA contributions and misc. fixes)
 - [TJ Fontaine](https://github.com/tjfontaine) (For `native-dns`, `native-dns-packet` modules and related projects)
+- [Cayman Nava](https://github.com/WeMeetAgain) (Ethereum support)
 - *Your name & link of choice here!*
 
 ## Release History<a name="Release"/>
