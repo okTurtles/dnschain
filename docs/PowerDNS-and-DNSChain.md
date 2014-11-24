@@ -1,6 +1,4 @@
-PowerDNS and DNSChain
-
-https://forums.okturtles.com/index.php?topic=8.0
+##PowerDNS and DNSChain
 
 We recommend combining DNSChain with PowerDNS 3.6+. Have PowerDNS listen on port 53 and forward `.bit` and `.dns` (and any other DNSChain-related queries) to DNSChain.
 

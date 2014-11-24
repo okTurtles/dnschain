@@ -1,4 +1,4 @@
-#### How do I run my own DNSChain Server?
+## How do I run my own DNSChain Server?
 
 - [Requirements](#Requirements)
 - [Getting Started](#Getting)
