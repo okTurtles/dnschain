@@ -13,14 +13,9 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [MITM-proof authentication via `.dns` metaTLD](#metaTLD)
 - [How do I use it?](#Use)
     - [Free public DNSChain servers](#Servers)
-<<<<<<< HEAD
     - [Registering `.bit` domains and identities](#Registering)
 - [How do I run my own DNSChain server?](#Run)
-=======
-    - [Registering `.bit` domains and identities](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities)
-- [How do I run my own DNSChain server?](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own)
-- [PowerDNS and DNSChain](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain)
->>>>>>> 3d6bf5c52366dbe6b5960e7264778ea4e879b20d
+- [PowerDNS and DNSChain](#PowerDNS)
 - [Community](#Community)
 - [Contributors](#Contributors)
 - [Release History](#Release)
