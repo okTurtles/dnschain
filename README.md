@@ -13,19 +13,16 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [MITM-proof authentication via `.dns` metaTLD](#metaTLD)
 - [How do I use it?](#Use)
     - [Free public DNSChain servers](#Servers)
-    - [Registering `.bit` domains and identities](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities)
-- [How do I run my own DNSChain server?](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own)
-- [PowerDNS and DNSChain](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain)
+    - [Registering `.bit` domains and identities](#Registering)
+- [How do I run my own DNSChain server?](#Run)
 - [Community](#Community)
 - [Contributors](#Contributors)
 - [Release History](#Release)
 - [License](#License)
 
-<a name="What"/>
-## What is it?
+## What is it?<a name="What"/>
 
-<a name="DNSChain"/>
-### DNSChain replaces X.509 PKI with the blockchain
+### DNSChain replaces X.509 PKI with the blockchain<a name="DNSChain"/>
 
 [X.509 PKI](https://en.wikipedia.org/wiki/X.509) makes and breaks today's Internet security. It's what makes your browser
 think ["The connection to this website is secure"](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/) when [it's not](http://okturtles.com/#not-secure).
@@ -46,8 +43,7 @@ It's what we have to get rid of, and DNSChain provides a scalable, distributed, 
 | __RESTful API to blockchain via [.dns metaTLD](#metaTLD)__                   | :white_check_mark: | :x:                                                                                                                                |
 | __Simple design fits in about *600 lines of CoffeeScript!*__                 | :white_check_mark: | :x:                                                                                                                                |
 
-<a name="GPG"/>
-### Simple and secure GPG key distribution
+### Simple and secure GPG key distribution<a name="GPG"/>
 
 ![Easily share your GPG key!](https://www.taoeffect.com/includes/images/twitter-gpg-s.jpg)
 
@@ -58,13 +54,11 @@ Well, simple to share, a little more difficult to register it (at the moment onl
 
 It's always best to use your own server, of course. _Note: headers containing a crypographic signature will be sent soon!_
 
-<a name="Free"/>
-### Free SSL certificates become possible
+### Free SSL certificates become possible<a name="Free"/>
 
 SSL certificates today __[do not provide the security that they claim to provide](http://okturtles.com/#not-secure)__. DNSChain replaces Certificate Authorities by providing a means for distributing public keys in a way that is secure from MITM attacks.
 
-<a name="DDoS"/>
-### Prevents DDoS attacks
+### Prevents DDoS attacks<a name="DDoS"/>
 
 Unlike traditional DNS servers, DNSChain encourages widespread deployment of the server (ideally, "one for every group of friends").
 This distributed, flat topology eliminates the need for open resolvers by making it practical to limit clients to a small, trusted set.
@@ -73,13 +67,11 @@ such requirement because *all* of the data necessary to answer queries is stored
 
 Another DoS attack relates to the centralized manner in which today's SSL certificates are checked for revocation:
 
-<a name="Revocation"/>
-### Certificate revocation that actually works
+### Certificate revocation that actually works<a name="Revocation"/>
 
 TODO: [OCSP](https://news.ycombinator.com/item?id=7556909) + DoS.
 
-<a name="Censorship"/>
-### DNS-based censorship circumvention
+### DNS-based censorship circumvention<a name="Censorship"/>
 
 The developers of [Unblock.us.org](https://github.com/SGrondin/unblock.us.org) and DNSChain are teaming up to bring the anti-censorship features of Unblock.us into DNSChain. Each project benefits from the other: DNSChain ensures MITM-free communication and Unblock.us ensures that the communication passes through firewalls.
 
@@ -89,8 +81,7 @@ Unblock.us works by hijacking the DNS lookups for the domains on a list defined 
 
 For now, Deep Packet Inspection techniques used in Pakistan and China can still beat Unblock.us, but the next version will address that issue using a technique called [Host Tunneling](http://unblock.us.org/?p=61). Short of cutting entire countries off the internet, DNSChain/Unblock.us will be able to get through.
 
-<a name="metaTLD"/>
-### The `.dns` meta-TLD
+### The `.dns` meta-TLD<a name="metaTLD"/>
 
 __.dns__ is [a meta-TLD](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/) because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
 
@@ -100,8 +91,7 @@ When a DNSChain server sees a request to a `.dns` domain, it handles the request
 
 - More info: [_Introducing the dotDNS metaTLD_](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/)
 
-<a name="Use"/>
-## How do I use it?
+## How do I use it?<a name="Use"/>
 
 No special software is required, just set your computer's DNS settings to use [one of the public DNSChain servers](#Servers) (more secure to run your own though).
 
@@ -119,8 +109,7 @@ As a convenience, the first DNSChain server's `.dns` meta-TLD can be accessed ov
 
 This means you can immediately begin writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
 
-<a name="Servers"/>
-### Free public DNSChain servers
+### Free public DNSChain servers<a name="Servers"/>
 
 *DNSChain is meant to be run by individuals!*
 
@@ -139,46 +128,38 @@ You can, if you must, use a public DNSChain server. Simply [set your computer's 
 
 Tell us about yours by opening an issue (or any other means) and we'll list it here!
 
-We'll post the public keys for these servers here as well once signed DNS &amp; HTTP responses are implemented. Note that DNSChain + DNSCrypt servers already guarantee the authenticity of DNS responses.
+We'll post the public keys for these servers here as well once signed DNS & HTTP responses are implemented. Note that DNSChain + DNSCrypt servers already guarantee the authenticity of DNS responses.
 
-<a name="Registering"/>
-## Registering `.bit` domains and identities
+### Registering `.bit` domains and identities<a name="Registering"/>
 
-[:book:](https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities) [Registering `.bit` domains and identities]( https://github.com/okTurtles/dnschain/wiki/.bit-Domains-and-Identities)
+[.bit Domains and Identities](docs/dot-bit-Domains-and-Identities.md)
 
-<a name="Run"/>
-## How do I run my own DNSChain server?
 
-[:book:](https://github.com/okTurtles/dnschain/dnschain/wiki/How-do-I-run-my-own) [How do I run my own DNSChain server?](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own)
-- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Requirements) [Requirements](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Requirements)
-- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Getting) [Getting Started](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Getting)
-- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Configuration) [Configuration](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Configuration)
-- [:book:](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Working) [Working with the source](https://github.com/okTurtles/dnschain/wiki/How-do-I-run-my-own#Working)
+## How do I run my own?<a name="Run"/>
 
-<a name="PowerDNS"/>
-## PowerDNS and DNSChain
-[:book:](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain) [PowerDNS and DNSChain](https://github.com/okTurtles/dnschain/wiki/PowerDNS-and-DNSChain)
+- [Requirements](docs/How-do-I-run-my-own.md#Requirements)
+- [Getting Started](docs/How-do-I-run-my-own.md#Getting)
+- [Configuration](docs/How-do-I-run-my-own.md#Configuration)
+- [Working with the source](docs/How-do-I-run-my-own.md#Working)
 
-<a name="Community"/>
-## Community
+
+## Community<a name="Community"/>
 
 - Forums: [https://forums.okturtles.com](https://forums.okturtles.com)
 - IRC Chat@Freenode: `#dnschain` &rArr; [Webchat](http://webchat.freenode.net/?channels=%23dnschain&uio=MT11bmRlZmluZWQb1)
 - Twitter: [@DNSChain](https://twitter.com/dnschain)
 - Twitter: [@okTurtles](https://twitter.com/okTurtles)
 
-<a name="Contributors"/>
-## Contributors
+## Contributors<a name="Contributors"/>
 
 - [Greg Slepak](https://twitter.com/taoeffect) (Original author and current maintainer)
 - [Simon Grondin](https://github.com/SGrondin) (DNS-based censorship circumvention)
 - [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA contributions and misc. fixes)
 - [TJ Fontaine](https://github.com/tjfontaine) (For `native-dns`, `native-dns-packet` modules and related projects)
-- [@zancas](https://twitter.com/zancas) (For work on @okTurtles/pydnschain)
+- [Cayman Nava](https://github.com/WeMeetAgain) (Ethereum support)
 - *Your name & link of choice here!*
 
-<a name="Release"/>
-## Release History
+## Release History<a name="Release"/>
 
 ###### 0.2.5 - July 10, 2014
 
