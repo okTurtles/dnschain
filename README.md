@@ -137,20 +137,20 @@ We'll post the public keys for these servers here as well once signed DNS &amp; 
 <a name="Registering"/>
 ## Registering `.bit` domains and identities
 
-[:book:](https://github.com/okTurtles/dnschain/docs/dot-bit-Domains-and-Identities.md) [Registering `.bit` domains and identities](https://github.com/okTurtles/dnschain/docs/dot-bit-Domains-and-Identities.md)
+[:book:](docs/dot-bit-Domains-and-Identities.md) [Registering `.bit` domains and identities](docs/dot-bit-Domains-and-Identities.md)
 
 <a name="Run"/>
 ## How do I run my own DNSChain server?
 
-[:book:](https://github.com/okTurtles/dnschain/dnschain/docs/How-do-I-run-my-own.md) [How do I run my own DNSChain server?](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md)
-- [:book:](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md#Requirements) [Requirements](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md#Requirements)
-- [:book:](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md#Getting) [Getting Started](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md#Getting)
-- [:book:](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md#Configuration) [Configuration](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md#Configuration)
-- [:book:](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md#Working) [Working with the source](https://github.com/okTurtles/dnschain/docs/How-do-I-run-my-own.md#Working)
+[:book:](docs/How-do-I-run-my-own.md) [How do I run my own DNSChain server?](docs/How-do-I-run-my-own.md)
+- [:book:](docs/How-do-I-run-my-own.md#Requirements) [Requirements](docs/How-do-I-run-my-own.md#Requirements)
+- [:book:](docs/How-do-I-run-my-own.md#Getting) [Getting Started](docs/How-do-I-run-my-own.md#Getting)
+- [:book:](docs/How-do-I-run-my-own.md#Configuration) [Configuration](docs/How-do-I-run-my-own.md#Configuration)
+- [:book:](docs/How-do-I-run-my-own.md#Working) [Working with the source](docs/How-do-I-run-my-own.md#Working)
 
 <a name="PowerDNS"/>
 ## PowerDNS and DNSChain
-[:book:](https://github.com/okTurtles/dnschain/docs/PowerDNS-and-DNSChain.md) [PowerDNS and DNSChain](https://github.com/okTurtles/dnschain/docs/PowerDNS-and-DNSChain.md)
+[:book:](docs/PowerDNS-and-DNSChain.md) [PowerDNS and DNSChain](docs/PowerDNS-and-DNSChain.md)
 
 
 ## Community<a name="Community"/>
