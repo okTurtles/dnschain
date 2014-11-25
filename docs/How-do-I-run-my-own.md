@@ -52,10 +52,11 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     
     [dns]
     port = 5333
-    oldDNS.address = 8.8.8.8  # no quotes around IP
+    # no quotes around IP
+    oldDNS.address = 8.8.8.8  
 
     # disable traditional DNS resolution (default is NATIVE_DNS)
-    oldDNSMethod = NO_OLD_DNS # no quotes around this either
+    oldDNSMethod = NO_OLD_DNS 
     
     [http]
     port=8088
