@@ -18,11 +18,11 @@ PowerDNS should listen on port 53 and forward `.bit` and `.dns` (and all blockch
 
 You'll need to have something like the following in /etc/powerdns/recursor.conf
 
-	allow-from=0.0.0.0/0   
-	dont-query=   
-	export-etc-hosts=off   
+	allow-from=0.0.0.0/0
+	dont-query=
+	export-etc-hosts=off
 	forward-zones=bit.=127.0.0.1:5333,dns.=127.0.0.1:5333,eth.=127.0.0.1:5333,p2p.=127.0.0.1:5333
-	local-address=0.0.0.0   
+	local-address=0.0.0.0
 	local-port=53
 
 DNSChain configuration is covered in more detail [here](How-do-I-run-my-own.md#Configuration). Notice that in the above setup example, we configured PowerDNS to handoff `.bit` and similar queries to a process running on port 5333. We must tell DNSChain to bind to that port. That is done in /etc/dnschain/dnschain.conf:
