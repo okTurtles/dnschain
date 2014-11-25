@@ -1,7 +1,7 @@
 ##PowerDNS and DNSChain
 
-We recommend combining DNSChain with PowerDNS 3.6+ or higher. 
-Installing this one a Debian 7 (wheezy) server, for example, requires getting a more recent version than in the *stable* repo. 
+We recommend combining DNSChain with **PowerDNS 3.6.x or higher. 
+Installing this on a Debian 7 (wheezy) server, for example, requires getting a more recent version than in the *stable* repo. 
 
 	echo 'deb http://http.debian.net/debian wheezy-backports main' >> /etc/apt/sources.list
 	apt-get update
@@ -9,10 +9,12 @@ Installing this one a Debian 7 (wheezy) server, for example, requires getting a 
 	# check if server is alive
 	rec_control ping   
 
+Test to ensure that PowerDNS is properly handling DNS queries:
+`$ dig @127.0.0.1 okturtles.org`
 
 PowerDNS is going to receive all DNS Queries, and conventional domain names will be resolved as usual. However, we want all queries for blockchain-based TLDs to be passed along to DNSChain to be resolved using a local blockchain.
 
-Have PowerDNS listen on port 53 and forward `.bit` and `.dns` (and any other DNSChain-related queries) to DNSChain.
+PowerDNS should listen on port 53 and forward `.bit` and `.dns` (and all blockchain TLD queries) to DNSChain.
 
 You'll need to have something like the following in /etc/powerdns/recursor.conf
 
