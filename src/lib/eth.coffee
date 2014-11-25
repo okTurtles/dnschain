@@ -46,5 +46,5 @@ module.exports = (dnschain) ->
             @peer.call 'EthereumApi.GetStorageAt', path_args, cb
 
         # TODO: make this cleaner. this is kinda ugly.
-        toJSONstr: (json) -> json
-        toJSONobj: (json) -> JSON.parse json
+        toJSONstr: (json) -> JSON.parse(json).result?.value
+        toJSONobj: (json) -> JSON.parse JSON.parse(json).result?.value
