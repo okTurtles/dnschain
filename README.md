@@ -150,7 +150,7 @@ We'll post the public keys for these servers here as well once signed DNS &amp; 
 
 <a name="PowerDNS"/>
 ## PowerDNS and DNSChain
-[:book:](docs/PowerDNS-and-DNSChain.md) [PowerDNS and DNSChain](docs/PowerDNS-and-DNSChain.md)
+[:book:](docs/PowerDNS-and-DNSChain.md) [Setting up PowerDNS server with DNSChain](docs/PowerDNS-and-DNSChain.md)
 
 
 ## Community<a name="Community"/>
