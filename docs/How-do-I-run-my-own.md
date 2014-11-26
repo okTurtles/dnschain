@@ -56,7 +56,7 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     oldDNS.address = 8.8.8.8
 
     # disable traditional DNS resolution (default is NATIVE_DNS)
-    oldDNSMethod = NO_OLD_DNS 
+    oldDNSMethod = NO_OLD_DNS
     
     [http]
     port=8088
