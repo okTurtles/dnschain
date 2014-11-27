@@ -24,7 +24,7 @@ module.exports = (dnschain) ->
             
             # we want them in this exact order:
             params = ["rpcport", "rpcconnect"].map (x)-> gConf.eth.get x
-            @peer = rpc.Client.$create(params...).connectSocket(->) or gErr "rpc create"
+            @peer = rpc.Client.$create(params...) or gErr "rpc create"
 
             @log.info "rpc to ethereum on: %s:%d", params[1], params[0]
 
@@ -43,7 +43,14 @@ module.exports = (dnschain) ->
                 path_args = [{
                     address: path_args[0]
                     key: path_args[1..].join '/'}]
-            @peer.call 'EthereumApi.GetStorageAt', path_args, cb
+            conn = @peer.connectSocket()
+            err = (e) =>
+                conn.handleMessage {
+                    id: conn.latestId
+                    error: e}
+            conn.conn.on 'error', err
+            conn.conn.on 'close', (err.bind null,'ECONNCLOSED')
+            conn.call 'EthereumApi.GetStorageAt', path_args, cb
 
         # TODO: make this cleaner. this is kinda ugly.
         toJSONstr: (json) -> JSON.parse(json).result?.value
