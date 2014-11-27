@@ -48,8 +48,8 @@ module.exports = (dnschain) ->
                 conn.handleMessage {
                     id: conn.latestId
                     error: e}
-            conn.conn.on 'error', err
-            conn.conn.on 'close', (err.bind null,'ECONNCLOSED')
+            conn.on 'error', err
+            conn.on 'close', (err.bind null,'ECONNCLOSED')
             conn.call 'EthereumApi.GetStorageAt', path_args, cb
 
         # TODO: make this cleaner. this is kinda ugly.
