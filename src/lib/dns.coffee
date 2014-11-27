@@ -112,14 +112,18 @@ module.exports = (dnschain) ->
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
             @log.debug "received question", q
 
-            if /\.(bit|p2p)$/.test q.name
+            if /\.(bit|p2p|eth)$/.test q.name
                 if S(q.name).endsWith '.bit'
                     nmcDomain = @namecoinizeDomain q.name
                     resolver = 'nmc'
-                else
+                else if S(q.name).endsWith '.p2p'
                     # TODO: bdns-izeDomain
                     nmcDomain = S(q.name).chompRight('.p2p').s
                     resolver = 'bdns'
+                else
+                    # TODO: eth-izeDomain
+                    nmcDomain = S(q.name).chompRight('.eth').s
+                    resolver = 'eth'
                 
                 @log.debug gLineInfo("resolving via #{resolver}..."), {nmcDomain:nmcDomain, q:q}
 
