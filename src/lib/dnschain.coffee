@@ -1,7 +1,7 @@
 ###
 
 dnschain
-http://dnschain.net
+http://dnschain.org
 
 Copyright (c) 2014 okTurtles Foundation
 
@@ -37,7 +37,7 @@ design:
 
 security:
 
-- protect against DDoS DNS amplification attacks. 
+- protect against DDoS DNS amplification attacks.
 
 DNS libraries used and considered:
 
@@ -60,6 +60,7 @@ NMCPeer = require('./nmc')(exports)
 BDNSPeer = require('./bdns')(exports)
 DNSServer = require('./dns')(exports)
 HTTPServer = require('./http')(exports)
+HTTPSServer = require('./https')(exports)
 
 exports.DNSChain = class DNSChain
     constructor: ->
@@ -69,14 +70,15 @@ exports.DNSChain = class DNSChain
             @bdns = new BDNSPeer @
             @dns = new DNSServer @
             @http = new HTTPServer @
-            @log.info "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
+            @https = new HTTPSServer @
+            @log.info gLineInfo "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
 
             if process.getuid() isnt 0 and gConf.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
-                @log.warn "DNS port isn't 53!".bold.red, "While testing you should either run me as root or make sure to set standard ports in the configuration!".bold
+                @log.warn gLineInfo("DNS port isn't 53!".bold.red), "While testing you should either run me as root or make sure to set standard ports in the configuration!".bold
         catch e
-            @log.error "DNSChain failed to start: ", e.stack
+            @log.error gLineInfo("DNSChain failed to start: "), e.stack
             @shutdown()
             throw e # rethrow
 
-    shutdown: -> [@nmc, @dns, @http].forEach (s) -> s?.shutdown?()
+    shutdown: -> [@nmc, @dns, @http, @https].forEach (s) -> s?.shutdown?()
 

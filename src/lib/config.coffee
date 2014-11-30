@@ -1,7 +1,7 @@
 ###
 
 dnschain
-http://dnschain.net
+http://dnschain.org
 
 Copyright (c) 2014 okTurtles Foundation
 
@@ -26,7 +26,6 @@ All parametrs can be overwritten using command line args and/or environment vari
 
 nconf = require 'nconf'
 props = require 'properties'
-fs = require 'fs'
 tty = require 'tty'
 
 module.exports = (dnschain) ->
@@ -52,10 +51,40 @@ module.exports = (dnschain) ->
                 address: '8.8.8.8' # Google (we recommend running PowerDNS yourself and sending it there)
                 port: 53
                 type: 'udp'
+
+
+        # This is how ports are used:
+        #
+        # 80: Used by DNSChain and Unblock (when the browser extension is not in use)
+        # 443: Will be used by DNSChain and Unblock (when the browser extension is not in use)
+
         http:
             port: if amRoot then 80 else 8088
-            tlsPort: if amRoot then 443 else 4443
             host: '0.0.0.0' # what we bind to
+
+        https:
+            port: 443
+            host: '0.0.0.0'
+            internalTLSPort: 15001
+            key: "./key.pem"
+            cert: "./cert.pem"
+
+        unblock :
+            enabled: true
+            domainList : {
+                # Youtube domains
+                "youtube.com"
+                "ggpht.com"
+                "ytimg.com"
+                "youtube-nocookie.com"
+                "youtu.be"
+                # Twitter domains
+                "twimg.com"
+                "twitter.com"
+                "t.co"
+                # Testing
+                "blog.okturtles.com"
+            }
 
     nmcDefs =
         rpcport: 8336
@@ -68,7 +97,7 @@ module.exports = (dnschain) ->
             rpc_user: undefined
             rpc_password: undefined
             httpd_endpoint: undefined
-    
+
     fileFormatOpts =
         comments: ['#', ';']
         sections: true
@@ -76,7 +105,7 @@ module.exports = (dnschain) ->
 
     props.parse = _.partialRight props.parse, fileFormatOpts
     props.stringify = _.partialRight props.stringify, fileFormatOpts
-    
+
 
     # load our config
     appname = "dnschain"
@@ -95,7 +124,6 @@ module.exports = (dnschain) ->
 
     # namecoin
     nmc = (new nconf.Provider()).argv().env()
-    
     # TODO: use the same _.find technique as done below for bdnsConf
     nmcConf = if process.env.APPDATA?
         path.join process.env.APPDATA, "Namecoin", "namecoin.conf"

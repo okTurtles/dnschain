@@ -1,7 +1,7 @@
 ###
 
 dnschain
-http://dnschain.net
+http://dnschain.org
 
 Copyright (c) 2014 okTurtles Foundation
 
@@ -18,6 +18,11 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
+    unblockSettings = gConf.get "unblock"
+    if unblockSettings.enabled
+        unblockUtils = require('./unblock/utils')(dnschain)
+        unblockDNS = require('./unblock/dns')(dnschain)
+
     dnsTypeHandlers = require('./dns-handlers')(dnschain)
 
     QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
@@ -28,14 +33,14 @@ module.exports = (dnschain) ->
     class DNSServer
         constructor: (@dnschain) ->
             @log = gNewLogger 'DNS'
-            @log.debug "Loading DNSServer..."
+            @log.debug gLineInfo "Loading DNSServer..."
             @method = gConf.get 'dns:oldDNSMethod'
 
             # this is just for development testing of NODE_DNS method
             # dns.setServers ['8.8.8.8']
-            
+
             if @method is gConsts.oldDNS.NODE_DNS
-                @log.warn "Using".bold.red, "oldDNSMethod = NODE_DNS".bold, "method is strongly discouraged!".bold.red
+                @log.warn gLineInfo("Using".bold.red), "oldDNSMethod = NODE_DNS".bold, "method is strongly discouraged!".bold.red
                 if dns.getServers?
                     blacklist = _.intersection ['127.0.0.1', '::1', 'localhost'], dns.getServers()
                     if blacklist.length > 0
@@ -43,9 +48,9 @@ module.exports = (dnschain) ->
                 else
                     gErr "Node's DNS module doesn't have 'getServers'. Please upgrade NodeJS."
             else if @method is gConsts.oldDNS.NO_OLD_DNS
-                @log.warn "oldDNSMethod is set to refuse queries for traditional DNS!".bold
+                @log.warn gLineInfo "oldDNSMethod is set to refuse queries for traditional DNS!".bold
             else if @method is gConsts.oldDNS.NO_OLD_DNS_EVER
-                @log.warn "oldDNSMethod is set to refuse *ALL* queries for traditional DNS (even if the blockchain wants us to)!".bold.red
+                @log.warn gLineInfo "oldDNSMethod is set to refuse *ALL* queries for traditional DNS (even if the blockchain wants us to)!".bold.red
             else if @method isnt gConsts.oldDNS.NATIVE_DNS
                 gErr "No such oldDNSMethod: #{@method}"
 
@@ -54,53 +59,53 @@ module.exports = (dnschain) ->
             @server.on 'request', @callback.bind(@)
             @server.serve gConf.get('dns:port'), gConf.get('dns:host')
 
-            @log.info 'started DNS', gConf.get 'dns'
+            @log.info gLineInfo('started DNS'), gConf.get 'dns'
 
         shutdown: ->
-            @log.debug 'shutting down!'
+            @log.debug gLineInfo 'shutting down!'
             @server.close()
 
         # (Notes on 'native-dns' version <=0.6.x, which I'd like to see changed.)
-        # 
+        #
         # Both `req` and `res` are of type `Packet` (the subclass, as explained next).
-        # 
+        #
         # The packet that's inside of 'native-dns' inherits from the one inside of 'native-dns-packet'.
         # It adds two extra fields (at this time of writing):
-        # 
+        #
         # - address: added by Server.prototype.handleMessage and the Packet subclass constructor
         # - _socket: added by the Packet subclass constructor in lib/packet.js
-        # 
+        #
         # `req` and `res` are both instances of this subclass of 'Packet'.
         # They also have the same 'question' field.
-        # 
+        #
         # See also:
         # - native-dns/lib/server.js
         # - native-dns/lib/packet.js
         # - native-dns-packet/packet.js
-        # 
+        #
         # Separately, there is a 'Request' class defined in 'native-dns/lib/client.js'.
         # Like 'Packet', it has a 'send' method.
         # To understand it see these functions in 'lib/pending.js':
-        # 
+        #
         # - SocketQueue.prototype._dequeue   (sending)
         # - SocketQueue.prototype._onmessage (receiving)
-        # 
+        #
         # When you create a 'new Request' and send it, it will first create a 'new Packet' and copy
         # some of the values from the request into it, and then call 'send' on that.
         # Similarly, in receiving a reply from a Request instance, handle the 'message' event, which
         # will create a new Packet (the subclass, with the _socket field) from the received data.
-        # 
+        #
         # See also:
         # - native-dns/lib/client.js
         # - native-dns/lib/pending.js
-        # 
+        #
         # Ideally we want to be able to reuse the 'req' received here and pass it along
         # to oldDNSLookup without having to recreate or copy any information.
         # See: https://github.com/tjfontaine/node-dns/issues/69
-        # 
+        #
         # Even more ideally we want to be able to simply pass along the raw data without having to parse it.
         # See: https://github.com/okTurtles/dnschain/issues/6
-        # 
+        #
         callback: (req, res) ->
             # answering multiple questions in a query appears to be problematic,
             # and few servers do it, so we only answer the first question:
@@ -108,9 +113,9 @@ module.exports = (dnschain) ->
             # At some point we may still want to support this though.
             q = req.question[qIdx=0]
             q.name = q.name.toLowerCase()
-            
+
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
-            @log.debug "received question", q
+            @log.debug gLineInfo("received question"), q
 
             if /\.(bit|p2p)$/.test q.name
                 if S(q.name).endsWith '.bit'
@@ -120,7 +125,7 @@ module.exports = (dnschain) ->
                     # TODO: bdns-izeDomain
                     nmcDomain = S(q.name).chompRight('.p2p').s
                     resolver = 'bdns'
-                
+
                 @log.debug gLineInfo("resolving via #{resolver}..."), {nmcDomain:nmcDomain, q:q}
 
                 @dnschain[resolver].resolve nmcDomain, (err, result) =>
@@ -138,7 +143,7 @@ module.exports = (dnschain) ->
                             #       organize all this code in a generic way to support all blockchains.
                             result.value = @dnschain[resolver].toJSONobj result
                         catch e
-                            @log.warn e.stack
+                            @log.warn gLineInfo(), e.stack
                             @log.warn gLineInfo("bad JSON!"), {q:q, result:result}
                             return @sendErr res, NAME_RCODE.FORMERR
 
@@ -154,7 +159,7 @@ module.exports = (dnschain) ->
                                     @log.debug gLineInfo("sending response!"), {resolver:resolver, res:_.omit(res, '_socket')}
                                     res.send()
                             catch e
-                                @log.error e.stack
+                                @log.error gLineInfo(), e.stack
                                 @log.error gLineInfo("exception in handler"), {q:q, result:result}
                                 return @sendErr res, NAME_RCODE.SERVFAIL
 
@@ -164,6 +169,8 @@ module.exports = (dnschain) ->
                 res.answer.push gIP2type(q.name,ttl,QTYPE_NAME[q.type])(gConf.get 'dns:externalIP')
                 @log.debug gLineInfo('cb|.dns'), {q:q, answer:res.answer}
                 res.send()
+            else if unblockSettings.enabled and unblockUtils.isHijacked(q.name) and q.type == 1 # TODO: ipv6 here
+                unblockDNS.hijack req, res
             else
                 @log.debug gLineInfo("deferring request"), {q:q}
                 @oldDNSLookup req, res
@@ -179,7 +186,7 @@ module.exports = (dnschain) ->
             sig = "oldDNS{#{@method}}"
             q = req.question[0]
 
-            @log.debug {fn:sig+':start', q:q}
+            @log.debug gLineInfo(), {fn:sig+':start', q:q}
 
             if @method is gConsts.oldDNS.NATIVE_DNS
                 success = false
@@ -225,7 +232,7 @@ module.exports = (dnschain) ->
             else if @method is gConsts.oldDNS.NODE_DNS
                 dns.resolve q.name, QTYPE_NAME[q.type], (err, addrs) =>
                     if err
-                        @log.debug {fn:sig+':fail', q:q, err:err?.message}
+                        @log.debug gLineInfo(), {fn:sig+':fail', q:q, err:err?.message}
                         @sendErr res
                     else
                         # USING THIS METHOD IS DISCOURAGED BECAUSE IT DOESN'T
@@ -233,7 +240,7 @@ module.exports = (dnschain) ->
                         # TODO: pick an appropriate TTL value!
                         ttl = Math.floor(Math.random() * 3600) + 30
                         res.answer.push (addrs.map gIP2type(q.name, ttl, QTYPE_NAME[q.type]))...
-                        @log.debug {fn:sig+':success', answer:res.answer, q:q.name}
+                        @log.debug gLineInfo(), {fn:sig+':success', answer:res.answer, q:q.name}
                         res.send()
             else
                 # refuse all such queries

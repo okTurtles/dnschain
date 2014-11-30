@@ -1,7 +1,7 @@
 ###
 
 dnschain
-http://dnschain.net
+http://dnschain.org
 
 Copyright (c) 2014 okTurtles Foundation
 
@@ -14,7 +14,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 module.exports = (dnschain) ->
 
     # 1. global dependencies
-    # 
+    #
     # IMPORTANT: *ALL* DNSChain globals *MUST* be prefixed with a 'g'
     #            *EXCEPT* the global module dependencies below.
 
@@ -27,7 +27,7 @@ module.exports = (dnschain) ->
         sa     : 'stream-array'
 
     # no renaming done for these
-    for d in ['net', 'dns', 'http', 'url', 'util', 'os', 'path', 'winston']
+    for d in ['net', 'tls', 'dns', 'http', 'url', 'util', 'fs', 'os', 'path', 'winston']
         dnschain.globals[d] = d
 
     # replace all the string values in dnschain.globals with the module they represent
@@ -58,7 +58,7 @@ module.exports = (dnschain) ->
 
             # Never resolve domains in canonical DNS. Return REFUSED for all such requests.
             NO_OLD_DNS_EVER: 3
-    
+
     # 3. create global functions, and then return the entire globals object
     _.assign dnschain.globals, {
         gExternalIP: do ->
@@ -75,7 +75,7 @@ module.exports = (dnschain) ->
                         unless ips = (faces = os.networkInterfaces())[iface]
                             throw new Error util.format("No such interface '%s'. Available: %j", iface, faces)
                         _.find(ips, {family:fam, internal:internal}).address
-        
+
         gNewLogger: (name) ->
             new winston.Logger
                 levels: winston.config.cli.levels
@@ -140,14 +140,14 @@ module.exports = (dnschain) ->
     method = gConf.get 'dns:oldDNSMethod'
     if typeof method isnt 'string'
         method = _.keys(_.pick gConsts.oldDNS, (v,k)-> v is method)[0]
-        gLogger.warn "Specifying 'oldDNSMethod' as a number is DEPRECATED!".bold.red
-        gLogger.warn "Please specify the string value instead:".bold.red, "#{method}".bold
+        gLogger.warn gLineInfo "Specifying 'oldDNSMethod' as a number is DEPRECATED!".bold.red
+        gLogger.warn gLineInfo("Please specify the string value instead:".bold.red), "#{method}".bold
     else
         if (method_num = gConsts.oldDNS[method])?
             # kinda hackish... but makes for easy and quick comparisons
             gConf.set 'dns:oldDNSMethod', method_num
         else
-            gLogger.error "No such oldDNS method:".bold.red, method.bold
+            gLogger.error gLineInfo("No such oldDNS method:".bold.red), method.bold
             process.exit 1
 
 
