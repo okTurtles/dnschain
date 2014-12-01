@@ -11,11 +11,10 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [Certificate revocation that actually works](#Revocation)
     - [DNS-based censorship circumvention](#Censorship)
     - [MITM-proof authentication via `.dns` metaTLD](#metaTLD)
-- [How do I use it?](#Use)
-    - [Free public DNSChain servers](#Servers)
-    - [Registering `.bit` domains and identities](#Registering)
-- [How do I run my own DNSChain server?](#Run)
-- [PowerDNS and DNSChain](#PowerDNS)
+- [Documentation](#Documentation)
+	- [How do I use it?](#Use)
+	- [How do I run my own DNSChain server?](#Run)
+	- [PowerDNS and DNSChain](#PowerDNS)
 - [Community](#Community)
 - [Contributors](#Contributors)
 - [Release History](#Release)
@@ -95,52 +94,30 @@ When a DNSChain server sees a request to a `.dns` domain, it handles the request
 
 - More info: [_Introducing the dotDNS metaTLD_](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/)
 
-## How do I use it?<a name="Use"/>
+<a name="Documentation"/>
+## Documentation
 
-No special software is required, just set your computer's DNS settings to use [one of the public DNSChain servers](#Servers) (more secure to run your own though).
+<a name="Use"/>
+### How do I use it?
 
-Then try the following:
+[:book:](docs/How-do-I-use-it.md) [How do I use it?](docs/How-do-I-use-it.md)
 
-- Visit [http://okturtles.bit](http://okturtles.bit)
-- "What's the domain info for `okturtles.bit`?" [http://namecoin.dns/d/okturtles](http://namecoin.dns/d/okturtles)
-- "Who is Greg and what is his GPG info?" [http://namecoin.dns/id/greg](http://namecoin.dns/id/greg)
+No special software is required to use it, you can simply change your DNS settings. DNSChain also implements the `.dns` meta TLD, which allows you to read from the underlying blockchains, and use the data in your Javascript apps.
 
-__Don't want to change your DNS settings?__
+<a name="Servers"/>
+#### Free public DNSChain servers
 
-As a convenience, the first DNSChain server's `.dns` meta-TLD can be accessed over the old-DNS by way of `dns.dnschain.net`, like so:
+[:book:](docs/How-do-I-use-it.md#Servers) [Free public DNSChain servers](docs/How-do-I-use-it.md#Servers)
 
-- "Who is Greg?" [http://dns.dnschain.net/id/greg](http://dns.dnschain.net/id/greg)
-
-This means you can immediately begin writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
-
-### Free public DNSChain servers<a name="Servers"/>
-
-*DNSChain is meant to be run by individuals!*
-
-Yes, you can use a public DNSChain server, but it's far better to use your own because it gives you more privacy, makes you more resistant to censorship, and provides you with a stronger guarantee that the responses you get haven't been tampered with by a malicious server.
-
-Those who do not own their own server or VPS can use their friend's (as long as they trust that person). DNSChain servers will sign all of their responses, thus protecting your from MITM attacks. *(NOTE: signing is not yet implemented, but will be soon)*
-
-You can, if you must, use a public DNSChain server. Simply [set your computer's DNS settings](https://startpage.com/do/search?q=how+to+change+DNS+settings) to one of these. Note that some of the servers must be used with [dnscrypt-proxy](https://github.com/jedisct1/dnscrypt-proxy).
-
-|                          IP or DNSCrypt provider                           |           [DNSCrypt](http://dnscrypt.org/) Info            | Logs |    Location    |                          Owner                          |     Notes      |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------- | ---- | -------------- | ------------------------------------------------------- | -------------- |
-| 192.184.93.146 (aka [d/okturtles](http://dns.dnschain.net/d/okturtles))    | N/A                                                        | No   | Atlanta, GA    | [id/greg](http://dns.dnschain.net/id/greg)              |                |
-| 54.85.5.167 (aka [name.thwg.org](name.thwg.org))                           | N/A                                                        | No   | USA            | [id/wozz](http://dns.dnschain.net/id/wozz)              |                |
-| [2.dnscrypt-cert.okturtles.com](https://gist.github.com/taoeffect/8855230) | [Required Info](https://gist.github.com/taoeffect/8855230) | No   | Atlanta, GA    | [id/greg](http://dns.dnschain.net/id/greg)              |                |
-| [2.dnscrypt-cert.soltysiak.com](http://dc1.soltysiak.com)                  | [Required Info](http://dc1.soltysiak.com)                  | No   | Poznan, Poland | [@maciejsoltysiak](https://twitter.com/maciejsoltysiak) | IPv6 available |
-
-Tell us about yours by opening an issue (or any other means) and we'll list it here!
-
-We'll post the public keys for these servers here as well once signed DNS &amp; HTTP responses are implemented. Note that DNSChain + DNSCrypt servers already guarantee the authenticity of DNS responses.
+You can use a public DNSChain server, but it's far better to use your own because it gives you more privacy, makes you more resistant to censorship and tampering.
 
 <a name="Registering"/>
-## Registering `.bit` domains and identities
+#### Registering blockchain domains and identities
 
-[:book:](docs/dot-bit-Domains-and-Identities.md) [Registering `.bit` domains and identities](docs/dot-bit-Domains-and-Identities.md)
+[:book:](docs/dot-bit-Domains-and-Identities.md) [Registering blockchain domains and identities](docs/dot-bit-Domains-and-Identities.md)
 
 <a name="Run"/>
-## How do I run my own DNSChain server?
+### How do I run my own DNSChain server?
 
 [:book:](docs/How-do-I-run-my-own.md) [How do I run my own DNSChain server?](docs/How-do-I-run-my-own.md)
 - [:book:](docs/How-do-I-run-my-own.md#Requirements) [Requirements](docs/How-do-I-run-my-own.md#Requirements)
@@ -149,7 +126,7 @@ We'll post the public keys for these servers here as well once signed DNS &amp; 
 - [:book:](docs/How-do-I-run-my-own.md#Working) [Working with the source](docs/How-do-I-run-my-own.md#Working)
 
 <a name="PowerDNS"/>
-## PowerDNS and DNSChain
+### PowerDNS and DNSChain
 [:book:](docs/PowerDNS-and-DNSChain.md) [Setting up PowerDNS server with DNSChain](docs/PowerDNS-and-DNSChain.md)
 
 
@@ -167,6 +144,7 @@ We'll post the public keys for these servers here as well once signed DNS &amp; 
 - [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA contributions and misc. fixes)
 - [TJ Fontaine](https://github.com/tjfontaine) (For `native-dns`, `native-dns-packet` modules and related projects)
 - [Cayman Nava](https://github.com/WeMeetAgain) (Ethereum support)
+- [Mike Ward](https://twitter.com/bocamike) (Documentation support)
 - *Your name & link of choice here!*
 
 ## Release History<a name="Release"/>

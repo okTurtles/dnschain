@@ -6,3 +6,4 @@ See the [Namecoin wiki](https://github.com/namecoin/wiki/wiki) for more info:
 
 - [Registering .bit domains](https://github.com/namecoin/wiki/wiki/Register-and-Configure-.bit-Domains)
 - [Global public identities specification](https://github.com/namecoin/wiki/wiki/Identity)
+- [Regitering identities at OneName.io](https://onename.io)
