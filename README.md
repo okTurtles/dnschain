@@ -11,22 +11,20 @@ DNSChain (formerly DNSNMC) makes it possible to be certain that you're communica
     - [Certificate revocation that actually works](#Revocation)
     - [DNS-based censorship circumvention](#Censorship)
     - [MITM-proof authentication via `.dns` metaTLD](#metaTLD)
-- [How do I use it?](#Use)
-    - [Free public DNSChain servers](#Servers)
-    - [Registering `.bit` domains and identities](#Registering)
-- [How do I run my own DNSChain server?](#Run)
-    - [Requirements](#Requirements)
-    - [Getting Started](#Getting)
-    - [Configuration](#Configuration)
-    - [Working with the source](#Working)
+- [Documentation](#Documentation)
+	- [How do I use it?](#Use)
+	- [How do I run my own DNSChain server?](#Run)
+	- [PowerDNS and DNSChain](#PowerDNS)
 - [Community](#Community)
 - [Contributors](#Contributors)
 - [Release History](#Release)
 - [License](#License)
 
-## What is it?<a name="What"/>
+<a name="What"/>
+## What is it?
 
-### DNSChain replaces X.509 PKI with the blockchain<a name="DNSChain"/>
+<a name="DNSChain"/>
+### DNSChain replaces X.509 PKI with the blockchain
 
 [X.509 PKI](https://en.wikipedia.org/wiki/X.509) makes and breaks today's Internet security. It's what makes your browser
 think ["The connection to this website is secure"](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/) when [it's not](http://okturtles.com/#not-secure).
@@ -47,7 +45,8 @@ It's what we have to get rid of, and DNSChain provides a scalable, distributed, 
 | __RESTful API to blockchain via [.dns metaTLD](#metaTLD)__                   | :white_check_mark: | :x:                                                                                                                                |
 | __Simple design fits in about *600 lines of CoffeeScript!*__                 | :white_check_mark: | :x:                                                                                                                                |
 
-### Simple and secure GPG key distribution<a name="GPG"/>
+<a name="GPG"/>
+### Simple and secure GPG key distribution
 
 ![Easily share your GPG key!](https://www.taoeffect.com/includes/images/twitter-gpg-s.jpg)
 
@@ -58,11 +57,13 @@ Well, simple to share, a little more difficult to register it (at the moment onl
 
 It's always best to use your own server, of course. _Note: headers containing a crypographic signature will be sent soon!_
 
-### Free SSL certificates become possible<a name="Free"/>
+<a name="Free"/>
+### Free SSL certificates become possible
 
 SSL certificates today __[do not provide the security that they claim to provide](http://okturtles.com/#not-secure)__. DNSChain replaces Certificate Authorities by providing a means for distributing public keys in a way that is secure from MITM attacks.
 
-### Prevents DDoS attacks<a name="DDoS"/>
+<a name="DDoS"/>
+### Prevents DDoS attacks
 
 Unlike traditional DNS servers, DNSChain encourages widespread deployment of the server (ideally, "one for every group of friends").
 This distributed, flat topology eliminates the need for open resolvers by making it practical to limit clients to a small, trusted set.
@@ -71,11 +72,13 @@ such requirement because *all* of the data necessary to answer queries is stored
 
 Another DoS attack relates to the centralized manner in which today's SSL certificates are checked for revocation:
 
-### Certificate revocation that actually works<a name="Revocation"/>
+<a name="Revocation"/>
+### Certificate revocation that actually works
 
 TODO: [OCSP](https://news.ycombinator.com/item?id=7556909) + DoS.
 
-### DNS-based censorship circumvention<a name="Censorship"/>
+<a name="Censorship"/>
+### DNS-based censorship circumvention
 
 The developers of [Unblock.us.org](https://github.com/SGrondin/unblock.us.org) and DNSChain are teaming up to bring the anti-censorship features of Unblock.us into DNSChain. Each project benefits from the other: DNSChain ensures MITM-free communication and Unblock.us ensures that the communication passes through firewalls.
 
@@ -85,7 +88,8 @@ Unblock.us works by hijacking the DNS lookups for the domains on a list defined 
 
 For now, Deep Packet Inspection techniques used in Pakistan and China can still beat Unblock.us, but the next version will address that issue using a technique called [Host Tunneling](http://unblock.us.org/?p=61). Short of cutting entire countries off the internet, DNSChain/Unblock.us will be able to get through.
 
-### The `.dns` meta-TLD<a name="metaTLD"/>
+<a name="metaTLD"/>
+### The `.dns` meta-TLD
 
 __.dns__ is [a meta-TLD](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/) because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
 
@@ -95,139 +99,62 @@ When a DNSChain server sees a request to a `.dns` domain, it handles the request
 
 - More info: [_Introducing the dotDNS metaTLD_](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/)
 
-## How do I use it?<a name="Use"/>
+<a name="Documentation"/>
+## Documentation
 
-No special software is required, just set your computer's DNS settings to use [one of the public DNSChain servers](#Servers) (more secure to run your own though).
+<a name="Use"/>
+### How do I use it?
 
-Then try the following:
+[:book:](docs/How-do-I-use-it.md) [How do I use it?](docs/How-do-I-use-it.md)
 
-- Visit [http://okturtles.bit](http://okturtles.bit)
-- "What's the domain info for `okturtles.bit`?" [http://namecoin.dns/d/okturtles](http://namecoin.dns/d/okturtles)
-- "Who is Greg and what is his GPG info?" [http://namecoin.dns/id/greg](http://namecoin.dns/id/greg)
+No special software is required to use it, you can simply change your DNS settings. DNSChain also implements the `.dns` meta TLD, which allows you to read from the underlying blockchains, and use the data in your Javascript apps.
 
-__Don't want to change your DNS settings?__
+<a name="Servers"/>
+#### Free public DNSChain servers
 
-As a convenience, the first DNSChain server's `.dns` meta-TLD can be accessed over the old-DNS by way of `dns.dnschain.net`, like so:
+[:book:](docs/How-do-I-use-it.md#Servers) [Free public DNSChain servers](docs/How-do-I-use-it.md#Servers)
 
-- "Who is Greg?" [http://dns.dnschain.net/id/greg](http://dns.dnschain.net/id/greg)
+You can use a public DNSChain server, but it's far better to use your own because it gives you more privacy, makes you more resistant to censorship and tampering.
 
-This means you can immediately begin writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
+<a name="Registering"/>
+#### Registering blockchain domains and identities
 
-### Free public DNSChain servers<a name="Servers"/>
+[:book:](docs/dot-bit-Domains-and-Identities.md) [Registering blockchain domains and identities](docs/dot-bit-Domains-and-Identities.md)
 
-*DNSChain is meant to be run by individuals!*
+<a name="Run"/>
+### How do I run my own DNSChain server?
 
-Yes, you can use a public DNSChain server, but it's far better to use your own because it gives you more privacy, makes you more resistant to censorship, and provides you with a stronger guarantee that the responses you get haven't been tampered with by a malicious server.
+[:book:](docs/How-do-I-run-my-own.md) [How do I run my own DNSChain server?](docs/How-do-I-run-my-own.md)
+- [:book:](docs/How-do-I-run-my-own.md#Requirements) [Requirements](docs/How-do-I-run-my-own.md#Requirements)
+- [:book:](docs/How-do-I-run-my-own.md#Getting) [Getting Started](docs/How-do-I-run-my-own.md#Getting)
+- [:book:](docs/How-do-I-run-my-own.md#Configuration) [Configuration](docs/How-do-I-run-my-own.md#Configuration)
+- [:book:](docs/How-do-I-run-my-own.md#Working) [Working with the source](docs/How-do-I-run-my-own.md#Working)
 
-Those who do not own their own server or VPS can use their friend's (as long as they trust that person). DNSChain servers will sign all of their responses, thus protecting your from MITM attacks. *(NOTE: signing is not yet implemented, but will be soon)*
+<a name="PowerDNS"/>
+### PowerDNS and DNSChain
+[:book:](docs/PowerDNS-and-DNSChain.md) [Setting up PowerDNS server with DNSChain](docs/PowerDNS-and-DNSChain.md)
 
-You can, if you must, use a public DNSChain server. Simply [set your computer's DNS settings](https://startpage.com/do/search?q=how+to+change+DNS+settings) to one of these. Note that some of the servers must be used with [dnscrypt-proxy](https://github.com/jedisct1/dnscrypt-proxy).
-
-|                          IP or DNSCrypt provider                           |           [DNSCrypt](http://dnscrypt.org/) Info            | Logs |    Location    |                          Owner                          |     Notes      |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------- | ---- | -------------- | ------------------------------------------------------- | -------------- |
-| 192.184.93.146 (aka [d/okturtles](http://dns.dnschain.net/d/okturtles))    | N/A                                                        | No   | Atlanta, GA    | [id/greg](http://dns.dnschain.net/id/greg)              |                |
-| 54.85.5.167 (aka [name.thwg.org](name.thwg.org))                           | N/A                                                        | No   | USA            | [id/wozz](http://dns.dnschain.net/id/wozz)              |                |
-| [2.dnscrypt-cert.okturtles.com](https://gist.github.com/taoeffect/8855230) | [Required Info](https://gist.github.com/taoeffect/8855230) | No   | Atlanta, GA    | [id/greg](http://dns.dnschain.net/id/greg)              |                |
-| [2.dnscrypt-cert.soltysiak.com](http://dc1.soltysiak.com)                  | [Required Info](http://dc1.soltysiak.com)                  | No   | Poznan, Poland | [@maciejsoltysiak](https://twitter.com/maciejsoltysiak) | IPv6 available |
-
-Tell us about yours by opening an issue (or any other means) and we'll list it here!
-
-We'll post the public keys for these servers here as well once signed DNS & HTTP responses are implemented. Note that DNSChain + DNSCrypt servers already guarantee the authenticity of DNS responses.
-
-### Registering `.bit` domains and identities<a name="Registering"/>
-
-`.bit` domains and public identities are currently stored in the Namecoin P2P network. It's very similar to the Bitcoin network.
-
-All of this must currently be done using `namecoind`, a daemon that DNSChain requires running in the background to access the Namecoin network.
-
-See the [Namecoin wiki](https://github.com/namecoin/wiki/wiki) for more info:
-
-- [Registering .bit domains](https://github.com/namecoin/wiki/wiki/Register-and-Configure-.bit-Domains)
-- [Global public identities specification](https://github.com/namecoin/wiki/wiki/Identity)
-
-## How do I run my own?<a name="Run"/>
-
-Get yourself a Linux server (they come as cheap as $2/month), and then make sure you have the following software installed:
-
-#### Requirements<a name="Requirements"/>
-
-1. `nodejs` and `npm` - We recommend using a package manager to install them.
-2. [coffee-script](https://github.com/jashkenas/coffee-script) (version 1.7.1+) - install via `npm install -g coffee-script`
-3. `grunt-cli` - install via `npm install -g grunt-cli`, provides the `grunt` command.
-4. `namecoind` - [instructions](https://github.com/namecoin/wiki/wiki/Install-and-Configure-Namecoin)
-
-<!--5. `libgmp` - needed by Mozilla's [jwcrypto](https://github.com/mozilla/jwcrypto), install using `apt-get install libgmp-dev` (Debian) or `brew install gmp` (OS X).
-
-DNSChain __does not use the NodeJS crypto module__ for generating signed headers because that module uses `OpenSSL` (which is considered harmful [1](http://www.peereboom.us/assl/assl/html/openssl.html)[2](https://www.openssl.org/news/vulnerabilities.html)). Instead, Mozilla's [jwcrypto](https://github.com/mozilla/jwcrypto) is used.-->
-
-#### Getting Started<a name="Getting"/>
-
-1. Install DNSChain using: `npm install -g dnschain` (you may need to put `sudo` in front of that).
-2. Run `namecoind` in the background. You can use `systemd` and create a `namecoin.service` file for it based off of [dnschain.service](scripts/dnschain.service).
-3. If an update is released, update your copy using `npm update -g dnschain`.
-
-Test DNSChain by simply running `dnschain` from the command line (developers [see here](#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](scripts/dnschain.service) that you can use to run it.
-
-#### Configuration<a name="Configuration"/>
-
-DNSChain uses the wonderful [`nconf` module](https://github.com/flatiron/nconf) for all of its configuration purposes. This means that you can configure it using files, command line arguments, and environment variables.
-
-There are two configurations to be aware of (both loaded using `nconf`): DNSChain's, and `namecoind`'s:
-
-- `dnschain.conf` locations (in order of preference):
-    - `$HOME/.dnschain.conf`
-    - `$HOME/.dnschain/dnschain.conf`
-    - `/etc/dnschain/dnschain.conf`
-- `namecoin.conf` locations (in order of preference):
-    - `$HOME/.namecoin/namecoin.conf`
-
-DNSChain will fetch the RPC username and password out of Namecoin's configuration file if it can find it. If it can't, you'll either need to fix that, or provide `rpcuser`, `rpcpassword`, etc. to it via command line arguments or environment variables.
-
-The format of the configuration file is similar to INI, and is parsed by the NodeJS [`properties` module](https://github.com/gagle/node-properties) (in tandem with `nconf`). Here's an example of a possible `dnschain.conf`:
-
-    [log]
-    level=info
-    
-    [dns]
-    port = 5333
-    # don't put quotes around IP
-    oldDNS.address = 8.8.8.8 
-
-    # disable traditional DNS resolution (default is NATIVE_DNS)
-    # (don't put quotes around this either)
-    oldDNSMethod = NO_OLD_DNS
-    
-    [http]
-    port=8088
-    tlsPort=4443
-
-**Have a look at [config.coffee](src/lib/config.coffee) to see all the possible configuration options and defaults!**
-
-#### Working with the source<a name="Working"/>
-
-Make sure you did everything in the [requirements](#Requirements) and then play with these commands from your clone of the DNSChain repository:
-
-- `sudo grunt example` _(runs on privileged ports by default)_
-- `grunt example` _(runs on non-privileged ports by default)_
-
-Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
-
-## Community<a name="Community"/>
+<a name="Community"/>
+## Community
 
 - Forums: [https://forums.okturtles.com](https://forums.okturtles.com)
 - IRC Chat@Freenode: `#dnschain` &rArr; [Webchat](http://webchat.freenode.net/?channels=%23dnschain&uio=MT11bmRlZmluZWQb1)
 - Twitter: [@DNSChain](https://twitter.com/dnschain)
 - Twitter: [@okTurtles](https://twitter.com/okTurtles)
 
-## Contributors<a name="Contributors"/>
+<a name="Contributors"/>
+## Contributors
 
 - [Greg Slepak](https://twitter.com/taoeffect) (Original author and current maintainer)
 - [Simon Grondin](https://github.com/SGrondin) (DNS-based censorship circumvention)
 - [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA contributions and misc. fixes)
 - [TJ Fontaine](https://github.com/tjfontaine) (For `native-dns`, `native-dns-packet` modules and related projects)
+- [Cayman Nava](https://github.com/WeMeetAgain) (Ethereum support)
+- [Mike Ward](https://twitter.com/bocamike) (Documentation support)
 - *Your name & link of choice here!*
 
-## Release History<a name="Release"/>
+<a name="Release"/>
+## Release History
 
 ###### 0.2.5 - July 10, 2014
 
