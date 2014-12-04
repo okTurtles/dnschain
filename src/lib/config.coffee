@@ -55,6 +55,8 @@ module.exports = (dnschain) ->
         http:
             port: if amRoot then 80 else 8088
             tlsPort: if amRoot then 443 else 4443
+            tlsKey: ''
+            tlsCert: ''
             host: '0.0.0.0' # what we bind to
 
     nmcDefs =
