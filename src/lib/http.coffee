@@ -52,6 +52,7 @@ module.exports = (dnschain) ->
                 res.end()
 
             resolver = switch req.headers.host
+                when 'icann.dns' then 'dns'
                 when 'namecoin.dns' then 'nmc'
                 when 'bitshares.dns' then 'bdns'
                 else
