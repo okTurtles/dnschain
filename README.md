@@ -75,7 +75,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - *Coming Soon: securing HTTPS websites with DNSChain.*
 
 <a name="Developers"></a>
-### [:book: Developers](#TODO!!)
+### [:book: Developers](docs/Developers.md)
 
 - Securing Your Apps With DNSChain
 - Contributing to DNSChain development
@@ -103,6 +103,7 @@ __:page_facing_up: Read__
 - [How to setup a blockchain DNS server with DNSChain](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)
 - [The Trouble with Certificate Transparency](https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/)
 - [Introducing the dotDNS metaTLD](https://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/)
+- [DNSChain versus...](docs/Comparison.md)
 
 _Have a link? [Let us know](https://twitter.com/dnschain)!_
 
