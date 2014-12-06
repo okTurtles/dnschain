@@ -5,7 +5,6 @@
 - [Configuration](#Configuration)
 - [Working with the source](#Working)
 
-
 Get yourself a Linux server (they come as cheap as $2/month), and then make sure you have the following software installed:
 
 <a name="Requirements"/>
@@ -24,10 +23,12 @@ DNSChain __does not use the NodeJS crypto module__ for generating signed headers
 ## Getting Started
 
 1. Install DNSChain using: `npm install -g dnschain` (you may need to put `sudo` in front of that).
-2. Run `namecoind` in the background. You can use `systemd` and create a `namecoin.service` file for it based off of [dnschain.service](scripts/dnschain.service).
+2. Run `namecoind` in the background. You can use `systemd` and create a `namecoin.service` file for it based off of [dnschain.service](<../scripts/dnschain.service>).
 3. If an update is released, update your copy using `npm update -g dnschain`.
 
-Test DNSChain by simply running `dnschain` from the command line (developers [see here](#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](scripts/dnschain.service) that you can use to run it.
+Test DNSChain by simply running `dnschain` from the command line (developers [see here](#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](<../scripts/dnschain.service>) that you can use to run it.
+
+**:page_facing_up: See also: [Mike's Guide to Installing Namecoin, DNSChain, and PowerDNS on Debian Wheezy](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)**
 
 <a name="Configuration"/>
 ## Configuration
@@ -63,13 +64,3 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     tlsPort=4443
 
 **Have a look at [config.coffee](src/lib/config.coffee) to see all the possible configuration options and defaults!**
-
-<a name="Working"/>
-## Working with the source
-
-Make sure you did everything in the [requirements](#Requirements) and then play with these commands from your clone of the DNSChain repository:
-
-- `sudo grunt example` _(runs on privileged ports by default)_
-- `grunt example` _(runs on non-privileged ports by default)_
-
-Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).

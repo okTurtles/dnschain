@@ -4,8 +4,8 @@
 
 All of this must currently be done using `namecoind`, a daemon that DNSChain requires running in the background to access the Namecoin network.
 
-See the [Namecoin wiki](https://github.com/namecoin/wiki/wiki) for more info:
+See the [Namecoin wiki](https://wiki.namecoin.info/index.php?title=Welcome) for more info:
 
-- [Registering .bit domains](https://github.com/namecoin/wiki/wiki/Register-and-Configure-.bit-Domains)
-- [Global public identities specification](https://github.com/namecoin/wiki/wiki/Identity)
+- [Registering .bit domains](https://wiki.namecoin.info/index.php?title=Register_and_Configure_.bit_Domains)
+- [Global public identities specification](https://wiki.namecoin.info/index.php?title=Identity)
 - [Regitering identities at OneName.io](https://onename.io)

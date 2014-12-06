@@ -1,4 +1,6 @@
-#PowerDNS and DNSChain
+# DNSChain and PowerDNS
+
+**:page_facing_up: See also: [Mike's Guide to Installing Namecoin, DNSChain, and PowerDNS on Debian Wheezy](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)**
 
 We recommend combining DNSChain with **PowerDNS 3.6.x or higher. 
 Installing this on a Debian 7 (wheezy) server, for example, requires getting a more recent version than in the *stable* repo. 

@@ -10,13 +10,14 @@ Then try the following:
 
 __Don't want to change your DNS settings?__
 
-As a convenience, the first DNSChain server's `.dns` meta-TLD can be accessed over the old-DNS by way of `dns.dnschain.net`, like so:
+DNSChain's [`.dns` metaTLD](What-is-it.md#metaTLD) can be accessed over traditional DNS. For example, [okTurtles](http://okturtles.org) exposes their public DNSChain server at `dns.dnschain.net`, like so:
 
 - "Who is Greg?" [http://dns.dnschain.net/id/greg](http://dns.dnschain.net/id/greg)
 
 This means you can immediately begin writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
 
-## Free public DNSChain servers<a name="Servers"/>
+<a name="Servers"/></a>
+## Free public DNSChain servers
 
 *DNSChain is meant to be run by individuals!*
 
@@ -26,8 +27,8 @@ Those who do not own their own server or VPS can use their friend's (as long as 
 
 You can, if you must, use a public DNSChain server. Simply [set your computer's DNS settings](https://startpage.com/do/search?q=how+to+change+DNS+settings) to one of these. Note that some of the servers must be used with [dnscrypt-proxy](https://github.com/jedisct1/dnscrypt-proxy).
 
-|                          IP or DNSCrypt provider                           |           [DNSCrypt](http://dnscrypt.org/) Info            | Logs |    Location    |                          Owner                          |     Notes      |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------- | ---- | -------------- | ------------------------------------------------------- | -------------- |
+|                          IP or DNSCrypt provider                           |        [DNSCrypt](http://dnscrypt.org/) Supported?         | Logs |    Location    |                          Owner                          |     Notes      |
+|----------------------------------------------------------------------------|------------------------------------------------------------|------|----------------|---------------------------------------------------------|----------------|
 | 192.184.93.146 (aka [d/okturtles](http://dns.dnschain.net/d/okturtles))    | N/A                                                        | No   | Atlanta, GA    | [id/greg](http://dns.dnschain.net/id/greg)              |                |
 | 54.85.5.167 (aka [name.thwg.org](name.thwg.org))                           | N/A                                                        | No   | USA            | [id/wozz](http://dns.dnschain.net/id/wozz)              |                |
 | [2.dnscrypt-cert.okturtles.com](https://gist.github.com/taoeffect/8855230) | [Required Info](https://gist.github.com/taoeffect/8855230) | No   | Atlanta, GA    | [id/greg](http://dns.dnschain.net/id/greg)              |                |
@@ -35,11 +36,11 @@ You can, if you must, use a public DNSChain server. Simply [set your computer's 
 
 Tell us about yours by opening an issue (or any other means) and we'll list it here!
 
-We'll post the public keys for these servers here as well once signed DNS &amp; HTTP responses are implemented. Note that DNSChain + DNSCrypt servers already guarantee the authenticity of DNS responses.
+Responses can be sured over HTTPS by pinning SSL certificates, and over DNS by using DNSCrypt.
 
-<a name="Registering"/>
+<a name="Registering"/></a>
 ## Registering blockchain domains and identities
 
-[:book:](docs/dot-bit-Domains-and-Identities.md) [Registering blockchain domains and identities](docs/dot-bit-Domains-and-Identities.md)
+[:book: Registering blockchain domains and identities](dot-bit-Domains-and-Identities.md)
 
 You can register and use `.bit` domain names from Namecoin, and there are more blockchain based domains coming soon. Read about and secure your digital identity also, and access it using DNSChain.
