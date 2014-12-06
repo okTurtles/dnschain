@@ -52,6 +52,12 @@ module.exports = (dnschain) ->
                 address: '8.8.8.8' # Google (we recommend running PowerDNS yourself and sending it there)
                 port: 53
                 type: 'udp'
+        https:
+            port: 443
+            host: '0.0.0.0'
+            internalTLSPort: 15001
+            key: "./key.pem"
+            cert: "./cert.pem"
         http:
             port: if amRoot then 80 else 8088
             tlsPort: if amRoot then 443 else 4443
@@ -76,7 +82,6 @@ module.exports = (dnschain) ->
 
     props.parse = _.partialRight props.parse, fileFormatOpts
     props.stringify = _.partialRight props.stringify, fileFormatOpts
-    
 
     # load our config
     appname = "dnschain"
