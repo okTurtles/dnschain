@@ -1,5 +1,8 @@
 # How do I run my own DNSChain Server?
 
+| **See Also: [Mike's Guide to Installing Namecoin, DNSChain, and PowerDNS on Debian Wheezy](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)** |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+
 - [Requirements](#Requirements)
 - [Getting Started](#Getting)
 - [Configuration](#Configuration)
@@ -13,7 +16,7 @@ Get yourself a Linux server (they come as cheap as $2/month), and then make sure
 1. `nodejs` and `npm` - We recommend using a package manager to install them.
 2. [coffee-script](https://github.com/jashkenas/coffee-script) (version 1.7.1+) - install via `npm install -g coffee-script`
 3. `grunt-cli` - install via `npm install -g grunt-cli`, provides the `grunt` command.
-4. `namecoind` - [instructions](https://github.com/namecoin/wiki/wiki/Install-and-Configure-Namecoin)
+4. `namecoind`
 
 <!--5. `libgmp` - needed by Mozilla's [jwcrypto](https://github.com/mozilla/jwcrypto), install using `apt-get install libgmp-dev` (Debian) or `brew install gmp` (OS X).
 
@@ -28,10 +31,13 @@ DNSChain __does not use the NodeJS crypto module__ for generating signed headers
 
 Test DNSChain by simply running `dnschain` from the command line (developers [see here](#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](<../scripts/dnschain.service>) that you can use to run it.
 
-**:page_facing_up: See also: [Mike's Guide to Installing Namecoin, DNSChain, and PowerDNS on Debian Wheezy](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)**
+**:page_facing_up: [Mike's Guide to Installing Namecoin, DNSChain, and PowerDNS on Debian Wheezy](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)**
 
 <a name="Configuration"/>
 ## Configuration
+
+| **:exclamation: Have a look at [config.coffee](<../src/lib/config.coffee>) to see all configuration options and defaults!** |
+|-----------------------------------------------------------------------------------------------------------------------------|
 
 DNSChain uses the wonderful [`nconf` module](https://github.com/flatiron/nconf) for all of its configuration purposes. This means that you can configure it using files, command line arguments, and environment variables.
 
@@ -55,12 +61,10 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     port = 5333
     # no quotes around IP
     oldDNS.address = 8.8.8.8
-
+    
     # disable traditional DNS resolution (default is NATIVE_DNS)
     oldDNSMethod = NO_OLD_DNS
     
     [http]
     port=8088
     tlsPort=4443
-
-**Have a look at [config.coffee](src/lib/config.coffee) to see all the possible configuration options and defaults!**
