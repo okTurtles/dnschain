@@ -10,6 +10,10 @@ Developers of secure communications applications looking to improve the usabilit
 - [How to run a DNSChain server](How-do-I-run-my-own.md)
 - [RESTful API specification](What-is-it.md#metaTLD)
 
+Developer-friendly libraries in various languages for interacting with DNSChain in a MITM-proof manner are coming:
+
+- [DNSChain for Python](https://github.com/okTurtles/pydnschain)
+- _Your favorite language here!_
 
 <a name="Working"/>
 ## Contributing to DNSChain development
