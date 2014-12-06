@@ -270,4 +270,4 @@ module.exports = (dnschain) ->
                 code = {code:code, name:RCODE_NAME[code]} if code
                 cb code, packet
 
-        toJSONstr: (json) -> JSON.stringify _.omit json, '_socket'
+        toJSONstr: (json) -> JSON.stringify _.omit json, ['_socket','header','question']
