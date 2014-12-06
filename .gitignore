@@ -2,6 +2,8 @@
 out/
 notes/
 *.log
+src/**/*.js
+*.map
 *.DS_Store
 *.sublime-workspace
 npm-debug.log
