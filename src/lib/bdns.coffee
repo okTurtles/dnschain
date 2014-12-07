@@ -36,7 +36,7 @@ module.exports = (dnschain) ->
             @log.debug 'shutting down!'
             # @peer.end() # TODO: fix this!
 
-        resolve: (path, cb) ->
+        resolve: (path, options, cb) ->
             @log.debug gLineInfo('bdns resolve'), {path:path}
             @peer.call 'dotp2p_show', [path], path:'/rpc', cb
 
