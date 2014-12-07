@@ -257,7 +257,7 @@ module.exports = (dnschain) ->
 
         resolve: (path, options, cb) ->
             req = new Packet()
-            req.question.push dns2.Question {name: path, type: options.type if options?.type? and _.has dns2.consts.NAME_TO_QTYPE,options.type}
+            req.question.push dns2.Question {name: path, type: options.type if options?.type? and _.has NAME_QTYPE,options.type}
             @oldDNSLookup req, (packet, code) ->
                 code = {code:code, name:RCODE_NAME[code]} if code
                 cb code, packet
