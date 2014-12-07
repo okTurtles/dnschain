@@ -123,6 +123,7 @@ _Approximate chronological order._
 - [Simon Grondin](https://github.com/SGrondin) (Unblock feature: DNS-based censorship circumvention)
 - [Matthieu Rakotojaona](https://otokar.looc2011.eu/) (DANE/TLSA contributions and misc. fixes)
 - [TJ Fontaine](https://github.com/tjfontaine) (For `native-dns`, `native-dns-packet` modules and related projects)
+- [Za Wilgustus](https://twitter.com/ZancasDeArana) (For [pydnschain](https://github.com/okTurtles/pydnschain) contributions)
 - [Cayman Nava](https://github.com/WeMeetAgain) (Ethereum support, api.icann.dns, and core developer)
 - [Vignesh Anand](https://github.com/vegetableman) (Front-end + back-end for DNSChain admin interface)
 - [Mike Ward](https://twitter.com/bocamike) (Documentation)
