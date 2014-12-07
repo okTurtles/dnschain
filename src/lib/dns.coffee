@@ -13,6 +13,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # TODO: go through 'TODO's!
 
+Packet = require('native-dns-packet')
+
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
@@ -180,7 +182,7 @@ module.exports = (dnschain) ->
             'd/' + nmcDomain # add 'd/' namespace
 
         oldDNSLookup: (req, cb) ->
-            res = @packet()
+            res = new Packet()
             sig = "oldDNS{#{@method}}"
             q = req.question[0]
 
@@ -253,18 +255,8 @@ module.exports = (dnschain) ->
                 @log.error gLineInfo('exception sending error back!'), e.stack
             false # helps other functions pass back an error value
 
-        # fields from: https://github.com/tjfontaine/native-dns-packet
-        packet: -> {
-            header: {}
-            question: []
-            answer: []
-            authority: []
-            additional: []
-            edns_options: []
-            payload: undefined}
-
         resolve: (path, cb) ->
-            req = @packet()
+            req = new Packet()
             req.question.push dns2.Question {name: path}
             @oldDNSLookup req, (packet, code) ->
                 code = {code:code, name:RCODE_NAME[code]} if code
