@@ -255,9 +255,9 @@ module.exports = (dnschain) ->
                 @log.error gLineInfo('exception sending error back!'), e.stack
             false # helps other functions pass back an error value
 
-        resolve: (path, cb) ->
+        resolve: (path, options, cb) ->
             req = new Packet()
-            req.question.push dns2.Question {name: path}
+            req.question.push dns2.Question {name: path, type: options.type if options?.type? and _.has dns2.consts.NAME_TO_QTYPE,options.type}
             @oldDNSLookup req, (packet, code) ->
                 code = {code:code, name:RCODE_NAME[code]} if code
                 cb code, packet

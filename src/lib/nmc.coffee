@@ -35,7 +35,7 @@ module.exports = (dnschain) ->
             @log.debug 'shutting down!'
             # @peer.end() # TODO: fix this!
 
-        resolve: (path, cb) ->
+        resolve: (path, options, cb) ->
             @log.debug gLineInfo('nmc resolve'), {path:path}
             @peer.call 'name_show', [path], cb
 
