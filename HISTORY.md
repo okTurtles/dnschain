@@ -1,3 +1,20 @@
+
+###### 0.2.5 - July 10, 2014
+
+- Fixed `.bit` resolution bug introduced in `0.2.4`
+
+###### 0.2.4 - July 10, 2014
+
+- Fixed installation issue caused by `json-rpc2`
+- Fixed exception (issue #20)
+- Prevented possible DoS on in certain server setup where DNSChain
+  is combined with another DNS server
+
+###### 0.2.3 - May 27, 2014
+
+- Updated native-dns module
+- Fixed [#16](https://github.com/okTurtles/dnschain/issues/16) (unhandled exceptions). DNSSEC and other "unhandled" packets should be relayed now as a result.
+
 ###### 0.2.2 - May 3, 2014
 
 - Corrected StackedSchedule scheduling
