@@ -2,7 +2,7 @@
 
 **:page_facing_up: See also: [Mike's Guide to Installing Namecoin, DNSChain, and PowerDNS on Debian Wheezy](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)**
 
-We recommend combining DNSChain with **PowerDNS 3.6.x or higher. 
+We recommend combining DNSChain with **PowerDNS 3.6.x or higher**. 
 Installing this on a Debian 7 (wheezy) server, for example, requires getting a more recent version than in the *stable* repo. 
 
 	echo 'deb http://http.debian.net/debian wheezy-backports main' >> /etc/apt/sources.list
@@ -58,3 +58,5 @@ If everything is working correctly, you should see the IP address (192.184.93.14
 	;; SERVER: 127.0.0.1#53(127.0.0.1)
 	;; WHEN: Tue Nov 25 19:31:11 2014
 	;; MSG SIZE  rcvd: 47
+
+If it does not return an IP address, first make sure both PowerDNS and DNSChain processes are running. Next, verify that you've told PowerDNS to pass requests for `.bit` domains to the same port that DNSChain is listening on. In other words, inside /etc/powerdns/recursor.conf every TLD that needs to be resolved using a blockchain should be specified in the *forward-zones* directive as `127.0.0.1:xxxx`, where xxxx matches the port number specified in /etc/dnschain/dnschain.conf.
