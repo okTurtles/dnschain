@@ -23,6 +23,26 @@ module.exports = (dnschain) ->
 
     libHTTPS = new ((require "./httpsUtils")(dnschain))
     settings = gConf.get "http"
+
+    tlsLog = gNewLogger "TLS"
+    tlsOptions = try
+        {
+            key: fs.readFileSync settings.tlsKey
+            cert: fs.readFileSync settings.tlsCert
+        }
+    catch err
+        tlsLog.error "Cannot read the key/cert pair. See the README for instructions on how to generate them.".bold.red
+        tlsLog.error err.message.bold.red
+        process.exit -1
+    TLSServer = tls.createServer tlsOptions, (c) ->
+        libHTTPS.getStream "127.0.0.1", settings.port, (err, stream) ->
+            if err?
+                @log.error gLineInfo "Tunnel failed: Could not connect to HTTP Server"
+                c?.destroy()
+                return stream?.destroy()
+            c.pipe(stream).pipe(c)
+    TLSServer.listen settings.internalTLSPort, "127.0.0.1", -> tlsLog.info "Listening"
+
     class HTTPSServer
         constructor: (@dnschain) ->
             @log = gNewLogger "HTTPS"
@@ -38,27 +58,16 @@ module.exports = (dnschain) ->
 
                     # UNBLOCK: Check if needs to be hijacked
                     isUnblock = false
-                    isDNSChain = (host?.split(".")[-1..][0]) in ["dns", "bit", "p2p"]
+                    isDNSChain = (host?.split(".")[-1..][0]) == "dns"
 
-                    if not (isUnblock or isDNSChain)
+                    if not (isUnblock or isDNSChain) or not host? #For now
                         @log.error "Illegal domain (#{host})"
                         return c?.destroy()
 
-                    if isDNSChain
-                        host = "127.0.0.1"
-                        # There'll be more eventually!
-                        port = settings.internalAdminPort
-
-                    if not host?
-                        # This means we have a TLS stream
-                        host = "127.0.0.1"
-                        port = -1 #settings.internalTLSPort
-                        return c?.destroy() #For now
-
-                    console.log host, port
-                    libHTTPS.getStream host, port, (err, stream) =>
+                    console.log host
+                    libHTTPS.getStream "127.0.0.1", settings.internalTLSPort, (err, stream) =>
                         if err?
-                            @log.error gLineInfo "Tunnel failed: Could not connect to "+host
+                            @log.error gLineInfo "Tunnel failed: Could not connect to internal TLS Server"
                             c?.destroy()
                             return stream?.destroy()
                         stream.write buf
@@ -69,10 +78,8 @@ module.exports = (dnschain) ->
             @server.on "error", (err) -> gErr err
             @server.on "close", -> gErr "HTTPS server was closed unexpectedly."
             @server.listen settings.tlsPort, settings.host, =>
-
-            @log.info gLineInfo("started HTTPS server "), settings
+                @log.info gLineInfo("started HTTPS server "), settings
 
         shutdown: ->
             @log.debug gLineInfo "HTTPS servers shutting down!"
             @server.close()
-            internalTLSServer.close()
