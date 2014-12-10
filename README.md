@@ -3,6 +3,8 @@
 
 # DNSChain
 
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/okTurtles/dnschain?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 There is a problem with how the Internet works today:
 
 - HTTPS [is not secure](http://okturtles.com/#not-secure). Like most "secure" communications protocols,
