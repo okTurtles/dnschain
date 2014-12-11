@@ -1,9 +1,4 @@
-<!-- # DNSChain [![Build Status](https://secure.travis-ci.org/okTurtles/dnschain.png?branch=master)](http://travis-ci.org/okTurtles/dnschain) -->
-
-
 # DNSChain
-
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/okTurtles/dnschain?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 There is a problem with how the Internet works today:
 
@@ -114,7 +109,7 @@ _Have a link? [Let us know](https://twitter.com/dnschain)!_
 
 - [Forums](https://forums.okturtles.com)
 - [@DNSChain](https://twitter.com/dnschain) + [@okTurtles](https://twitter.com/okTurtles)
-- [`#dnschain`](http://webchat.freenode.net/?channels=%23dnschain&uio=MT11bmRlZmluZWQb1)
+- [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/okTurtles/dnschain)
 
 <a name="Contributors"></a>
 ## Contributors
