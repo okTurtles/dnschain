@@ -86,8 +86,6 @@ module.exports = (dnschain) ->
                 else
                     return [categories.NO_SNI, {}]
             catch ex
-                console.log res
-                console.log ex
                 return [categories.INCOMPLETE, {}]
 
 

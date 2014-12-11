@@ -16,6 +16,18 @@ This file contains the logic to handle connections on port 443
 These connections can be naked HTTPS or wrapped inside of TLS
 ###
 
+###
+            __________________________        ________________________
+443 traffic |                        |   *--->|      TLSServer       |     ______________
+----------->|     EncryptedServer    |--*     | (Dumb decrypter)     |---->| HTTPServer |----> Multiple destinations
+            |(Categorization/Routing)|   *    | (One of many)        |     ______________
+            __________________________    *   | (Unique destination) |
+                                           *  _______________________|
+                                            *    _____________   Soon
+                                             *-->| TLSServer |----------> Unblock (Vastly simplified)
+                                                 _____________
+###
+
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
@@ -37,23 +49,24 @@ module.exports = (dnschain) ->
     TLSServer = tls.createServer tlsOptions, (c) ->
         libHTTPS.getStream "127.0.0.1", settings.port, (err, stream) ->
             if err?
-                @log.error gLineInfo "Tunnel failed: Could not connect to HTTP Server"
+                tlsLog.error gLineInfo "Tunnel failed: Could not connect to HTTP Server"
                 c?.destroy()
                 return stream?.destroy()
             c.pipe(stream).pipe(c)
+    TLSServer.on "error", (err) -> tlsLog.error err
     TLSServer.listen settings.internalTLSPort, "127.0.0.1", -> tlsLog.info "Listening"
 
-    class HTTPSServer
+    class EncryptedServer
         constructor: (@dnschain) ->
             @log = gNewLogger "HTTPS"
             @log.debug gLineInfo "Loading HTTPS..."
 
             @server = net.createServer (c) =>
                 libHTTPS.getClientHello c, (err, host, buf) =>
-                    @log.info err, host, buf.length
+                    @log.debug err, host, buf.length
                     if err?
                         # Connection is neither a TLS stream nor an HTTPS stream containing an SNI
-                        @log.error gLineInfo "TCP handling: "+err.message
+                        @log.debug gLineInfo "TCP handling: "+err.message
                         return c?.destroy()
 
                     # UNBLOCK: Check if needs to be hijacked
@@ -64,7 +77,6 @@ module.exports = (dnschain) ->
                         @log.error "Illegal domain (#{host})"
                         return c?.destroy()
 
-                    console.log host
                     libHTTPS.getStream "127.0.0.1", settings.internalTLSPort, (err, stream) =>
                         if err?
                             @log.error gLineInfo "Tunnel failed: Could not connect to internal TLS Server"
