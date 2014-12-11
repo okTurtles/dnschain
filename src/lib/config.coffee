@@ -53,12 +53,12 @@ module.exports = (dnschain) ->
                 port: 53
                 type: 'udp'
         http:
-            port: if amRoot then 80 else 8088
-            tlsPort: if amRoot then 443 else 4443
-            tlsKey: "$HOME/.dnschain/key.pem"
-            tlsCert: "$HOME/.dnschain/cert.pem"
-            internalTLSPort: 2500
-            internalAdminPort: 3000
+            port: if amRoot then 80 else 8088       # Standard HTTP port
+            tlsPort: if amRoot then 443 else 4443   # Standard HTTPS port
+            tlsKey: "#{process.env.HOME}/.dnschain/key.pem"
+            tlsCert: "#{process.env.HOME}/.dnschain/cert.pem"
+            internalTLSPort: 2500   # Not accessible from the internet, used internally only
+            internalAdminPort: 3000 # Not accessible from the internet, used internally only
             host: '0.0.0.0' # what we bind to
 
     nmcDefs =
