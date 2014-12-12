@@ -13,6 +13,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # TODO: go through 'TODO's!
 
+Packet = require('native-dns-packet')
+
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
@@ -166,7 +168,11 @@ module.exports = (dnschain) ->
                 res.send()
             else
                 @log.debug gLineInfo("deferring request"), {q:q}
-                @oldDNSLookup req, res
+                @oldDNSLookup req, (packet, code) ->
+                    _.assign res, _.pick packet, ['edns_version', 'edns_options',
+                        'edns', 'answer', 'authority', 'additional']
+                    @sendErr(res, code) if code
+                    res.send()
         # / end callback
 
         namecoinizeDomain: (domain) ->
@@ -175,7 +181,8 @@ module.exports = (dnschain) ->
                 nmcDomain = nmcDomain.slice(dotIdx+1) # rm subdomain
             'd/' + nmcDomain # add 'd/' namespace
 
-        oldDNSLookup: (req, res) ->
+        oldDNSLookup: (req, cb) ->
+            res = new Packet()
             sig = "oldDNS{#{@method}}"
             q = req.question[0]
 
@@ -198,9 +205,7 @@ module.exports = (dnschain) ->
                     else
                         @log.debug gLineInfo('message'), {answer:answer}
                         success = true
-                        res.header.ra = answer.header.ra
-                        _.assign res, _.pick answer, ['edns_version', 'edns_options',
-                            'edns', 'answer', 'authority', 'additional']
+                        res = answer
 
                 req2.on 'error', (err={message:'unknown error'}) =>
                     @log.error gLineInfo('oldDNS lookup error'), {err:err?.message}
@@ -213,20 +218,20 @@ module.exports = (dnschain) ->
                 req2.on 'end', =>
                     if success
                         @log.debug gLineInfo('success!'), {q:q, res: _.omit(res, '_socket')}
-                        res.send()
+                        cb res
                     else
                         # TODO: this is noisy.
                         #       also make log output look good in journalctl
                         # you can log IP with: res._socket.remote.address
                         @log.warn gLineInfo('oldDNS lookup failed'), {q:q, err:req2.DNSErr}
-                        @sendErr res
+                        cb res, NAME_RCODE.SERVFAIL
                 # @log.debug {fn:"beforesend", req:req2}
                 req2.send()
             else if @method is gConsts.oldDNS.NODE_DNS
                 dns.resolve q.name, QTYPE_NAME[q.type], (err, addrs) =>
                     if err
                         @log.debug {fn:sig+':fail', q:q, err:err?.message}
-                        @sendErr res
+                        cb res, NAME_RCODE.SERVFAIL
                     else
                         # USING THIS METHOD IS DISCOURAGED BECAUSE IT DOESN'T
                         # PROVIDE US WITH CORRECT TTL VALUES!!
@@ -234,11 +239,10 @@ module.exports = (dnschain) ->
                         ttl = Math.floor(Math.random() * 3600) + 30
                         res.answer.push (addrs.map gIP2type(q.name, ttl, QTYPE_NAME[q.type]))...
                         @log.debug {fn:sig+':success', answer:res.answer, q:q.name}
-                        res.send()
+                        cb res
             else
                 # refuse all such queries
-                @sendErr res, NAME_RCODE.REFUSED
-
+                cb res, NAME_RCODE.REFUSED
 
         sendErr: (res, code=NAME_RCODE.SERVFAIL) ->
             try
@@ -248,3 +252,12 @@ module.exports = (dnschain) ->
             catch e
                 @log.error gLineInfo('exception sending error back!'), e.stack
             false # helps other functions pass back an error value
+
+        resolve: (path, options, cb) ->
+            req = new Packet()
+            req.question.push dns2.Question {name: path, type: options.type if options?.type? and _.has NAME_QTYPE,options.type}
+            @oldDNSLookup req, (packet, code) ->
+                code = {code:code, name:RCODE_NAME[code]} if code
+                cb code, packet
+
+        toJSONstr: (json) -> JSON.stringify _.omit json, ['_socket','header','question']
