@@ -63,7 +63,7 @@ module.exports = (dnschain) ->
 
             @server = net.createServer (c) =>
                 libHTTPS.getClientHello c, (err, host, buf) =>
-                    @log.debug err, host, buf.length
+                    @log.debug err, host, buf?.length
                     if err?
                         # Connection is neither a TLS stream nor an HTTPS stream containing an SNI
                         @log.debug gLineInfo "TCP handling: "+err.message
