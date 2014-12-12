@@ -59,7 +59,15 @@ module.exports = (dnschain) ->
             tlsCert: "#{process.env.HOME}/.dnschain/cert.pem"
             internalTLSPort: 2500   # Not accessible from the internet, used internally only
             internalAdminPort: 3000 # Not accessible from the internet, used internally only
-            host: '0.0.0.0' # what we bind to
+            host: '0.0.0.0' # what we bind to. 0.0.0.0 for the whole internet
+
+        unblock: # The options in this section are only for when Unblock is enabled.
+            enabled: false
+            acceptApiCallsTo: ["localhost"] # Add your public facing domain here if you want to accept calls to the RESTful API when Unblock is enabled.
+            routeDomains: { # If traffic coming in on the tlsPort needs to be redirected to another application on the server then add it here
+                # Example: "mywebsite.com" : 9000  # This tells the server to send traffic meant to "mywebsite.com" to port 9000. It'll still be encrypted when it reaches port 9000
+            }
+
 
     nmcDefs =
         rpcport: 8336

@@ -15,32 +15,32 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    categories = {
-        SNI : 0
-        NO_SNI : 1
-        NOT_HTTPS : 2
-        INCOMPLETE : 3
-    }
-
     # http://tools.ietf.org/html/rfc5246#section-7.4.1
     # http://stackoverflow.com/questions/17832592/extract-server-name-indication-sni-from-tls-client-hello
     class HTTPSUtils
+        categories: {
+            SNI : 0
+            NO_SNI : 1
+            NOT_HTTPS : 2
+            INCOMPLETE : 3
+        }
+
         parseHTTPS: (packet) ->
             res = {}
             try
                 res.contentType = packet.readUInt8 0
-                if res.contentType != 22 then return [categories.NOT_HTTPS, {}]
+                if res.contentType != 22 then return [@categories.NOT_HTTPS, {}]
 
                 res.recordVersionMajor = packet.readUInt8 1
-                if res.recordVersionMajor >= 7 then return [categories.NOT_HTTPS, {}]
+                if res.recordVersionMajor >= 7 then return [@categories.NOT_HTTPS, {}]
 
                 res.recordVersionMinor = packet.readUInt8 2
-                if res.recordVersionMinor >= 7 then return [categories.NOT_HTTPS, {}]
+                if res.recordVersionMinor >= 7 then return [@categories.NOT_HTTPS, {}]
 
                 res.recordLength = packet.readUInt16BE 3
 
                 res.handshakeType = packet.readUInt8 5
-                if res.handshakeType != 1 then return [categories.NOT_HTTPS, {}]
+                if res.handshakeType != 1 then return [@categories.NOT_HTTPS, {}]
 
                 res.handshakeLength = packet[6..8]
                 res.handshakeVersion = packet.readUInt16BE 9
@@ -82,11 +82,11 @@ module.exports = (dnschain) ->
                     sni.sniNameLength = sni.body.readUInt16BE 7
                     sni.sniName = sni.body[9..(9+sni.sniNameLength)]
                     res.host = sni.sniName.toString "utf8"
-                    return [categories.SNI, res]
+                    return [@categories.SNI, res]
                 else
-                    return [categories.NO_SNI, {}]
+                    return [@categories.NO_SNI, {}]
             catch ex
-                return [categories.INCOMPLETE, {}]
+                return [@categories.INCOMPLETE, {}]
 
 
         # Open a TCP socket to a remote host.
@@ -108,10 +108,10 @@ module.exports = (dnschain) ->
         getClientHello: (c, cb) ->
             received = []
             buf = new Buffer []
-            done = (err, host, buf) ->
+            done = (err, category, host, buf) ->
                 c.removeAllListeners("data")
                 done = ->
-                cb err, host, buf
+                cb err, category, host, buf
             c.on "data", (data) =>
                 c.pause()
                 received.push data
@@ -119,16 +119,16 @@ module.exports = (dnschain) ->
 
                 [category, parsed] = @parseHTTPS buf
                 switch category
-                    when categories.SNI
-                        done null, parsed.host, buf
-                    when categories.NO_SNI
-                        done new Error "No SNI found"
-                    when categories.NOT_HTTPS
-                        done null, null, buf
-                    when categories.INCOMPLETE
+                    when @categories.SNI
+                        done null, category, parsed.host, buf
+                    when @categories.NO_SNI
+                        done null, category, null, buf
+                    when @categories.NOT_HTTPS
+                        done new Error "NOT HTTPS", category, null, buf
+                    when @categories.INCOMPLETE
                         c.resume()
                     else
-                        done new Error "Unimplemented", null, buf
+                        done new Error "Unimplemented", category, null, buf
             c.on "timeout", ->
                 c.destroy()
                 done new Error "HTTPS getClientHello timeout"
