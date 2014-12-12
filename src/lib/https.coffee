@@ -34,27 +34,28 @@ module.exports = (dnschain) ->
         eval "var #{k} = dnschain.globals.#{k};"
 
     libHTTPS = new ((require "./httpsUtils")(dnschain))
-    settings = gConf.get "http"
+    httpSettings = gConf.get "http"
+    unblockSettings = gConf.get "unblock"
 
     tlsLog = gNewLogger "TLS"
     tlsOptions = try
         {
-            key: fs.readFileSync settings.tlsKey
-            cert: fs.readFileSync settings.tlsCert
+            key: fs.readFileSync httpSettings.tlsKey
+            cert: fs.readFileSync httpSettings.tlsCert
         }
     catch err
         tlsLog.error "Cannot read the key/cert pair. See the README for instructions on how to generate them.".bold.red
         tlsLog.error err.message.bold.red
         process.exit -1
     TLSServer = tls.createServer tlsOptions, (c) ->
-        libHTTPS.getStream "127.0.0.1", settings.port, (err, stream) ->
+        libHTTPS.getStream "127.0.0.1", httpSettings.port, (err, stream) ->
             if err?
                 tlsLog.error gLineInfo "Tunnel failed: Could not connect to HTTP Server"
                 c?.destroy()
                 return stream?.destroy()
             c.pipe(stream).pipe(c)
     TLSServer.on "error", (err) -> tlsLog.error err
-    TLSServer.listen settings.internalTLSPort, "127.0.0.1", -> tlsLog.info "Listening"
+    TLSServer.listen httpSettings.internalTLSPort, "127.0.0.1", -> tlsLog.info "Listening"
 
     class EncryptedServer
         constructor: (@dnschain) ->
@@ -62,22 +63,37 @@ module.exports = (dnschain) ->
             @log.debug gLineInfo "Loading HTTPS..."
 
             @server = net.createServer (c) =>
-                libHTTPS.getClientHello c, (err, host, buf) =>
-                    @log.debug err, host, buf?.length
+                libHTTPS.getClientHello c, (err, category, host, buf) =>
+                    @log.debug err, category, host, buf?.length
                     if err?
-                        # Connection is neither a TLS stream nor an HTTPS stream containing an SNI
                         @log.debug gLineInfo "TCP handling: "+err.message
                         return c?.destroy()
 
                     # UNBLOCK: Check if needs to be hijacked
-                    isUnblock = false
-                    isDNSChain = (host?.split(".")[-1..][0]) == "dns"
 
-                    if not (isUnblock or isDNSChain) or not host? #For now
+                    isRouted = false # unblockSettings.enabled and unblockSettings.routeDomains[host]?
+                    isDNSChain = (
+                        (category == libHTTPS.categories.NO_SNI) or
+                        ((not unblockSettings.enabled) and category == libHTTPS.categories.SNI) or
+                        (unblockSettings.enabled and (host in unblockSettings.acceptApiCallsTo)) or
+                        ((host?.split(".")[-1..][0]) == "dns")
+                    )
+                    isUnblock = false
+
+                    [destination, port, error] = if isRouted
+                        ["127.0.0.1", unblockSettings.routeDomains[host], false]
+                    else if isDNSChain
+                        ["127.0.0.1", httpSettings.internalTLSPort, false]
+                    else if isUnblock
+                        [host, 443, false]
+                    else
+                        ["", -1, true]
+
+                    if error
                         @log.error "Illegal domain (#{host})"
                         return c?.destroy()
 
-                    libHTTPS.getStream "127.0.0.1", settings.internalTLSPort, (err, stream) =>
+                    libHTTPS.getStream destination, port, (err, stream) =>
                         if err?
                             @log.error gLineInfo "Tunnel failed: Could not connect to internal TLS Server"
                             c?.destroy()
@@ -89,8 +105,8 @@ module.exports = (dnschain) ->
 
             @server.on "error", (err) -> gErr err
             @server.on "close", -> gErr "HTTPS server was closed unexpectedly."
-            @server.listen settings.tlsPort, settings.host, =>
-                @log.info gLineInfo("started HTTPS server "), settings
+            @server.listen httpSettings.tlsPort, httpSettings.host, =>
+                @log.info gLineInfo("started HTTPS server "), httpSettings
 
         shutdown: ->
             @log.debug gLineInfo "HTTPS servers shutting down!"
