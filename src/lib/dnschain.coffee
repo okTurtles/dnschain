@@ -70,7 +70,7 @@ exports.DNSChain = class DNSChain
             @bdns = new BDNSPeer @
             @dns = new DNSServer @
             @http = new HTTPServer @
-            @EncryptedServer = new HTTPSServer @
+            @encryptedserver = new EncryptedServer @
             @log.info "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
 
             if process.getuid() isnt 0 and gConf.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
@@ -80,5 +80,5 @@ exports.DNSChain = class DNSChain
             @shutdown()
             throw e # rethrow
 
-    shutdown: -> [@nmc, @dns, @http, @EncryptedServer].forEach (s) -> s?.shutdown?()
+    shutdown: -> [@nmc, @dns, @http, @encryptedserver].forEach (s) -> s?.shutdown?()
 
