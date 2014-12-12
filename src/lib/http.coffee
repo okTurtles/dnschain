@@ -44,7 +44,8 @@ module.exports = (dnschain) ->
 
         callback: (req, res) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
-            @log.debug gLineInfo('request'), {path:path, url:req.url}
+            options = url.parse(req.url, true).query
+            @log.debug gLineInfo('request'), {path:path, options:options, url:req.url}
 
             notFound = =>
                 res.writeHead 404,  'Content-Type': 'text/plain'
@@ -52,6 +53,7 @@ module.exports = (dnschain) ->
                 res.end()
 
             resolver = switch req.headers.host
+                when 'icann.dns' then 'dns'
                 when 'namecoin.dns' then 'nmc'
                 when 'bitshares.dns' then 'bdns'
                 else
@@ -62,7 +64,7 @@ module.exports = (dnschain) ->
                 @log.debug gLineInfo "ignoring request for: #{path}"
                 return notFound()
 
-            @dnschain[resolver].resolve path, (err,result) =>
+            @dnschain[resolver].resolve path, options, (err,result) =>
                 if err
                     @log.debug gLineInfo('resolver failed'), {err:err}
                     return notFound()
