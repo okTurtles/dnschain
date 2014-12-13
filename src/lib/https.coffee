@@ -38,6 +38,17 @@ module.exports = (dnschain) ->
     unblockSettings = gConf.get "unblock"
 
     tlsLog = gNewLogger "TLSServer"
+
+    # We fetch the fingerprint directly using OpenSSL and then make sure we got the right thing.
+    fingerPrint = ""
+    require("child_process").exec "openssl x509 -fingerprint -sha256 -text -noout -in #{httpSettings.tlsCert} | grep SHA256", (err, stdout, stderr) ->
+        if err? then throw err
+        if stderr.length > 0 then throw new Error stderr
+        fingerPrint = stdout.trim()[-95..]
+        if not /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test fingerPrint then throw new Error "Could not validate the certificate fingerprint (#{fingerPrint})"
+        tlsLog.info "Your certificate fingerprint is #{fingerPrint}"
+    setTimeout (() -> if fingerPrint.length == 0 then throw new Error "Took too long to fetch fingerprint"), 1000
+
     tlsOptions = try
         {
             key: fs.readFileSync httpSettings.tlsKey
@@ -107,6 +118,10 @@ module.exports = (dnschain) ->
             @server.on "close", -> gErr "HTTPS server was closed unexpectedly."
             @server.listen httpSettings.tlsPort, httpSettings.host, =>
                 @log.info gLineInfo("started HTTPS server "), httpSettings
+
+        getFingerPrint: ->
+                if fingerPrint.length == 0 then throw new Error "Cached fingerprint couldn't be read, this should not be possible."
+                fingerPrint
 
         shutdown: ->
             @log.debug gLineInfo "HTTPS servers shutting down!"
