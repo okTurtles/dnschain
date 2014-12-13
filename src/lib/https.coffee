@@ -44,7 +44,8 @@ module.exports = (dnschain) ->
     require("child_process").exec "openssl x509 -fingerprint -sha256 -text -noout -in #{httpSettings.tlsCert} | grep SHA256", (err, stdout, stderr) ->
         if err? then throw err
         if stderr.length > 0 then throw new Error stderr
-        fingerPrint = stdout.trim()[-95..]
+        fingerPrint = stdout.replace(/\r/g, "\n").split("\n")[0].trim()[-95..]
+        console.log fingerPrint
         if not /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test fingerPrint then throw new Error "Could not validate the certificate fingerprint (#{fingerPrint})"
         tlsLog.info "Your certificate fingerprint is #{fingerPrint}"
     setTimeout (() -> if fingerPrint.length == 0 then throw new Error "Took too long to fetch fingerprint"), 1000
