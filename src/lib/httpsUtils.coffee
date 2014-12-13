@@ -97,9 +97,9 @@ module.exports = (dnschain) ->
                     cb err, s
                 s = net.createConnection {host, port}, ->
                     done null, s
-                s.on "error", (err) -> s.destroy()
+                s.on "error", (err) -> s.destroy(); done err
                 s.on "close", -> s.destroy()
-                s.on "timeout", -> s.destroy()
+                s.on "timeout", -> s.destroy(); done new Error "getStream timed out"
             catch err
                 done err
 

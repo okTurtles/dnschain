@@ -37,7 +37,7 @@ module.exports = (dnschain) ->
     httpSettings = gConf.get "http"
     unblockSettings = gConf.get "unblock"
 
-    tlsLog = gNewLogger "TLS"
+    tlsLog = gNewLogger "TLSServer"
     tlsOptions = try
         {
             key: fs.readFileSync httpSettings.tlsKey
