@@ -69,6 +69,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - Getting Started
 - Configuration
 - Combining DNSChain with PowerDNS
+- How-to: example server setup
 - *Coming Soon: securing HTTPS websites with DNSChain.*
 
 <a name="Developers"></a>
@@ -97,7 +98,7 @@ __:page_facing_up: Read__
 - Engadget: [New web service prevents spies from easily intercepting your data](http://www.engadget.com/2014/09/29/okturtles/)
 - Let's Talk Bitcoin: [Security in Decentralized Domain Name Systems](http://letstalkbitcoin.com/blog/post/security-in-decentralized-domain-name-systems)
 - [An intro to DNSChain: Low-trust access to definitive data sources](http://simondlr.com/post/94988956673/an-intro-to-dnschain-low-trust-access-to)
-- [How to setup a blockchain DNS server with DNSChain](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)
+- [How to setup a blockchain DNS server with DNSChain](docs/example-server-setup.md)
 - [The Trouble with Certificate Transparency](https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/)
 - [Introducing the dotDNS metaTLD](https://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/)
 - [DNSChain versus...](docs/Comparison.md)
