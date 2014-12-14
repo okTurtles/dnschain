@@ -56,8 +56,6 @@ for k of require('./globals')(exports)
 
 exports.createServer = (a...) -> new DNSChain a...
 
-NMCPeer = require('./nmc')(exports)
-BDNSPeer = require('./bdns')(exports)
 DNSServer = require('./dns')(exports)
 HTTPServer = require('./http')(exports)
 EncryptedServer = require('./https')(exports)
@@ -66,8 +64,15 @@ exports.DNSChain = class DNSChain
     constructor: ->
         @log = gNewLogger 'DNSChain'
         try
-            @nmc = new NMCPeer @
-            @bdns = new BDNSPeer @
+            chainDir = path.join __dirname, 'blockchains'
+            @chains = _.omit(_.mapValues(_.indexBy(fs.readdirSync(chainDir), (file) =>
+                S(file).chompRight('.coffee').s
+            ), (file) =>
+                chain = new (require('./blockchains/'+file)(exports)) @
+                chain.config()
+            ), (chain) =>
+                not chain
+            )
             @dns = new DNSServer @
             @http = new HTTPServer @
             @encryptedserver = new EncryptedServer @
@@ -80,5 +85,5 @@ exports.DNSChain = class DNSChain
             @shutdown()
             throw e # rethrow
 
-    shutdown: -> [@nmc, @dns, @http, @encryptedserver].forEach (s) -> s?.shutdown?()
+    shutdown: -> @chains.append([@dns, @http, @encryptedserver]).forEach (s) -> s.shutdown()
 

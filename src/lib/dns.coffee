@@ -118,24 +118,21 @@ module.exports = (dnschain) ->
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
             @log.debug "received question", q
 
-            if /\.(bit|p2p)$/.test q.name
-                if S(q.name).endsWith '.bit'
-                    nmcDomain = @namecoinizeDomain q.name
-                    resolver = 'nmc'
-                else
-                    # TODO: bdns-izeDomain
-                    nmcDomain = S(q.name).chompRight('.p2p').s
-                    resolver = 'bdns'
-                
-                @log.debug gLineInfo("resolving via #{resolver}..."), {nmcDomain:nmcDomain, q:q}
+            chainTLDs = new RegExp('\\.('+_.map(@dnschain.chains, 'tld').join('|')+')$')
+            if chainTLDs.test q.name
+                tld = q.name.split('.').pop()
+                resolver = _.find @dnschain.chains, (c) ->
+                   c.tld? and c.tld == tld
 
-                @dnschain[resolver].resolve nmcDomain, (err, result) =>
+                @log.debug gLineInfo("resolving via #{resolver.name}..."), {domain:q.name, q:q}
+
+                resolver.resolve q.name, {}, (err, result) =>
                     # @log.warn gLineInfo('blah!'), {result: result}
                     if err? or !result
-                        @log.error gLineInfo("#{resolver} failed to resolve"), {err:err?.message, result:result, q:q}
+                        @log.error gLineInfo("#{resolver.name} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res, null, cb
                     else
-                        @log.debug gLineInfo("#{resolver} resolved query"), {q:q, d:nmcDomain, result:result}
+                        @log.debug gLineInfo("#{resolver.name} resolved query"), {q:q, d:q.name, result:result}
 
                         try
                             # result.value = JSON.parse result.value
@@ -180,12 +177,6 @@ module.exports = (dnschain) ->
                     else
                         @sendRes res, cb
         # / end callback
-
-        namecoinizeDomain: (domain) ->
-            nmcDomain = S(domain).chompRight('.bit').s
-            if (dotIdx = nmcDomain.lastIndexOf('.')) != -1
-                nmcDomain = nmcDomain.slice(dotIdx+1) # rm subdomain
-            'd/' + nmcDomain # add 'd/' namespace
 
         oldDNSLookup: (req, cb) ->
             res = new Packet()

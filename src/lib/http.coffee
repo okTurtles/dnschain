@@ -16,13 +16,6 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    # Specifications listed here:
-    # - https://wiki.namecoin.info/index.php?title=Welcome
-    # - https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Importing_and_delegation
-    # - https://wiki.namecoin.info/index.php?title=Category:NEP
-    # - https://wiki.namecoin.info/index.php?title=Namecoin_Specification
-    VALID_NMC_DOMAINS = /^[a-zA-Z]+\/.+/
-
     class HTTPServer
         constructor: (@dnschain) ->
             # @log = @dnschain.log.child server: "HTTP"
@@ -58,25 +51,21 @@ module.exports = (dnschain) ->
                 res.end()
                 cb()
 
-            resolver = switch req.headers.host
-                when 'icann.dns' then 'dns'
-                when 'namecoin.dns' then 'nmc'
-                when 'bitshares.dns' then 'bdns'
+            resolverName = S(req.headers.host).chompRight('.dns').s
+            resolver =
+                if @dnschain.chains[resolverName]?
+                    @dnschain.chains[resolverName]
                 else
                     @log.warn gLineInfo "unknown host type: #{req.headers.host} -- defaulting to namecoin.dns!"
-                    'nmc'
+                    @dnschain.chains['namecoin']
 
-            if resolver is 'nmc' and not VALID_NMC_DOMAINS.test path
-                @log.debug gLineInfo "ignoring request for: #{path}"
-                return notFound()
-
-            @dnschain[resolver].resolve path, options, (err,result) =>
+            resolver.resolve path, options, (err,result) =>
                 if err
                     @log.debug gLineInfo('resolver failed'), {err:err}
                     return notFound()
                 else
                     res.writeHead 200, 'Content-Type': 'application/json'
                     @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
-                    res.write @dnschain[resolver].toJSONstr result
+                    res.write @dnschain.chains[resolver].toJSONstr result
                     res.end()
                     cb()

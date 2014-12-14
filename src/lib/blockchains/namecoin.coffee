@@ -11,16 +11,28 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 
+BlockchainResolver = require '../blockchain.coffee'
+
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    class NMCPeer
+    # Specifications listed here:
+    # - https://wiki.namecoin.info/index.php?title=Welcome
+    # - https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Importing_and_delegation
+    # - https://wiki.namecoin.info/index.php?title=Category:NEP
+    # - https://wiki.namecoin.info/index.php?title=Namecoin_Specification
+    VALID_NMC_DOMAINS = /^[a-zA-Z]+\/.+/
+
+    class NamecoinResolver extends BlockchainResolver
         constructor: (@dnschain) ->
-            # @log = @dnschain.log.child server: "NMC"
             @log = gNewLogger 'NMC'
-            @log.debug "Loading NMCPeer..."
+            @name = 'namecoin'
+            @tld = 'bit'
+
+        config: ->
+            @log.debug "Loading NamecoinResolver..."
             
             # we want them in this exact order:
             params = ["port", "connect", "user", "password"].map (x)-> gConf.nmc.get 'rpc'+x
@@ -30,13 +42,20 @@ module.exports = (dnschain) ->
             #       or an http socket and see if that works before declaring it works
             @log.info "rpc to namecoind on: %s:%d", params[1], params[0]
             # TODO: if namecoin.conf isn't found, disable like in bdns.coffee
+            @
 
         shutdown: ->
             @log.debug 'shutting down!'
             # @peer.end() # TODO: fix this!
 
         resolve: (path, options, cb) ->
-            @log.debug gLineInfo('nmc resolve'), {path:path}
+            if S(path).endsWith(".#{@tld}") # naimcoinize Domain
+                path = S(path).chompRight(".#{@tld}").s
+                if (dotIdx = path.lastIndexOf('.')) != -1
+                    path = path.slice(dotIdx+1) #rm subdomain
+                path = 'd/' + path
+            cb 'INVALIDNMC',{} if not VALID_NMC_DOMAINS.test path
+            @log.debug gLineInfo("#{@name} resolve"), {path:path}
             @peer.call 'name_show', [path], cb
 
         # TODO: make this cleaner. this is kinda ugly.
