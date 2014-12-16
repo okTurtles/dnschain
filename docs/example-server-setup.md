@@ -6,7 +6,7 @@ These blockchain-based domain names are resolved by simply querying the local bl
 
 So our recursor software will issue DNS queries for `.com` and `.net` domains as you would expect, but will consult the local Namecoin blockchain in order to resolve `.bit` domains. So results for, say, `okturtles.bit` will be returned without engaging other servers on the Internet.
 
-We start with a fresh install of Debian 7 (Wheezy), and take the basic security steps before getting started. Do what you're comfortable with, but it's pretty standard practice to disable root login and so on. One configuration detail worth noting - we are using <a href="https://wiki.debian.org/systemd">systemd</a> from [weezy-backports](https://packages.debian.org/wheezy-backports/admin/systemd) in our example, since this is the future for Debian. 
+We start with a fresh install of Debian 7 (Wheezy), and take the basic security steps before getting started. Do what you're comfortable with, but it's pretty standard practice to disable root login and so on. One configuration detail worth noting - we are using [systemd](https://wiki.debian.org/systemd) from [weezy-backports](https://packages.debian.org/wheezy-backports/admin/systemd) in our example, since this will be standard in future releases of Debian linux. 
 
 ## Getting Started
 
@@ -25,7 +25,7 @@ then install systemd:
 In our example, we'll use Namecoin, DNSChain and PowerDNS. It's probably a good idea to first install the Namecoin daemon, since it requires some time to download the blockchain. You can find the latest packages for various linux distros at the [Namecoin site](http://namecoin.info/?p=download).
 
 	# identify source for Namecoin packages
-	$ echo 'deb http://download.opensuse.org/repositories/home:/p_conrad:/coins/Debian_7.0/ /‘ > /etc/apt/sources.list.d/namecoin.list
+	$ echo 'deb http://download.opensuse.org/repositories/home:/p_conrad:/coins/Debian_7.0/ /' > /etc/apt/sources.list.d/namecoin.list
 	$ apt-get update
 	$ apt-get install namecoin
 
@@ -42,35 +42,18 @@ Our config file will specify a valid RPC username and password, as well as optio
 	rpcport=8336
 	server=1
 
-To run this as a service using systemd, use a unit file similar to our example file. Here is our __/etc/systemd/system/namecoin.service__ file:
-
-	[Unit]
-	Description=namecoind
-	After=network.target
-	 
-	[Service]
-	Type=forking
-	User=namecoin
-	Group=namecoin
-	WorkingDirectory=/home/namecoin
-
-	# this next bit requires making a symlink
-	# you could just specify /home/namecoin/namecoind
-	ExecStart=/usr/bin/namecoind -gen=0 -daemon
-	ExecStop=/usr/bin/namecoind stop
-	Restart=on-abort
-	 
-	[Install]
-	WantedBy=multi-user.target
+To run this as a service using systemd, use a unit file similar to [our example file](../scripts/namecoin.service). We saved the file as __/etc/systemd/system/namecoin.service__ 
 
 Start the new service and check to see if it starts without errors. 
  
 	$ systemctl enable namecoin.service
 	$ systemctl start namecoin
 
-As mentioned, `namecoind` is going to download the blockchain first. We won't be able to lookup domain names from the blockchain until it has made some progress. 
+If things go wrong, try checking to see if the paths match what's on your filesystem, and adjust as needed!
 
-Meanwhile, let's setup PowerDNS and DNSChain and then come back and test this, as follows:
+As mentioned, `namecoind` is going to begin downloading the blockchain soon after startup. We won't be able to lookup domain names from the blockchain until it has made some progress, so let's revisit testing our namecoin install later.
+
+Meanwhile, we can setup PowerDNS and DNSChain, and then come back and test this, as follows:
 
 	$ namecoind getinfo
 	$ namecoind name_show d/okturtles
@@ -84,7 +67,7 @@ OK, so basic operations work directly from the command line, now let's check it 
 
 We need [PowerDNS](https://www.powerdns.com/) version 3.6.x or higher. This is currently newer than the version in _stable_ we'll use _wheezy-backports_. Append the following onto __/etc/apt/sources.list__:
  
-	deb http://http.debian.net/debian wheezy-backports main</code>
+	deb http://http.debian.net/debian wheezy-backports main
 
 Download and install from the repo, and check to see that it installed, and that it runs.
 
@@ -100,7 +83,7 @@ Next, we need to tell PowerDNS to send requests for `.bit` domain names to port 
 	local-address=0.0.0.0
 	local-port=53
 
-Notice in particular our *forward-zones* declaration. Even though in our example, we're simply setting up our server to resolve `.bit` domain names, support for `.eth` and `.p2p` domains is on the current roadmap. 
+Notice in particular our *forward-zones* declaration. Even though in our example, we're simply setting up our server to resolve Namecoin's `.bit` domain names, support for `.eth` and `.p2p` domains is on the current roadmap. 
 
 Since we have not yet setup DNSChain, let's just make sure our PowerDNS recursor can correctly resolve conventional domain names before we move on.
 
@@ -151,38 +134,16 @@ This process will be run by our *dnschain* user, so it needs to be readable.
 
 	chown dnschain.dnschain /home/dnschain/.dnschain.conf
 
-As with the others, we're going to run this as a `systemd` service. Here's our example unit file, feel free to adjust as needed. 
+As with the others, we're going to run this as a `systemd` service. Here's [our example unit file](../scripts/dnschain.service), feel free to adjust as needed. 
 
-	[Unit]
-	Description=dnschain
-	After=network.target
-	Wants=namecoin.service
-	 
-	[Service]
-	ExecStart=/usr/bin/dnschain
-	Environment=DNSCHAIN_SYSD_VER=0.0.1
-	PermissionsStartOnly=true
-	ExecStartPre=/sbin/sysctl -w net.ipv4.ip_forward=1
-	 
-	User=dns
-	Group=dnschain
-	Restart=always
-	RestartSec=5
-	WorkingDirectory=/home/dnschain
-	PrivateTmp=true
-	ReadOnlyDirectories=/etc
-	 
-	[Install]
-	WantedBy=multi-user.target
-
-Let's start it up to ensure that we ahve it configured correctly.
+Let's start DNSChain to ensure that we have it configured correctly.
 
 	$ systemctl enable dnschain
 	$ systemctl start dnschain
 
 Finally, let's test it by trying to resolve a `.bit` domain name.
 
-	dig @127.0.0.1 okturtles.bit
-	http://{your_IP_address}:8000/d/okturtles
+	$ dig @127.0.0.1 okturtles.bit
+	$ curl http://127.0.0.1:8000/d/okturtles
 
-Congratulations, everything works just fine! 
+The first `dig` command ought to return the IP address for `okTurtles.bit` and the second should return all the information associated with this domain name, including IP address, TLS fingerprint and more. If so, congratulations, everything works just fine! 
