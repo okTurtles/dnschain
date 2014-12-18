@@ -1,12 +1,10 @@
 # How do I run my own DNSChain Server?
 
-| **See Also: [Mike's Guide to Installing Namecoin, DNSChain, and PowerDNS on Debian Wheezy](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)** |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-
 - [Requirements](#Requirements)
 - [Getting Started](#Getting)
 - [Configuration](#Configuration)
 - [Working with the source](#Working)
+- [Example Server Setup](#Example)
 
 Get yourself a Linux server (they come as cheap as $2/month), and then make sure you have the following software installed:
 
@@ -31,7 +29,7 @@ DNSChain __does not use the NodeJS crypto module__ for generating signed headers
 
 Test DNSChain by simply running `dnschain` from the command line (developers [see here](#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](<../scripts/dnschain.service>) that you can use to run it.
 
-**:page_facing_up: [Mike's Guide to Installing Namecoin, DNSChain, and PowerDNS on Debian Wheezy](http://mikeward.net/how-to-setup-a-blockchain-dns-server-with-dnschain/)**
+**:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Debian Wheezy](setting-up-dnschain-namecoin-powerdns-server.md)**
 
 <a name="Configuration"/>
 ## Configuration
@@ -68,3 +66,10 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     [http]
     port=8088
     tlsPort=4443
+
+<a name="Example"/>
+## Guide: Setting up DNSChain + Namecoin + PowerDNS
+
+As a guide we have an example server setup using Debian 7 and PowerDNS, along with a Namecoin node. This setup will resolve `.bit` domain names and should serve as an example which can be used with other blockchains.
+
+[Guide: Setting up DNSChain + Namecoin + PowerDNS](setting-up-dnschain-namecoin-powerdns-server.md)
