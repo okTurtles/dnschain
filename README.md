@@ -68,8 +68,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - Requirements
 - Getting Started
 - Configuration
-- Combining DNSChain with PowerDNS
-- Setting up a DNSChain server with Namecoin and PowerDNS
+- Guide: Setting up a DNSChain server with Namecoin and PowerDNS
 - *Coming Soon: securing HTTPS websites with DNSChain.*
 
 <a name="Developers"></a>

@@ -72,4 +72,4 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
 
 As a guide we have an example server setup using Debian 7 and PowerDNS, along with a Namecoin node. This setup will resolve `.bit` domain names and should serve as an example which can be used with other blockchains.
 
-[Guide: Setting up DNSChain + Namecoin + PowerDNS](setting-up-dnschain-namecoin-powerdns-server.md)
+**:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Debian Wheezy](setting-up-dnschain-namecoin-powerdns-server.md)**
