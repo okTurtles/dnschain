@@ -113,7 +113,7 @@ Now we're ready to install DNSChain, and once again, we'll create a user to run 
 
 We will tell DNSChain to bind to port 5333, but you can use any high port number as long as it matches the port number that PowerDNS is handing off requests to. This was specified earlier in __/etc/powerdns/recursor.conf__. 
 
-Another great feature of DNSChain is that we can expose the lookup results via HTTP. We'll specify port 8000 for this, in the DNSChain configuration file __/home/dnschain/.dnschain.conf__
+Another great feature of DNSChain is that we can expose the lookup results via HTTP. We'll specify port 8000 for this, but you can use any high number port that's open. DNSChain can be setup to be accesed by webserver, via port 8000 for example. Here's an example DNSChain configuration file __/home/dnschain/.dnschain.conf__
   
 	[log]
 	level=info
@@ -136,6 +136,8 @@ This process will be run by our *dnschain* user, so it needs to be readable.
 
 As with the others, we're going to run this as a `systemd` service. Here's [our example unit file](../scripts/dnschain.service), feel free to adjust as needed. 
 
+Note that this unit file also sets up port forwarding so our DNSChain install can run unprivileged using port 5333, while still receiving traffic from port 53. Here is a [more detailed discussion](https://stackoverflow.com/questions/413807/is-there-a-way-for-non-root-processes-to-bind-to-privileged-ports-1024-on-l/21653102#21653102) about this problem of running user processes that listen on ports < 1024.
+
 Let's start DNSChain to ensure that we have it configured correctly.
 
 	$ systemctl enable dnschain
@@ -146,4 +148,4 @@ Finally, let's test it by trying to resolve a `.bit` domain name.
 	$ dig @127.0.0.1 okturtles.bit
 	$ curl http://127.0.0.1:8000/d/okturtles
 
-The first `dig` command ought to return the IP address for `okTurtles.bit` and the second should return all the information associated with this domain name, including IP address, TLS fingerprint and more. If so, congratulations, everything works just fine! 
+The first `dig` command ought to return the IP address for `okturtles.bit` and the second should return all the information associated with this domain name, including IP address, TLS fingerprint and more. If so, congratulations, everything works just fine! 
