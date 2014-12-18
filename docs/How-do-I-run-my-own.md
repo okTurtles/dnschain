@@ -68,8 +68,8 @@ The format of the configuration file is similar to INI, and is parsed by the Nod
     tlsPort=4443
 
 <a name="Example"/>
-## Example Server Setup
+## Guide: Setting up DNSChain + Namecoin + PowerDNS
 
 As a guide we have an example server setup using Debian 7 and PowerDNS, along with a Namecoin node. This setup will resolve `.bit` domain names and should serve as an example which can be used with other blockchains.
 
-[Guide: Setting up DNSChain + Namecoin + PowerDNS`](setting-up-dnschain-namecoin-powerdns-server.md)
+[Guide: Setting up DNSChain + Namecoin + PowerDNS](setting-up-dnschain-namecoin-powerdns-server.md)
