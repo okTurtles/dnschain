@@ -44,15 +44,17 @@ module.exports = (dnschain) ->
             # @peer.end() # TODO: fix this!
 
         resolve: (path, options, cb) ->
+            result = @resultTemplate()
             @log.debug gLineInfo("#{@name} resolve"), {path:path}
-            @peer.call 'dotp2p_show', [path], path:'/rpc', (err, result) ->
-                return (cb err, result) if err
-                if _.isString result
+            @peer.call 'dotp2p_show', [path], path:'/rpc', (err, ans) ->
+                return cb(err) if err
+                if _.isString ans
                     try
-                        result.value = JSON.parse result
+                        result.value = JSON.parse ans
                     catch e
-                        err = e
-                else if not _.isObject result
-                    @log.warn gLineInfo('type not string or object!'), {json: result, type: typeof(result)}
+                        @log.error glineInfo(e.message)
+                        return cb e
+                else if not _.isObject ans
+                    @log.warn gLineInfo('type not string or object!'), {json: ans, type: typeof(ans)}
                     result.value = {}
-                cb err,result
+                cb null, result

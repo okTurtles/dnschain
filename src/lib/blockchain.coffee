@@ -32,3 +32,9 @@ module.exports = (dnschain) ->
 
         resolve: (path, options, cb) ->
             #@log.debug gLineInfo('resolve'), {path:path, options:options}
+
+        resultTemplate: ->
+            version: '0.0.1'
+            header:
+                blockchain: @name
+            value: {}

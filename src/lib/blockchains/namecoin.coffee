@@ -49,6 +49,7 @@ module.exports = (dnschain) ->
             # @peer.end() # TODO: fix this!
 
         resolve: (path, options, cb) ->
+            result = @resultTemplate()
             if S(path).endsWith(".#{@tld}") # naimcoinize Domain
                 path = S(path).chompRight(".#{@tld}").s
                 if (dotIdx = path.lastIndexOf('.')) != -1
@@ -56,9 +57,11 @@ module.exports = (dnschain) ->
                 path = 'd/' + path
             cb 'INVALIDNMC',{} if not VALID_NMC_DOMAINS.test path
             @log.debug gLineInfo("#{@name} resolve"), {path:path}
-            @peer.call 'name_show', [path], (err, result) ->
+            @peer.call 'name_show', [path], (err, ans) ->
+                return cb(err) if err
                 try
-                    result.value = JSON.parse result.value
+                    result.value = JSON.parse ans.value
+                    cb null, result
                 catch e
-                    err = err or e
-                cb err, result
+                    @log.error gLineInfo(e.message)
+                    cb e
