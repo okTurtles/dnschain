@@ -32,7 +32,3 @@ module.exports = (dnschain) ->
 
         resolve: (path, options, cb) ->
             #@log.debug gLineInfo('resolve'), {path:path, options:options}
-
-        # TODO: make this cleaner. this is kinda ugly.
-        toJSONstr: (json) -> json.value
-        toJSONobj: (json) -> JSON.parse json.value

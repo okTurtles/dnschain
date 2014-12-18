@@ -56,8 +56,9 @@ module.exports = (dnschain) ->
                 path = 'd/' + path
             cb 'INVALIDNMC',{} if not VALID_NMC_DOMAINS.test path
             @log.debug gLineInfo("#{@name} resolve"), {path:path}
-            @peer.call 'name_show', [path], cb
-
-        # TODO: make this cleaner. this is kinda ugly.
-        toJSONstr: (json) -> json.value
-        toJSONobj: (json) -> JSON.parse json.value
+            @peer.call 'name_show', [path], (err, result) ->
+                try
+                    result.value = JSON.parse result.value
+                catch e
+                    err = err or e
+                cb err, result
