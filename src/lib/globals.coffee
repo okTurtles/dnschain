@@ -19,12 +19,25 @@ module.exports = (dnschain) ->
     #            *EXCEPT* the global module dependencies below.
 
     dnschain.globals =
-        rpc    : 'json-rpc2'
-        _      : 'lodash-contrib'
-        S      : 'string'
-        dns2   : 'native-dns'
-        es     : 'event-stream'
-        sa     : 'stream-array'
+        rpc        : 'json-rpc2'
+        _          : 'lodash-contrib'
+        S          : 'string'
+        dns2       : 'native-dns'
+        es         : 'event-stream'
+        sa         : 'stream-array'
+        Bottleneck : 'bottleneck'
+
+    # Initialize the global rate limiter pool, only an interface will be visible from the outside
+    limiters = {}
+    # Garbage collect the unused limiters every minute.
+    #This is necessary or else the server will run out of RAM after a few days
+    setInterval ->
+        time = Date.now()
+        for key,limiter of limiters
+            # Unused in the last 5 minutes
+            if (limiter._nextRequest+(60*1000*5)) < time
+                delete limiters[key]
+    , 60*1000 # Every minute
 
     # no renaming done for these
     for d in ['net', 'dns', 'http', 'tls', 'fs', 'url', 'util', 'os', 'path', 'winston']
@@ -93,6 +106,12 @@ module.exports = (dnschain) ->
             e = new Error util.format args...
             gLogger.error e.stack
             throw e
+
+        gThrottle: (key, makeLimiter) ->
+            if limiters[key]?
+                limiters[key]
+            else
+                limiters[key] = makeLimiter()
 
         # TODO: this function should take one parameter: an IP string
         #       and return either 'A' or 'AAAA'

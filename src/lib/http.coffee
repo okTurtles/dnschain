@@ -29,7 +29,11 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
 
-            @server = http.createServer(@callback.bind(@)) or gErr "http create"
+            @server = http.createServer((req, res) =>
+                key = "http-#{req.connection?.remoteAddress}"
+                limiter = gThrottle key, -> new Bottleneck 2, 150, 10, Bottleneck.strategy.OVERFLOW
+                limiter.submit (@callback.bind @), req, res, null
+            ) or gErr "http create"
             @server.on 'error', (err) -> gErr err
             @server.on 'sockegError', (err) -> gErr err
             @server.listen gConf.get('http:port'), gConf.get('http:host') or gErr "http listen"
@@ -42,7 +46,7 @@ module.exports = (dnschain) ->
 
         # TODO: send a signed header proving the authenticity of our answer
 
-        callback: (req, res) ->
+        callback: (req, res, cb) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
             options = url.parse(req.url, true).query
             @log.debug gLineInfo('request'), {path:path, options:options, url:req.url}
@@ -51,6 +55,7 @@ module.exports = (dnschain) ->
                 res.writeHead 404,  'Content-Type': 'text/plain'
                 res.write "Not Found: #{path}"
                 res.end()
+                cb()
 
             resolver = switch req.headers.host
                 when 'icann.dns' then 'dns'
@@ -73,3 +78,4 @@ module.exports = (dnschain) ->
                     @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
                     res.write @dnschain[resolver].toJSONstr result
                     res.end()
+                    cb()

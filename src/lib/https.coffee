@@ -74,54 +74,62 @@ module.exports = (dnschain) ->
             @log.debug gLineInfo "Loading HTTPS..."
 
             @server = net.createServer (c) =>
-                libHTTPS.getClientHello c, (err, category, host, buf) =>
-                    @log.debug err, category, host, buf?.length
-                    if err?
-                        @log.debug gLineInfo "TCP handling: "+err.message
-                        return c?.destroy()
-
-                    # UNBLOCK: Check if needs to be hijacked
-
-                    isRouted = false # unblockSettings.enabled and unblockSettings.routeDomains[host]?
-                    isDNSChain = (
-                        (category == libHTTPS.categories.NO_SNI) or
-                        ((not unblockSettings.enabled) and category == libHTTPS.categories.SNI) or
-                        (unblockSettings.enabled and (host in unblockSettings.acceptApiCallsTo)) or
-                        ((host?.split(".")[-1..][0]) == "dns")
-                    )
-                    isUnblock = false
-
-                    [destination, port, error] = if isRouted
-                        ["127.0.0.1", unblockSettings.routeDomains[host], false]
-                    else if isDNSChain
-                        ["127.0.0.1", httpSettings.internalTLSPort, false]
-                    else if isUnblock
-                        [host, 443, false]
-                    else
-                        ["", -1, true]
-
-                    if error
-                        @log.error "Illegal domain (#{host})"
-                        return c?.destroy()
-
-                    libHTTPS.getStream destination, port, (err, stream) =>
-                        if err?
-                            @log.error gLineInfo "Tunnel failed: Could not connect to internal TLS Server"
-                            c?.destroy()
-                            return stream?.destroy()
-                        stream.write buf
-                        c.pipe(stream).pipe(c)
-                        c.resume()
-                        @log.debug gLineInfo "Tunnel: "+host
-
+                key = "https-#{c.remoteAddress}"
+                limiter = gThrottle key, -> new Bottleneck 2, 150, 10, Bottleneck.strategy.OVERFLOW
+                limiter.submit (@callback.bind @), c, null
             @server.on "error", (err) -> gErr err
             @server.on "close", -> gErr "HTTPS server was closed unexpectedly."
             @server.listen httpSettings.tlsPort, httpSettings.host, =>
                 @log.info gLineInfo("started HTTPS server "), httpSettings
 
+        callback: (c, cb) ->
+            libHTTPS.getClientHello c, (err, category, host, buf) =>
+                @log.debug err, category, host, buf?.length
+                if err?
+                    @log.debug gLineInfo "TCP handling: "+err.message
+                    cb()
+                    return c?.destroy()
+
+                # UNBLOCK: Check if needs to be hijacked
+
+                isRouted = false # unblockSettings.enabled and unblockSettings.routeDomains[host]?
+                isDNSChain = (
+                    (category == libHTTPS.categories.NO_SNI) or
+                    ((not unblockSettings.enabled) and category == libHTTPS.categories.SNI) or
+                    (unblockSettings.enabled and (host in unblockSettings.acceptApiCallsTo)) or
+                    ((host?.split(".")[-1..][0]) == "dns")
+                )
+                isUnblock = false
+
+                [destination, port, error] = if isRouted
+                    ["127.0.0.1", unblockSettings.routeDomains[host], false]
+                else if isDNSChain
+                    ["127.0.0.1", httpSettings.internalTLSPort, false]
+                else if isUnblock
+                    [host, 443, false]
+                else
+                    ["", -1, true]
+
+                if error
+                    @log.error "Illegal domain (#{host})"
+                    cb()
+                    return c?.destroy()
+
+                libHTTPS.getStream destination, port, (err, stream) =>
+                    if err?
+                        @log.error gLineInfo "Tunnel failed: Could not connect to internal TLS Server"
+                        c?.destroy()
+                        cb()
+                        return stream?.destroy()
+                    stream.write buf
+                    c.pipe(stream).pipe(c)
+                    c.resume()
+                    cb()
+                    @log.debug gLineInfo "Tunnel: "+host
+
         getFingerPrint: ->
-                if fingerPrint.length == 0 then throw new Error "Cached fingerprint couldn't be read, this should not be possible."
-                fingerPrint
+            if fingerPrint.length == 0 then throw new Error "Cached fingerprint couldn't be read, this should not be possible."
+            fingerPrint
 
         shutdown: ->
             @log.debug gLineInfo "HTTPS servers shutting down!"

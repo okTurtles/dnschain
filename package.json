@@ -37,6 +37,7 @@
     "url": "git://github.com/okTurtles/dnschain.git"
   },
   "dependencies": {
+    "bottleneck": "1.5.x",
     "event-stream": "^3.1.7",
     "inquirer": "~0.4.1",
     "json-rpc2": "^0.8.1",

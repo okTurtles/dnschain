@@ -53,7 +53,10 @@ module.exports = (dnschain) ->
 
             @server = dns2.createServer() or gErr "dns2 create"
             @server.on 'sockegError', (err) -> gErr err
-            @server.on 'request', @callback.bind(@)
+            @server.on 'request', (req, res) =>
+                key = "dns-#{req.address.address}-#{req.question[0]?.name}"
+                limiter = gThrottle key, -> new Bottleneck 1, 200, 2, Bottleneck.strategy.BLOCK
+                limiter.changePenalty(7000).submit (@callback.bind @), req, res, null
             @server.serve gConf.get('dns:port'), gConf.get('dns:host')
 
             @log.info 'started DNS', gConf.get 'dns'
@@ -103,7 +106,7 @@ module.exports = (dnschain) ->
         # Even more ideally we want to be able to simply pass along the raw data without having to parse it.
         # See: https://github.com/okTurtles/dnschain/issues/6
         # 
-        callback: (req, res) ->
+        callback: (req, res, cb) ->
             # answering multiple questions in a query appears to be problematic,
             # and few servers do it, so we only answer the first question:
             # https://stackoverflow.com/questions/4082081/requesting-a-and-aaaa-records-in-single-dns-query
@@ -129,7 +132,7 @@ module.exports = (dnschain) ->
                     # @log.warn gLineInfo('blah!'), {result: result}
                     if err? or !result
                         @log.error gLineInfo("#{resolver} failed to resolve"), {err:err?.message, result:result, q:q}
-                        @sendErr res
+                        @sendErr res, null, cb
                     else
                         @log.debug gLineInfo("#{resolver} resolved query"), {q:q, d:nmcDomain, result:result}
 
@@ -142,37 +145,39 @@ module.exports = (dnschain) ->
                         catch e
                             @log.warn e.stack
                             @log.warn gLineInfo("bad JSON!"), {q:q, result:result}
-                            return @sendErr res, NAME_RCODE.FORMERR
+                            return @sendErr res, NAME_RCODE.FORMERR, cb
 
-                        if !(handler = dnsTypeHandlers.namecoin[QTYPE_NAME[q.type]])
+                        if not (handler = dnsTypeHandlers.namecoin[QTYPE_NAME[q.type]])
                             @log.warn gLineInfo("no such handler!"), {q:q, type: QTYPE_NAME[q.type]}
-                            return @sendErr res, NAME_RCODE.NOTIMP
+                            return @sendErr res, NAME_RCODE.NOTIMP, cb
 
                         handler.call @, req, res, qIdx, result, (errCode) =>
                             try
                                 if errCode
-                                    @sendErr res, errCode
+                                    @sendErr res, errCode, cb
                                 else
                                     @log.debug gLineInfo("sending response!"), {resolver:resolver, res:_.omit(res, '_socket')}
-                                    res.send()
+                                    @sendRes res, cb
                             catch e
                                 @log.error e.stack
                                 @log.error gLineInfo("exception in handler"), {q:q, result:result}
-                                return @sendErr res, NAME_RCODE.SERVFAIL
+                                return @sendErr res, NAME_RCODE.SERVFAIL, cb
 
             else if S(q.name).endsWith '.dns'
                 # TODO: right now we're doing a catch-all and pretending they asked
                 #       for namecoin.dns...
                 res.answer.push gIP2type(q.name,ttl,QTYPE_NAME[q.type])(gConf.get 'dns:externalIP')
                 @log.debug gLineInfo('cb|.dns'), {q:q, answer:res.answer}
-                res.send()
+                @sendRes res, cb
             else
                 @log.debug gLineInfo("deferring request"), {q:q}
-                @oldDNSLookup req, (packet, code) ->
+                @oldDNSLookup req, (packet, code) =>
                     _.assign res, _.pick packet, ['edns_version', 'edns_options',
                         'edns', 'answer', 'authority', 'additional']
-                    @sendErr(res, code) if code
-                    res.send()
+                    if code
+                        @sendErr res, code, cb
+                    else
+                        @sendRes res, cb
         # / end callback
 
         namecoinizeDomain: (domain) ->
@@ -244,13 +249,18 @@ module.exports = (dnschain) ->
                 # refuse all such queries
                 cb res, NAME_RCODE.REFUSED
 
-        sendErr: (res, code=NAME_RCODE.SERVFAIL) ->
+        sendRes: (res, cb) ->
+            res.send()
+            cb()
+
+        sendErr: (res, code=NAME_RCODE.SERVFAIL, cb) ->
             try
                 res.header.rcode = code
                 @log.debug gLineInfo(), {code:code, name:RCODE_NAME[code]}
                 res.send()
             catch e
                 @log.error gLineInfo('exception sending error back!'), e.stack
+            cb()
             false # helps other functions pass back an error value
 
         resolve: (path, options, cb) ->
