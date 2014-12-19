@@ -29,7 +29,11 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
 
-            @server = http.createServer(@callback.bind(@)) or gErr "http create"
+            @server = http.createServer((req, res) =>
+                key = "http-#{req.connection?.remoteAddress}"
+                limiter = gThrottle key, -> new Bottleneck 2, 150, 10, Bottleneck.strategy.OVERFLOW
+                limiter.submit (@callback.bind @), req, res, null
+            ) or gErr "http create"
             @server.on 'error', (err) -> gErr err
             @server.on 'sockegError', (err) -> gErr err
             @server.listen gConf.get('http:port'), gConf.get('http:host') or gErr "http listen"
@@ -42,16 +46,19 @@ module.exports = (dnschain) ->
 
         # TODO: send a signed header proving the authenticity of our answer
 
-        callback: (req, res) ->
+        callback: (req, res, cb) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
-            @log.debug gLineInfo('request'), {path:path, url:req.url}
+            options = url.parse(req.url, true).query
+            @log.debug gLineInfo('request'), {path:path, options:options, url:req.url}
 
             notFound = =>
                 res.writeHead 404,  'Content-Type': 'text/plain'
                 res.write "Not Found: #{path}"
                 res.end()
+                cb()
 
             resolver = switch req.headers.host
+                when 'icann.dns' then 'dns'
                 when 'namecoin.dns' then 'nmc'
                 when 'bitshares.dns' then 'bdns'
                 else
@@ -62,7 +69,7 @@ module.exports = (dnschain) ->
                 @log.debug gLineInfo "ignoring request for: #{path}"
                 return notFound()
 
-            @dnschain[resolver].resolve path, (err,result) =>
+            @dnschain[resolver].resolve path, options, (err,result) =>
                 if err
                     @log.debug gLineInfo('resolver failed'), {err:err}
                     return notFound()
@@ -71,3 +78,4 @@ module.exports = (dnschain) ->
                     @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
                     res.write @dnschain[resolver].toJSONstr result
                     res.end()
+                    cb()

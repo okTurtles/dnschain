@@ -13,6 +13,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # TODO: go through 'TODO's!
 
+Packet = require('native-dns-packet')
+
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
@@ -51,7 +53,10 @@ module.exports = (dnschain) ->
 
             @server = dns2.createServer() or gErr "dns2 create"
             @server.on 'sockegError', (err) -> gErr err
-            @server.on 'request', @callback.bind(@)
+            @server.on 'request', (req, res) =>
+                key = "dns-#{req.address.address}-#{req.question[0]?.name}"
+                limiter = gThrottle key, -> new Bottleneck 1, 200, 2, Bottleneck.strategy.BLOCK
+                limiter.changePenalty(7000).submit (@callback.bind @), req, res, null
             @server.serve gConf.get('dns:port'), gConf.get('dns:host')
 
             @log.info 'started DNS', gConf.get 'dns'
@@ -101,7 +106,7 @@ module.exports = (dnschain) ->
         # Even more ideally we want to be able to simply pass along the raw data without having to parse it.
         # See: https://github.com/okTurtles/dnschain/issues/6
         # 
-        callback: (req, res) ->
+        callback: (req, res, cb) ->
             # answering multiple questions in a query appears to be problematic,
             # and few servers do it, so we only answer the first question:
             # https://stackoverflow.com/questions/4082081/requesting-a-and-aaaa-records-in-single-dns-query
@@ -127,7 +132,7 @@ module.exports = (dnschain) ->
                     # @log.warn gLineInfo('blah!'), {result: result}
                     if err? or !result
                         @log.error gLineInfo("#{resolver} failed to resolve"), {err:err?.message, result:result, q:q}
-                        @sendErr res
+                        @sendErr res, null, cb
                     else
                         @log.debug gLineInfo("#{resolver} resolved query"), {q:q, d:nmcDomain, result:result}
 
@@ -140,33 +145,39 @@ module.exports = (dnschain) ->
                         catch e
                             @log.warn e.stack
                             @log.warn gLineInfo("bad JSON!"), {q:q, result:result}
-                            return @sendErr res, NAME_RCODE.FORMERR
+                            return @sendErr res, NAME_RCODE.FORMERR, cb
 
-                        if !(handler = dnsTypeHandlers.namecoin[QTYPE_NAME[q.type]])
+                        if not (handler = dnsTypeHandlers.namecoin[QTYPE_NAME[q.type]])
                             @log.warn gLineInfo("no such handler!"), {q:q, type: QTYPE_NAME[q.type]}
-                            return @sendErr res, NAME_RCODE.NOTIMP
+                            return @sendErr res, NAME_RCODE.NOTIMP, cb
 
                         handler.call @, req, res, qIdx, result, (errCode) =>
                             try
                                 if errCode
-                                    @sendErr res, errCode
+                                    @sendErr res, errCode, cb
                                 else
                                     @log.debug gLineInfo("sending response!"), {resolver:resolver, res:_.omit(res, '_socket')}
-                                    res.send()
+                                    @sendRes res, cb
                             catch e
                                 @log.error e.stack
                                 @log.error gLineInfo("exception in handler"), {q:q, result:result}
-                                return @sendErr res, NAME_RCODE.SERVFAIL
+                                return @sendErr res, NAME_RCODE.SERVFAIL, cb
 
             else if S(q.name).endsWith '.dns'
                 # TODO: right now we're doing a catch-all and pretending they asked
                 #       for namecoin.dns...
                 res.answer.push gIP2type(q.name,ttl,QTYPE_NAME[q.type])(gConf.get 'dns:externalIP')
                 @log.debug gLineInfo('cb|.dns'), {q:q, answer:res.answer}
-                res.send()
+                @sendRes res, cb
             else
                 @log.debug gLineInfo("deferring request"), {q:q}
-                @oldDNSLookup req, res
+                @oldDNSLookup req, (packet, code) =>
+                    _.assign res, _.pick packet, ['edns_version', 'edns_options',
+                        'edns', 'answer', 'authority', 'additional']
+                    if code
+                        @sendErr res, code, cb
+                    else
+                        @sendRes res, cb
         # / end callback
 
         namecoinizeDomain: (domain) ->
@@ -175,7 +186,8 @@ module.exports = (dnschain) ->
                 nmcDomain = nmcDomain.slice(dotIdx+1) # rm subdomain
             'd/' + nmcDomain # add 'd/' namespace
 
-        oldDNSLookup: (req, res) ->
+        oldDNSLookup: (req, cb) ->
+            res = new Packet()
             sig = "oldDNS{#{@method}}"
             q = req.question[0]
 
@@ -198,9 +210,7 @@ module.exports = (dnschain) ->
                     else
                         @log.debug gLineInfo('message'), {answer:answer}
                         success = true
-                        res.header.ra = answer.header.ra
-                        _.assign res, _.pick answer, ['edns_version', 'edns_options',
-                            'edns', 'answer', 'authority', 'additional']
+                        res = answer
 
                 req2.on 'error', (err={message:'unknown error'}) =>
                     @log.error gLineInfo('oldDNS lookup error'), {err:err?.message}
@@ -213,20 +223,20 @@ module.exports = (dnschain) ->
                 req2.on 'end', =>
                     if success
                         @log.debug gLineInfo('success!'), {q:q, res: _.omit(res, '_socket')}
-                        res.send()
+                        cb res
                     else
                         # TODO: this is noisy.
                         #       also make log output look good in journalctl
                         # you can log IP with: res._socket.remote.address
                         @log.warn gLineInfo('oldDNS lookup failed'), {q:q, err:req2.DNSErr}
-                        @sendErr res
+                        cb res, NAME_RCODE.SERVFAIL
                 # @log.debug {fn:"beforesend", req:req2}
                 req2.send()
             else if @method is gConsts.oldDNS.NODE_DNS
                 dns.resolve q.name, QTYPE_NAME[q.type], (err, addrs) =>
                     if err
                         @log.debug {fn:sig+':fail', q:q, err:err?.message}
-                        @sendErr res
+                        cb res, NAME_RCODE.SERVFAIL
                     else
                         # USING THIS METHOD IS DISCOURAGED BECAUSE IT DOESN'T
                         # PROVIDE US WITH CORRECT TTL VALUES!!
@@ -234,17 +244,30 @@ module.exports = (dnschain) ->
                         ttl = Math.floor(Math.random() * 3600) + 30
                         res.answer.push (addrs.map gIP2type(q.name, ttl, QTYPE_NAME[q.type]))...
                         @log.debug {fn:sig+':success', answer:res.answer, q:q.name}
-                        res.send()
+                        cb res
             else
                 # refuse all such queries
-                @sendErr res, NAME_RCODE.REFUSED
+                cb res, NAME_RCODE.REFUSED
 
+        sendRes: (res, cb) ->
+            res.send()
+            cb()
 
-        sendErr: (res, code=NAME_RCODE.SERVFAIL) ->
+        sendErr: (res, code=NAME_RCODE.SERVFAIL, cb) ->
             try
                 res.header.rcode = code
                 @log.debug gLineInfo(), {code:code, name:RCODE_NAME[code]}
                 res.send()
             catch e
                 @log.error gLineInfo('exception sending error back!'), e.stack
+            cb()
             false # helps other functions pass back an error value
+
+        resolve: (path, options, cb) ->
+            req = new Packet()
+            req.question.push dns2.Question {name: path, type: options.type if options?.type? and _.has NAME_QTYPE,options.type}
+            @oldDNSLookup req, (packet, code) ->
+                code = {code:code, name:RCODE_NAME[code]} if code
+                cb code, packet
+
+        toJSONstr: (json) -> JSON.stringify _.omit json, ['_socket','header','question']
