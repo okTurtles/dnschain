@@ -68,6 +68,27 @@ module.exports = (dnschain) ->
                 # Example: "mywebsite.com" : 9000  # This tells the server to send traffic meant to "mywebsite.com" to port 9000. It'll still be encrypted when it reaches port 9000
             }
 
+        # WARNING: Do not change these settings unless you know exactly what you're doing.
+        # Read the source code, read the Bottleneck docs,
+        # make sure you understand how it might make your server complicit in DNS Amplification Attacks and your server might be taken down as a result.
+        rateLimiting:
+            dns:
+                maxConcurrent: 1
+                minTime: 200
+                highWater: 2
+                strategy: Bottleneck.strategy.BLOCK
+                penalty: 7000
+            http:
+                maxConcurrent: 2
+                minTime: 150
+                highWater: 10
+                strategy: Bottleneck.strategy.OVERFLOW
+            https:
+                maxConcurrent: 2
+                minTime: 150
+                highWater: 10
+                strategy: Bottleneck.strategy.OVERFLOW
+
 
     nmcDefs =
         rpcport: 8336
