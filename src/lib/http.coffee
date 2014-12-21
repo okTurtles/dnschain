@@ -28,10 +28,11 @@ module.exports = (dnschain) ->
             # @log = @dnschain.log.child server: "HTTP"
             @log = gNewLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
+            @rateLimiting = gConf.get 'rateLimiting:http'
 
             @server = http.createServer((req, res) =>
                 key = "http-#{req.connection?.remoteAddress}"
-                limiter = gThrottle key, -> new Bottleneck 2, 150, 10, Bottleneck.strategy.OVERFLOW
+                limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
                 limiter.submit (@callback.bind @), req, res, null
             ) or gErr "http create"
             @server.on 'error', (err) -> gErr err

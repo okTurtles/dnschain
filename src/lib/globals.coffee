@@ -107,11 +107,7 @@ module.exports = (dnschain) ->
             gLogger.error e.stack
             throw e
 
-        gThrottle: (key, makeLimiter) ->
-            if limiters[key]?
-                limiters[key]
-            else
-                limiters[key] = makeLimiter()
+        gThrottle: (key, makeLimiter) -> limiters[key] ? (limiters[key] = makeLimiter())
 
         # TODO: this function should take one parameter: an IP string
         #       and return either 'A' or 'AAAA'

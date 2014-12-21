@@ -32,6 +32,7 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'DNS'
             @log.debug "Loading DNSServer..."
             @method = gConf.get 'dns:oldDNSMethod'
+            @rateLimiting = gConf.get 'rateLimiting:dns'
 
             # this is just for development testing of NODE_DNS method
             # dns.setServers ['8.8.8.8']
@@ -55,8 +56,8 @@ module.exports = (dnschain) ->
             @server.on 'sockegError', (err) -> gErr err
             @server.on 'request', (req, res) =>
                 key = "dns-#{req.address.address}-#{req.question[0]?.name}"
-                limiter = gThrottle key, -> new Bottleneck 1, 200, 2, Bottleneck.strategy.BLOCK
-                limiter.changePenalty(7000).submit (@callback.bind @), req, res, null
+                limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
+                limiter.changePenalty(@rateLimiting.penalty).submit (@callback.bind @), req, res, null
             @server.serve gConf.get('dns:port'), gConf.get('dns:host')
 
             @log.info 'started DNS', gConf.get 'dns'

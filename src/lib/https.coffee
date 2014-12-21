@@ -72,10 +72,11 @@ module.exports = (dnschain) ->
         constructor: (@dnschain) ->
             @log = gNewLogger "HTTPS"
             @log.debug gLineInfo "Loading HTTPS..."
+            @rateLimiting = gConf.get 'rateLimiting:https'
 
             @server = net.createServer (c) =>
                 key = "https-#{c.remoteAddress}"
-                limiter = gThrottle key, -> new Bottleneck 2, 150, 10, Bottleneck.strategy.OVERFLOW
+                limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
                 limiter.submit (@callback.bind @), c, null
             @server.on "error", (err) -> gErr err
             @server.on "close", -> gErr "HTTPS server was closed unexpectedly."
