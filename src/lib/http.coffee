@@ -51,13 +51,24 @@ module.exports = (dnschain) ->
                 res.end()
                 cb()
 
-            resolverName = S(req.headers.host).chompRight('.dns').s
-            resolver =
-                if @dnschain.chains[resolverName]?
-                    @dnschain.chains[resolverName]
+            [...,resolverName] =
+                if S(req.headers.host).endsWith('.dns')
+                    S(req.headers.host).chompRight('.dns').s.split('.')
+                else if S(req.headers.blockchain).endsWith('.dns')
+                    S(req.headers.blockchain).chompRight('.dns').s.split('.')
                 else
-                    @log.warn gLineInfo "unknown host type: #{req.headers.host} -- defaulting to namecoin.dns!"
-                    @dnschain.chains['namecoin']
+                    ['none']
+
+            if not (resolver = @dnschain.chains[resolverName])
+                @log.warn gLineInfo, 'unknown blockchain', {host: req.headers.host, blockchainHeader: req.headers.blockchain, remoteAddress: req.connection.remoteAddress}
+                res.writeHead 400, 'Content-Type': 'text/plain'
+                res.write "No Blockchain Found: #{resolverName}"
+                res.end()
+                return
+
+            if not resolver.validRequest path
+                @log.debug gLineInfo, "invalid request: #{path}"
+                return notFound()
 
             resolver.resolve path, options, (err,result) =>
                 if err

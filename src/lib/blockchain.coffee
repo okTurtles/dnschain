@@ -11,12 +11,12 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 
-# BlockchainResolver = require "../blockchain.coffee"
-
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
+
+    # BlockchainResolver = require('../blockchain.coffee')(dnschain)
 
     class BlockchainResolver # extends BlockchainResolver
         constructor: (@dnschain) ->
@@ -25,7 +25,7 @@ module.exports = (dnschain) ->
             #@name = 'templatechain'
 
         config: ->
-            #@log.debug "Loading BlockchainResolver..."
+            #@log.debug 'Loading BlockchainResolver...'
 
         shutdown: ->
             #@log.debug 'shutting down!'
@@ -38,3 +38,5 @@ module.exports = (dnschain) ->
             header:
                 blockchain: @name
             value: {}
+
+        validRequest: (path) -> true
