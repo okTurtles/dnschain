@@ -44,6 +44,5 @@ module.exports = (dnschain) ->
              req.on 'error', ->
                  cb()
 
-        # TODO: make this cleaner. this is kinda ugly.
         toJSONstr: (json) -> json.value
         toJSONobj: (json) -> JSON.parse json.value
