@@ -112,10 +112,13 @@ module.exports = (dnschain) ->
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
             @log.debug "received question", q
 
-            if /\.(bit|p2p)$/.test q.name
+            if /\.(bit|p2p|nxt)$/.test q.name
                 if S(q.name).endsWith '.bit'
                     nmcDomain = @namecoinizeDomain q.name
                     resolver = 'nmc'
+                else if S(q.name).endsWith '.nxt'
+                    nmcDomain = @nxtizeDomain q.name
+                    resolver = 'nxt'
                 else
                     # TODO: bdns-izeDomain
                     nmcDomain = S(q.name).chompRight('.p2p').s
@@ -174,6 +177,12 @@ module.exports = (dnschain) ->
             if (dotIdx = nmcDomain.lastIndexOf('.')) != -1
                 nmcDomain = nmcDomain.slice(dotIdx+1) # rm subdomain
             'd/' + nmcDomain # add 'd/' namespace
+
+        nxtizeDomain: (domain) ->
+            nxtDomain = S(domain).chompRight('.nxt').s
+            if (dotIdx = nxtDomain.lastIndexOf('.')) != -1
+                nxtDomain = nxtDomain.slice(dotIdx+1) # rm subdomain
+            nxtDomain
 
         oldDNSLookup: (req, res) ->
             sig = "oldDNS{#{@method}}"

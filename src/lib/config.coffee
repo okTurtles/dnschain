@@ -63,6 +63,10 @@ module.exports = (dnschain) ->
         rpcuser: undefined
         rpcpassword: undefined
 
+    nxtDefs =
+        port: 7876
+        connect: '127.0.0.1'
+
     bdnsDefs =
         rpc:
             rpc_user: undefined
@@ -104,6 +108,9 @@ module.exports = (dnschain) ->
 
     nmc.file('user', {file:nmcConf,format:props}) if nmcConf
 
+    # nxt
+    nxt = (new nconf.Provider()).argv().env()
+
     # bdns
     bdns = (new nconf.Provider()).argv().env()
     bdnsConf = _.find _.filter([
@@ -121,6 +128,7 @@ module.exports = (dnschain) ->
     stores =
         dnschain: nconf.defaults defaults
         nmc: nmc.defaults nmcDefs
+        nxt: nxt.defaults nxtDefs
         bdns: bdns.defaults bdnsDefs
 
     config =
@@ -130,6 +138,9 @@ module.exports = (dnschain) ->
         nmc:
             get: (key)-> config.get key, 'nmc'
             set: (key, value)-> config.set key, value, 'nmc'
+        nxt:
+            get: (key)-> config.get key, 'nxt'
+            set: (key, value)-> config.set key, value, 'nxt'
         bdns:
             get: (key)-> config.get key, 'bdns'
             set: (key, value)-> config.set key, value, 'bdns'
