@@ -82,6 +82,7 @@ module.exports = (dnschain) ->
                     sni.sniNameLength = sni.body.readUInt16BE 7
                     sni.sniName = sni.body[9..(9+sni.sniNameLength)]
                     res.host = sni.sniName.toString "utf8"
+                    if res.host.length != sni.sniNameLength then return [@categories.NOT_HTTPS, {}]
                     return [@categories.SNI, res]
                 else
                     return [@categories.NO_SNI, {}]
