@@ -24,10 +24,11 @@ In our words: Convergence is similar to having a `known_hosts` ssh key file for 
 - It depends on group consensus, but this group of servers can be man-in-the-middle'd by a global adversary. What happens then? The blockchain does not have this problem because once a transaction makes its way into a block, that's that (the data cannot be tampered with).
 - It does not provide MITM protection on first-visit.
 - Waiting for group consensus means all connections have higher latency (slower page loads).
+- Both Convergence and Perspectives (see below) results in you sharing every website you visit with random third-parties (terrible for privacy).
 
 ## Perspectives
 
-[Perspectives](http://perspectives-project.org/) is very similar to Convergence and suffers from the same problems.
+[Perspectives](http://perspectives-project.org/) is very similar to Convergence and suffers from the same problems. It allows "no reply" from notaries, making it useless in a MITM attack.
 
 ## Bitmessage
 
