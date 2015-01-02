@@ -20,8 +20,6 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    dnsTypeHandlers = require('./dns-handlers')(dnschain)
-
     QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
     NAME_QTYPE = dns2.consts.NAME_TO_QTYPE
     NAME_RCODE = dns2.consts.NAME_TO_RCODE
@@ -36,7 +34,7 @@ module.exports = (dnschain) ->
 
             # this is just for development testing of NODE_DNS method
             # dns.setServers ['8.8.8.8']
-            
+
             if @method is gConsts.oldDNS.NODE_DNS
                 @log.warn "Using".bold.red, "oldDNSMethod = NODE_DNS".bold, "method is strongly discouraged!".bold.red
                 if dns.getServers?
@@ -67,46 +65,46 @@ module.exports = (dnschain) ->
             @server.close()
 
         # (Notes on 'native-dns' version <=0.6.x, which I'd like to see changed.)
-        # 
+        #
         # Both `req` and `res` are of type `Packet` (the subclass, as explained next).
-        # 
+        #
         # The packet that's inside of 'native-dns' inherits from the one inside of 'native-dns-packet'.
         # It adds two extra fields (at this time of writing):
-        # 
+        #
         # - address: added by Server.prototype.handleMessage and the Packet subclass constructor
         # - _socket: added by the Packet subclass constructor in lib/packet.js
-        # 
+        #
         # `req` and `res` are both instances of this subclass of 'Packet'.
         # They also have the same 'question' field.
-        # 
+        #
         # See also:
         # - native-dns/lib/server.js
         # - native-dns/lib/packet.js
         # - native-dns-packet/packet.js
-        # 
+        #
         # Separately, there is a 'Request' class defined in 'native-dns/lib/client.js'.
         # Like 'Packet', it has a 'send' method.
         # To understand it see these functions in 'lib/pending.js':
-        # 
+        #
         # - SocketQueue.prototype._dequeue   (sending)
         # - SocketQueue.prototype._onmessage (receiving)
-        # 
+        #
         # When you create a 'new Request' and send it, it will first create a 'new Packet' and copy
         # some of the values from the request into it, and then call 'send' on that.
         # Similarly, in receiving a reply from a Request instance, handle the 'message' event, which
         # will create a new Packet (the subclass, with the _socket field) from the received data.
-        # 
+        #
         # See also:
         # - native-dns/lib/client.js
         # - native-dns/lib/pending.js
-        # 
+        #
         # Ideally we want to be able to reuse the 'req' received here and pass it along
         # to oldDNSLookup without having to recreate or copy any information.
         # See: https://github.com/tjfontaine/node-dns/issues/69
-        # 
+        #
         # Even more ideally we want to be able to simply pass along the raw data without having to parse it.
         # See: https://github.com/okTurtles/dnschain/issues/6
-        # 
+        #
         callback: (req, res, cb) ->
             # answering multiple questions in a query appears to be problematic,
             # and few servers do it, so we only answer the first question:
@@ -114,7 +112,7 @@ module.exports = (dnschain) ->
             # At some point we may still want to support this though.
             q = req.question[qIdx=0]
             q.name = q.name.toLowerCase()
-            
+
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
             @log.debug "received question", q
 
@@ -127,25 +125,13 @@ module.exports = (dnschain) ->
                 @log.debug gLineInfo("resolving via #{resolver.name}..."), {domain:q.name, q:q}
 
                 resolver.resolve q.name, {}, (err, result) =>
-                    # @log.warn gLineInfo('blah!'), {result: result}
                     if err? or !result
                         @log.error gLineInfo("#{resolver.name} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res, null, cb
                     else
                         @log.debug gLineInfo("#{resolver.name} resolved query"), {q:q, d:q.name, result:result}
 
-                        try
-                            # result.value = JSON.parse result.value
-                            # TODO: [BDNS] this! also, note that we're converting JSON multiple times
-                            #       this is ineffecient and ugly.
-                            #       organize all this code in a generic way to support all blockchains.
-                            result.value = @dnschain[resolver].toJSONobj result
-                        catch e
-                            @log.warn e.stack
-                            @log.warn gLineInfo("bad JSON!"), {q:q, result:result}
-                            return @sendErr res, NAME_RCODE.FORMERR, cb
-
-                        if not (handler = dnsTypeHandlers.namecoin[QTYPE_NAME[q.type]])
+                        if not (handler = @dnschain.chains[resolver.name].dnsHandler[QTYPE_NAME[q.type]])
                             @log.warn gLineInfo("no such handler!"), {q:q, type: QTYPE_NAME[q.type]}
                             return @sendErr res, NAME_RCODE.NOTIMP, cb
 
@@ -162,8 +148,6 @@ module.exports = (dnschain) ->
                                 return @sendErr res, NAME_RCODE.SERVFAIL, cb
 
             else if S(q.name).endsWith '.dns'
-                # TODO: right now we're doing a catch-all and pretending they asked
-                #       for namecoin.dns...
                 res.answer.push gIP2type(q.name,ttl,QTYPE_NAME[q.type])(gConf.get 'dns:externalIP')
                 @log.debug gLineInfo('cb|.dns'), {q:q, answer:res.answer}
                 @sendRes res, cb
@@ -261,5 +245,3 @@ module.exports = (dnschain) ->
             @oldDNSLookup req, (packet, code) ->
                 code = {code:code, name:RCODE_NAME[code]} if code
                 cb code, packet
-
-        toJSONstr: (json) -> JSON.stringify _.omit json, ['_socket','header','question']

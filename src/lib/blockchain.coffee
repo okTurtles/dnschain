@@ -17,6 +17,12 @@ module.exports = (dnschain) ->
         eval "var #{k} = dnschain.globals.#{k};"
 
     # BlockchainResolver = require('../blockchain.coffee')(dnschain)
+    # ResolverStream  = require('./resolver-stream')(dnschain)
+
+    # QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
+    # NAME_QTYPE = dns2.consts.NAME_TO_QTYPE
+    # NAME_RCODE = dns2.consts.NAME_TO_RCODE
+    # RCODE_NAME = dns2.consts.RCODE_TO_NAME
 
     class BlockchainResolver # extends BlockchainResolver
         constructor: (@dnschain) ->
@@ -25,12 +31,15 @@ module.exports = (dnschain) ->
             #@name = 'templatechain'
 
         config: ->
-            #@log.debug 'Loading BlockchainResolver...'
+            #@log.debug 'Loading #{@name} resolver'
+            #load config
 
         shutdown: ->
             #@log.debug 'shutting down!'
 
+        # cb takes (error, resultObject)
         resolve: (path, options, cb) ->
+            #result = @resultTemplate()
             #@log.debug gLineInfo('resolve'), {path:path, options:options}
 
         resultTemplate: ->
@@ -40,3 +49,5 @@ module.exports = (dnschain) ->
             value: {}
 
         validRequest: (path) -> true
+
+        dnsHandler: {}

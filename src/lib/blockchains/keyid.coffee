@@ -25,12 +25,19 @@ module.exports = (dnschain) ->
             @name = 'keyid'
 
         config: ->
-            @log.debug "Loading KeyidResolver..."
-            
-            get = gConf.bdns.get
+            @log.debug "Loading #{@name} resolver"
+
+            gConf.add @name, _.map(_.filter([
+                [process.env.APPDATA, 'KeyID', 'config.json'],
+                [process.env.HOME, '.KeyID', 'config.json'],
+                [process.env.HOME, 'Library', 'Application Support', 'KeyID', 'config.json']]
+            , (x) -> !!x[0])
+            , (x) -> path.join x...)
+            get = gConf[@name].get.bind(gConf[@name])
             endpoint = get('rpc:httpd_endpoint')?.split ':'
             if endpoint?
                 [host, port] = [endpoint[0], parseInt endpoint[1]]
+                gConf[@name].set 'host', host
                 @peer = rpc.Client.$create port, host, get('rpc:rpc_user'), get('rpc:rpc_password')
                 gErr "rpc $create #{@name}" unless @peer
                 @log.info "rpc to bitshares_client on: %s:%d/rpc", host, port
