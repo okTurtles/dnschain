@@ -37,7 +37,7 @@ module.exports = (dnschain) ->
     # TODO: add path to our private key for signing answers
     amRoot = process.getuid() is 0
 
-    defaults =
+    defaults = {
         log:
             level: if process.env.DNS_EXAMPLE then 'debug' else 'info'
             colors: true
@@ -88,7 +88,7 @@ module.exports = (dnschain) ->
                 minTime: 150
                 highWater: 10
                 strategy: Bottleneck.strategy.OVERFLOW
-
+    } # </dnschain defaults>
 
     nmcDefs =
         rpcport: 8336
