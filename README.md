@@ -76,6 +76,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 
 - Securing Your Apps With DNSChain
 - Contributing to DNSChain development
+- Running Tests
 
 <a name="Resources"></a>
 ## Other Resources

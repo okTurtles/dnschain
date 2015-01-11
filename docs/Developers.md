@@ -26,3 +26,8 @@ Make sure you did everything in the [requirements](How-do-I-run-my-own.md#Requir
 Grunt will automatically lint your code to the style used in this project, and when files are saved it will automatically re-load and restart the server (as long as you're editing code under `src/lib`).
 
 When forking DNSChain: work on feature branches, not `master`, then submit a PR.
+
+## Running Tests
+
+    npm install
+    npm test
