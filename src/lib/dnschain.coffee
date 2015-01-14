@@ -57,6 +57,7 @@ for k of require('./globals')(exports)
 exports.createServer = (a...) -> new DNSChain a...
 
 NMCPeer = require('./nmc')(exports)
+NXTPeer = require('./nxt')(exports)
 BDNSPeer = require('./bdns')(exports)
 DNSServer = require('./dns')(exports)
 HTTPServer = require('./http')(exports)
@@ -66,6 +67,7 @@ exports.DNSChain = class DNSChain
         @log = gNewLogger 'DNSChain'
         try
             @nmc = new NMCPeer @
+            @nxt = new NXTPeer @
             @bdns = new BDNSPeer @
             @dns = new DNSServer @
             @http = new HTTPServer @
