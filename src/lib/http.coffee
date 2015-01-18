@@ -60,14 +60,14 @@ module.exports = (dnschain) ->
                     ['none']
 
             if not (resolver = @dnschain.chains[resolverName])
-                @log.warn gLineInfo, 'unknown blockchain', {host: req.headers.host, blockchainHeader: req.headers.blockchain, remoteAddress: req.connection.remoteAddress}
+                @log.warn gLineInfo('unknown blockchain'), {host: req.headers.host, blockchainHeader: req.headers.blockchain, remoteAddress: req.connection.remoteAddress}
                 res.writeHead 400, 'Content-Type': 'text/plain'
                 res.write "No Blockchain Found: #{resolverName}"
                 res.end()
                 return
 
             if not resolver.validRequest path
-                @log.debug gLineInfo, "invalid request: #{path}"
+                @log.debug gLineInfo("invalid request: #{path}")
                 return notFound()
 
             resolver.resolve path, options, (err,result) =>

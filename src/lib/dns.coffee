@@ -132,7 +132,7 @@ module.exports = (dnschain) ->
                         @log.debug gLineInfo("#{resolver.name} resolved query"), {q:q, d:q.name, result:result}
 
                         if not (handler = @dnschain.chains[resolver.name].dnsHandler[QTYPE_NAME[q.type]])
-                            @log.warn gLineInfo("no such handler!"), {q:q, type: QTYPE_NAME[q.type]}
+                            @log.warn gLineInfo("no such DNS handler!"), {resolver: resolver.name, q:q, type: QTYPE_NAME[q.type]}
                             return @sendErr res, NAME_RCODE.NOTIMP, cb
 
                         handler.call @, req, res, qIdx, result, (errCode) =>

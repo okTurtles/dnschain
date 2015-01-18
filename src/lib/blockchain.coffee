@@ -40,7 +40,7 @@ module.exports = (dnschain) ->
         # cb takes (error, resultObject)
         resolve: (path, options, cb) ->
             #result = @resultTemplate()
-            #@log.debug gLineInfo('resolve'), {path:path, options:options}
+            #@log.debug gLineInfo("#{@name} resolve"), {path:path, options:options}
 
         resultTemplate: ->
             version: '0.0.1'
