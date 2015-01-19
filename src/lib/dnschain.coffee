@@ -59,6 +59,7 @@ exports.createServer = (a...) -> new DNSChain a...
 DNSServer = require('./dns')(exports)
 HTTPServer = require('./http')(exports)
 EncryptedServer = require('./https')(exports)
+ResolverCache = require('./cache')(exports)
 
 localhosts = ->
     _.uniq [
@@ -90,6 +91,7 @@ exports.DNSChain = class DNSChain
             @dns = new DNSServer @
             @http = new HTTPServer @
             @encryptedserver = new EncryptedServer @
+            @cache = new ResolverCache @
             @log.info "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
 
             if process.getuid() isnt 0 and gConf.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
@@ -99,4 +101,4 @@ exports.DNSChain = class DNSChain
             @shutdown()
             throw e # rethrow
 
-    shutdown: -> @chains.append([@dns, @http, @encryptedserver]).forEach (s) -> s.shutdown()
+    shutdown: -> @chains.append([@dns, @http, @encryptedserver, @cache]).forEach (s) -> s.shutdown()

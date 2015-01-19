@@ -29,6 +29,9 @@ module.exports = (dnschain) ->
             #@log = gNewLogger 'CHAIN'
             #@tld = 'chn'
             #@name = 'templatechain'
+            #@cacheTTL = 600 # in seconds, 0 == no cache, override here
+
+        cacheTTL: 600
 
         config: ->
             #@log.debug 'Loading #{@name} resolver'

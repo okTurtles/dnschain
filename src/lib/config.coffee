@@ -60,6 +60,10 @@ module.exports = (dnschain) ->
             internalTLSPort: 2500   # Not accessible from the internet, used internally only
             internalAdminPort: 3000 # Not accessible from the internet, used internally only
             host: '0.0.0.0' # what we bind to. 0.0.0.0 for the whole internet
+        redis:
+            enabled: false
+            host: '127.0.0.1'
+            port: 6379
 
         unblock: # The options in this section are only for when Unblock is enabled.
             enabled: false
