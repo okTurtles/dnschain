@@ -111,28 +111,22 @@ module.exports = (dnschain) ->
 
     nconf.file 'global', {file:"/etc/#{appname}/#{appname}.conf", format:props}
 
-    stores =
-        dnschain: nconf.defaults defaults
-
     config =
-        get: (key, store="dnschain") -> stores[store].get key
-        set: (key, value, store="dnschain") -> stores[store].set key, value
+        get: (key, store="dnschain") -> config.chains[store].get key
+        set: (key, value, store="dnschain") -> config.chains[store].set key, value
+        chains:
+            dnschain: nconf.defaults defaults
         add: (name, path) ->
-            if stores[name]?
-                return
+            return if config.chains[name]?
             path = [path] if not Array.isArray(path)
-            path.push(stores.dnschain.get("#{name}:config")) if stores.dnschain.get("#{name}:config")?
+
+            # if dnschain's config specifies this chain's config path, prioritize it
+            # fixes: https://github.com/okTurtles/dnschain/issues/60
+            path.push(config.chains.dnschain.get("#{name}:config")) if config.chains.dnschain.get("#{name}:config")?
+
             conf = (new nconf.Provider()).argv().env()
             confFile = _.find path, (x) -> fs.existsSync x
             conf.file(confFile) if confFile
-            conf.defaults(stores.dnschain.get("#{name}")) if stores.dnschain.get("#{name}")?
-            stores[name] = conf
-            config[name] = conf
-        hosts: ->
-            _.uniq [
-                "127.0.0.", "10.0.0.", "192.168.", "::1", "fe80::"
-                gConf.get('dns:host'), gConf.get('http:host')
-                gConf.get('dns:externalIP'), gExternalIP()
-                _.map(stores, (c) ->
-                    c.get('host'))...
-            ].filter (o)-> typeof(o) is 'string'
+            # if dnschain's config specifies this chain's config information, use it as default
+            conf.defaults(config.chains.dnschain.get("#{name}")) if config.chains.dnschain.get("#{name}")?
+            config.chains[name] = conf

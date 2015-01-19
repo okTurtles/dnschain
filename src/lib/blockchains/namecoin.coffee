@@ -50,11 +50,11 @@ module.exports = (dnschain) ->
             , (x) -> path.join x...)
 
             # we want them in this exact order:
-            params = ["port", "connect", "user", "password"].map (x) => gConf[@name].get 'rpc'+x
+            params = ["port", "connect", "user", "password"].map (x) => gConf.chains[@name].get 'rpc'+x
             if not _.every params
                 @log.info "#{@name} disabled. (namecoin.conf not found, or rpcuser, rpcpassword, rpcconnect, rpcport not found)"
                 return
-            gConf[@name].set 'host', gConf[@name].get('rpcconnect')
+            gConf.chains[@name].set 'host', gConf.chains[@name].get('rpcconnect')
             @peer = rpc.Client.$create(params...) or gErr "rpc create"
 
             # TODO: $create doesn't actually connect. you need to open a raw socket
@@ -131,7 +131,7 @@ module.exports = (dnschain) ->
                     #            It's far safer to tell DNSChain to use a different resolver
                     #            that won't re-ask DNSChain any questions.
                     nsCNAMEs = _.reject nsCNAMEs, (ns)->/\.(bit|dns)$/.test ns
-                    # IPs like 127.0.0.1 are checked below against gConf.hosts() array
+                    # IPs like 127.0.0.1 are checked below against gConf.localhosts array
 
                     if nsIPs.length == nsCNAMEs.length == 0
                         return cb NAME_RCODE.REFUSED
@@ -160,7 +160,7 @@ module.exports = (dnschain) ->
                         cb code
 
                     nsIPs.on 'data', (nsIP) =>
-                        if _.find(gConf.hosts(), (ip)->S(nsIP).startsWith ip)
+                        if _.find(gConf.localhosts, (ip)->S(nsIP).startsWith ip)
                             # avoid the possible infinite-loop on some (perhaps poorly) configured systems
                             @log.warn gLineInfo('dropping query, NMC NS ~= localhost!'), {q:q, nsIP:nsIP, info:info}
                         else

@@ -33,7 +33,7 @@ module.exports = (dnschain) ->
                 [process.env.HOME, 'Library', 'Application Support', 'KeyID', 'config.json']]
             , (x) -> !!x[0])
             , (x) -> path.join x...)
-            get = gConf[@name].get.bind(gConf[@name])
+            get = gConf.chains[@name].get.bind(gConf.chains[@name])
             endpoint = get('rpc:httpd_endpoint')?.split ':'
             if endpoint?
                 [host, port] = [endpoint[0], parseInt endpoint[1]]

@@ -64,6 +64,7 @@ module.exports = (dnschain) ->
                 res.writeHead 400, 'Content-Type': 'text/plain'
                 res.write "No Blockchain Found: #{resolverName}"
                 res.end()
+                cb()
                 return
 
             if not resolver.validRequest path

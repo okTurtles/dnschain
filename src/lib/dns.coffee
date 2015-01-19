@@ -116,12 +116,7 @@ module.exports = (dnschain) ->
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
             @log.debug "received question", q
 
-            chainTLDs = new RegExp('\\.('+_.map(@dnschain.chains, 'tld').join('|')+')$')
-            if chainTLDs.test q.name
-                tld = q.name.split('.').pop()
-                resolver = _.find @dnschain.chains, (c) ->
-                   c.tld? and c.tld == tld
-
+            if (resolver = @dnschain.chainsTLDs[q.name.split('.').pop()])
                 @log.debug gLineInfo("resolving via #{resolver.name}..."), {domain:q.name, q:q}
 
                 resolver.resolve q.name, {}, (err, result) =>
@@ -131,7 +126,7 @@ module.exports = (dnschain) ->
                     else
                         @log.debug gLineInfo("#{resolver.name} resolved query"), {q:q, d:q.name, result:result}
 
-                        if not (handler = @dnschain.chains[resolver.name].dnsHandler[QTYPE_NAME[q.type]])
+                        if not (handler = resolver.dnsHandler[QTYPE_NAME[q.type]])
                             @log.warn gLineInfo("no such DNS handler!"), {resolver: resolver.name, q:q, type: QTYPE_NAME[q.type]}
                             return @sendErr res, NAME_RCODE.NOTIMP, cb
 
