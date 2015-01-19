@@ -40,7 +40,7 @@ module.exports = (dnschain) ->
     , 60*1000 # Every minute
 
     # no renaming done for these
-    for d in ['net', 'dns', 'http', 'tls', 'fs', 'url', 'util', 'os', 'path', 'winston']
+    for d in ['dns', 'fs', 'http','net', 'os', 'path', 'tls', 'url', 'util', 'winston']
         dnschain.globals[d] = d
 
     # replace all the string values in dnschain.globals with the module they represent

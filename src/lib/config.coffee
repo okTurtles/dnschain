@@ -90,18 +90,6 @@ module.exports = (dnschain) ->
                 strategy: Bottleneck.strategy.OVERFLOW
 
 
-    nmcDefs =
-        rpcport: 8336
-        rpcconnect: '127.0.0.1'
-        rpcuser: undefined
-        rpcpassword: undefined
-
-    bdnsDefs =
-        rpc:
-            rpc_user: undefined
-            rpc_password: undefined
-            httpd_endpoint: undefined
-    
     fileFormatOpts =
         comments: ['#', ';']
         sections: true
@@ -109,7 +97,10 @@ module.exports = (dnschain) ->
 
     props.parse = _.partialRight props.parse, fileFormatOpts
     props.stringify = _.partialRight props.stringify, fileFormatOpts
-    
+
+    confTypes =
+        INI: props
+        JSON: JSON
 
     # load our config
     appname = "dnschain"
@@ -123,46 +114,23 @@ module.exports = (dnschain) ->
 
     nconf.file 'global', {file:"/etc/#{appname}/#{appname}.conf", format:props}
 
-    # TODO: this blockchain-specific config stuff should be moved out of
-    #       this file and into the constructors (NMCPeer, BDNSPeer, etc.)
-
-    # namecoin
-    nmc = (new nconf.Provider()).argv().env()
-    
-    # TODO: use the same _.find technique as done below for bdnsConf
-    nmcConf = if process.env.APPDATA?
-        path.join process.env.APPDATA, "Namecoin", "namecoin.conf"
-    else if process.env.HOME?
-        path.join process.env.HOME, ".namecoin", "namecoin.conf"
-
-    nmc.file('user', {file:nmcConf,format:props}) if nmcConf
-
-    # bdns
-    bdns = (new nconf.Provider()).argv().env()
-    bdnsConf = _.find _.filter([
-        [process.env.APPDATA, "KeyID"],
-        [process.env.HOME, ".KeyID"],
-        [process.env.HOME, "Library", "Application Support", "KeyID"]]
-    , (x) -> !!x[0])
-    , (x) -> fs.existsSync path.join x...
-
-    if bdnsConf
-        bdns.file 'user', file: path.join(bdnsConf..., 'config.json')
-    else
-        # TODO: this!
-
-    stores =
-        dnschain: nconf.defaults defaults
-        nmc: nmc.defaults nmcDefs
-        bdns: bdns.defaults bdnsDefs
-
     config =
-        get: (key, store="dnschain") -> stores[store].get key
-        set: (key, value, store="dnschain") -> stores[store].set key, value
-        # Namecoin's config is not ours, so we don't pretend it is
-        nmc:
-            get: (key)-> config.get key, 'nmc'
-            set: (key, value)-> config.set key, value, 'nmc'
-        bdns:
-            get: (key)-> config.get key, 'bdns'
-            set: (key, value)-> config.set key, value, 'bdns'
+        get: (key, store="dnschain") -> config.chains[store].get key
+        set: (key, value, store="dnschain") -> config.chains[store].set key, value
+        chains:
+            dnschain: nconf.defaults defaults
+        add: (name, path, type) ->
+            return if config.chains[name]?
+            path = [path] if not Array.isArray(path)
+            type = confTypes[type] || confTypes['JSON']
+
+            # if dnschain's config specifies this chain's config path, prioritize it
+            # fixes: https://github.com/okTurtles/dnschain/issues/60
+            path.push(config.chains.dnschain.get("#{name}:config")) if config.chains.dnschain.get("#{name}:config")?
+
+            conf = (new nconf.Provider()).argv().env()
+            confFile = _.find path, (x) -> fs.existsSync x
+            conf.file('user',{file: confFile, format: type}) if confFile
+            # if dnschain's config specifies this chain's config information, use it as default
+            conf.defaults(config.chains.dnschain.get("#{name}")) if config.chains.dnschain.get("#{name}")?
+            config.chains[name] = conf
