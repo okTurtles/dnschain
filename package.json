@@ -30,13 +30,14 @@
     "tls"
   ],
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register -r test/support/env -R spec --bail test/"
+    "test": "mocha --compilers coffee:coffee-script/register -R spec --bail test/"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/okTurtles/dnschain.git"
   },
   "dependencies": {
+    "bluebird": "^2.6.2",
     "bottleneck": "1.5.x",
     "event-stream": "^3.1.7",
     "inquirer": "~0.4.1",

@@ -29,5 +29,11 @@ When forking DNSChain: work on feature branches, not `master`, then submit a PR.
 
 ## Running Tests
 
+Setup:
+
+    npm install -g mocha
     npm install
+
+Running all tests:
+
     npm test

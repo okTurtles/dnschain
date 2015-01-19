@@ -2,15 +2,6 @@
 
 nconf = require 'nconf'
 
-die = ->
-    console.log "got kill signal!"
-    server?.shutdown()
-    # setImmediate -> process.exit 0
-
-process.on 'SIGTERM', die
-process.on 'SIGINT', die
-process.on 'disconnect', die
-
 # process.env.DNS_EXAMPLE = '1'
 
 nconf.overrides
@@ -19,5 +10,5 @@ nconf.overrides
     http:
         port: 8088
 
-console.log "Starting DNSChain for testing..."
-server = require('../../src/lib/dnschain').createServer()
+module.exports =
+    dnschain: require '../../src/lib/dnschain'
