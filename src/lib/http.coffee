@@ -52,10 +52,8 @@ module.exports = (dnschain) ->
                 cb()
 
             [...,resolverName] =
-                if S(req.headers.host).endsWith('.dns')
-                    S(req.headers.host).chompRight('.dns').s.split('.')
-                else if S(req.headers.blockchain).endsWith('.dns')
-                    S(req.headers.blockchain).chompRight('.dns').s.split('.')
+                if S(header = req.headers.blockchain || req.headers.host).endsWith('.dns')
+                    S(header).chompRight('.dns').s.split('.')
                 else
                     ['none']
 

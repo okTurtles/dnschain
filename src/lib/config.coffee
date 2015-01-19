@@ -98,6 +98,9 @@ module.exports = (dnschain) ->
     props.parse = _.partialRight props.parse, fileFormatOpts
     props.stringify = _.partialRight props.stringify, fileFormatOpts
 
+    confTypes =
+        INI: props
+        JSON: JSON
 
     # load our config
     appname = "dnschain"
@@ -116,9 +119,10 @@ module.exports = (dnschain) ->
         set: (key, value, store="dnschain") -> config.chains[store].set key, value
         chains:
             dnschain: nconf.defaults defaults
-        add: (name, path) ->
+        add: (name, path, type) ->
             return if config.chains[name]?
             path = [path] if not Array.isArray(path)
+            type = confTypes[type] || confTypes['JSON']
 
             # if dnschain's config specifies this chain's config path, prioritize it
             # fixes: https://github.com/okTurtles/dnschain/issues/60
@@ -126,7 +130,7 @@ module.exports = (dnschain) ->
 
             conf = (new nconf.Provider()).argv().env()
             confFile = _.find path, (x) -> fs.existsSync x
-            conf.file(confFile) if confFile
+            conf.file('user',{file: confFile, format: type}) if confFile
             # if dnschain's config specifies this chain's config information, use it as default
             conf.defaults(config.chains.dnschain.get("#{name}")) if config.chains.dnschain.get("#{name}")?
             config.chains[name] = conf

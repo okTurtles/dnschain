@@ -47,12 +47,13 @@ module.exports = (dnschain) ->
                 [process.env.HOME, 'Library', 'Application Support', 'Namecoin', 'namecoin.conf']
                 ['/etc/namecoin/namecoin.conf']]
             , (x) -> !!x[0])
-            , (x) -> path.join x...)
+            , (x) -> path.join x...), 'INI'
 
             # we want them in this exact order:
             params = ["port", "connect", "user", "password"].map (x) => gConf.chains[@name].get 'rpc'+x
+            params[1] ?= "127.0.0.1"
             if not _.every params
-                @log.info "#{@name} disabled. (namecoin.conf not found, or rpcuser, rpcpassword, rpcconnect, rpcport not found)"
+                @log.info "#{@name} disabled. (namecoin.conf not found, or rpcuser, rpcpassword, rpcport not found)"
                 return
             gConf.chains[@name].set 'host', gConf.chains[@name].get('rpcconnect')
             @peer = rpc.Client.$create(params...) or gErr "rpc create"
