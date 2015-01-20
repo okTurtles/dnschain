@@ -59,7 +59,8 @@
     "grunt-coffeelint": "0.0.13",
     "grunt-contrib-watch": "^0.6.1",
     "matchdep": "~0.1.2",
-    "mocha": "^2.1.0"
+    "mocha": "^2.1.0",
+    "should": "^4.6.1"
   },
   "engines": {
     "node": ">=0.10.x"

@@ -79,7 +79,7 @@ module.exports = (dnschain) ->
                 limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
                 limiter.submit (@callback.bind @), c, null
             @server.on "error", (err) -> gErr err
-            @server.on "close", -> gErr "HTTPS server was closed unexpectedly."
+            @server.on "close", => @log.info "HTTPS server has shutdown."
             @server.listen httpSettings.tlsPort, httpSettings.host, =>
                 @log.info gLineInfo("started HTTPS server "), httpSettings
 
