@@ -62,8 +62,7 @@ module.exports = (dnschain) ->
             host: '0.0.0.0' # what we bind to. 0.0.0.0 for the whole internet
         redis:
             enabled: false
-            host: '127.0.0.1'
-            port: 6379
+            socket: '127.0.0.1:6379'
 
         unblock: # The options in this section are only for when Unblock is enabled.
             enabled: false

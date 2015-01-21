@@ -24,7 +24,12 @@ module.exports = (dnschain) ->
             @log.info "Loading Redis Cache..."
             if gConf.get('redis:enabled')
                 @log.info "cache enabled"
-                @cache = redis.createClient(gConf.get('redis:port'), gConf.get('redis:host'))
+                [host,port] = gConf.get('redis:socket').split(':')
+                @cache = if port?
+                    port = parseInt port
+                    redis.createClient(port, host)
+                else
+                    redis.createClient(host)
                 @enabled = true
                 @cache.on 'error', (err) =>
                     @log.error "cache errored"
