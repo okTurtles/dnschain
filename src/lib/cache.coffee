@@ -22,7 +22,7 @@ module.exports = (dnschain) ->
         constructor: (@dnschain) ->
             @log = gNewLogger 'CACHE'
             @log.info "Loading Redis Cache..."
-            if gConf.get('redis:enabled')
+            if gConf.get('redis:blockchain:enabled') or gConf.get('redis:oldDNS:enabled')
                 @log.info "cache enabled"
                 [host,port] = gConf.get('redis:socket').split(':')
                 @cache = if port?
@@ -30,7 +30,11 @@ module.exports = (dnschain) ->
                     redis.createClient(port, host)
                 else
                     redis.createClient(host)
-                @enabled = true
+                if gConf.get('redis:blockchain:enabled')
+                    @blockchainEnabled = true
+                if gConf.get('redis:oldDNS:enabled')
+                    @oldDNSEnabled = true
+                    @oldDNSTTL = 600
                 @cache.on 'error', (err) =>
                     @log.error "cache errored"
                     @shutdown()
@@ -38,8 +42,8 @@ module.exports = (dnschain) ->
             else
                 @log.info "cache disabled"
 
-        resolve: (resolver, path, options, cb) ->
-            if @enabled? and resolver.cacheTTL?
+        resolveBlockchain: (resolver, path, options, cb) ->
+            if @blockchainEnabled? and resolver.cacheTTL?
                 @cache.get "#{resolver.name}:#{path}:#{JSON.stringify(options)}", (err, result) =>
                     if err or not result?
                         resolver.resolve path, options, cb
@@ -49,11 +53,31 @@ module.exports = (dnschain) ->
             else
                 resolver.resolve path, options, cb
 
-        set: (key, ttl, value) ->
-            return if not (@enabled and ttl?)
+        setBlockchain: (key, ttl, value) ->
+            return if not (@blockchainEnabled and ttl?)
             @cache.setex key, ttl, JSON.stringify(value)
 
-        shutdown: -> if @enabled
-            @enabled = false
+        resolveOldDNS: (req, cb) ->
+            if @oldDNSEnabled?
+                q = req.question[0]
+                @cache.get "oldDNS:#{q.name}:#{q.type}", (err, result) =>
+                    if err or not result?
+                        @dnschain.dns.oldDNSLookup req, (result2, err2) =>
+                            if result2? and not err2
+                                ttl = if result2.answer[0]?.ttl
+                                    Math.min result2.answer[0]?.ttl, @oldDNSTTL
+                                else
+                                    @oldDNSTTL
+                                @cache.setex "oldDNS:#{q.name}:#{q.type}", ttl, JSON.stringify(result2)
+                            cb result2, err2
+                    else
+                        @log.debug gLineInfo('resolved oldDNS from cache'), {req: req}
+                        cb JSON.parse(result)
+            else
+                @dnschain.dns.oldDNSLookup req, cb
+
+        shutdown: -> if @blockchainEnabled? or @oldDNSEnabled?
+            @blockchainEnabled = false
+            @oldDNSEnabled = false
             @log.debug 'shutting down!'
             @cache.end()

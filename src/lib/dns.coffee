@@ -119,12 +119,12 @@ module.exports = (dnschain) ->
             if (resolver = @dnschain.chainsTLDs[q.name.split('.').pop()])
                 @log.debug gLineInfo("resolving via #{resolver.name}..."), {domain:q.name, q:q}
 
-                @dnschain.cache.resolve resolver, q.name, {}, (err, result) =>
+                @dnschain.cache.resolveBlockchain resolver, q.name, {}, (err, result) =>
                     if err? or !result
                         @log.error gLineInfo("#{resolver.name} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res, null, cb
                     else
-                        @dnschain.cache.set("#{resolver.name}:#{q.name}:{}", resolver.cacheTTL, result)
+                        @dnschain.cache.setBlockchain("#{resolver.name}:#{q.name}:{}", resolver.cacheTTL, result)
                         @log.debug gLineInfo("#{resolver.name} resolved query"), {q:q, d:q.name, result:result}
 
                         if not (handler = resolver.dnsHandler[QTYPE_NAME[q.type]])
@@ -149,7 +149,7 @@ module.exports = (dnschain) ->
                 @sendRes res, cb
             else
                 @log.debug gLineInfo("deferring request"), {q:q}
-                @oldDNSLookup req, (packet, code) =>
+                @dnschain.cache.resolveOldDNS req, (packet, code) =>
                     _.assign res, _.pick packet, ['edns_version', 'edns_options',
                         'edns', 'answer', 'authority', 'additional']
                     if code
