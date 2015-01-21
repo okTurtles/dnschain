@@ -22,9 +22,9 @@ module.exports = (dnschain) ->
         constructor: (@dnschain) ->
             @log = gNewLogger 'CACHE'
             @log.info "Loading Redis Cache..."
-            if gConf.chains.dnschain.get('redis:enabled')
+            if gConf.get('redis:enabled')
                 @log.info "cache enabled"
-                @cache = redis.createClient(gConf.chains.dnschain.get('redis:port'), gConf.chains.dnschain.get('redis:host'))
+                @cache = redis.createClient(gConf.get('redis:port'), gConf.get('redis:host'))
                 @enabled = true
                 @cache.on 'error', (err) =>
                     @log.error "cache errored"

@@ -124,7 +124,7 @@ module.exports = (dnschain) ->
                         @log.error gLineInfo("#{resolver.name} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res, null, cb
                     else
-                        @dnschain.cache.set("#{resolver.name}:#{q.name}:#{JSON.stringify({})}", resolver.cacheTTL, result)
+                        @dnschain.cache.set("#{resolver.name}:#{q.name}:{}", resolver.cacheTTL, result)
                         @log.debug gLineInfo("#{resolver.name} resolved query"), {q:q, d:q.name, result:result}
 
                         if not (handler = resolver.dnsHandler[QTYPE_NAME[q.type]])
