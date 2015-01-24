@@ -42,7 +42,7 @@ module.exports = (dnschain) ->
             result = @resultTemplate()
             @log.debug gLineInfo("#{@name} resolve"), {path:path, options:options}
             req.question.push dns2.Question {name: path, type: options.type if options?.type? and _.has NAME_QTYPE,options.type}
-            @dnschain.dns.oldDNSLookup req, (packet, code) =>
+            @dnschain.dns.oldDNSLookup req, (code, packet) =>
                 if code
                     cb {code:code, name:RCODE_NAME[code]}
                 else
