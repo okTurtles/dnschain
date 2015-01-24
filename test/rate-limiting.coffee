@@ -9,9 +9,9 @@ execAsync = Promise.promisify require('child_process').exec
 {TimeoutError} = Promise
 
 
-shutdown = (server, {wait}, done) ->
-    console.log "Waiting #{wait} second#{wait == 1 && ' ' || 's '}for DNSChain to shutdown".bold
-    server.shutdown -> setTimeout done, wait*1000
+# shutdown = (server, {wait}, done) ->
+#     console.log "Waiting #{wait} second#{wait == 1 && ' ' || 's '}for DNSChain to shutdown".bold
+#     server.shutdown -> setTimeout done, wait*1000
 
 digBashAsync = ({parallelism, timeout, domain}, cb)->
     timeout ?= 500
@@ -40,7 +40,8 @@ describe 'rate limiting', ->
 
     it 'should start with default settings', (done) ->
         console.log "START: default settings".bold
-        server = new DNSChain -> setTimeout done, 100
+        server = new DNSChain()
+        setTimeout done, 100 # wait for it to finish starting
 
     it 'should be ~200ms apart', (done) ->
         this.slow 600 # milliseconds
@@ -50,7 +51,7 @@ describe 'rate limiting', ->
             times = _.map results, 'time'
             diff = (times[0] + times[1])/2
             console.log "Space between requests: #{diff}ms".bold
-            diff.should.be.within(190, 350)
+            diff.should.be.within(190, 400)
             done()
 
     it 'should drop all requests except for one', (done) ->
@@ -71,18 +72,19 @@ describe 'rate limiting', ->
     # it 'should limit HTTP requests', ->
 
     # it 'should shutdown successfully', (done) ->
-    #     shutdown server, 2, done
+    #     this.slow 600
+    #     shutdown server, wait:0.2, done
 
     # it 'should restart with custom settings', (done) ->
     #     console.log "START: custom settings".bold
-    #     server = new DNSChain done
+    #     server = new DNSChain()
+    #     setTimeout done, 100 # wait for it to finish starting
 
     # it 'should limit DNS requests', ->
 
     # it 'should limit HTTP requests', ->
 
-    it 'should shutdown successfully', (done) ->
-        this.slow 600
-        shutdown server, wait:0.2, done
+    it 'should shutdown successfully', ->
+        server.shutdown() # returns a promise. Mocha should handle that properly
 
         

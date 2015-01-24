@@ -31,9 +31,10 @@ module.exports = (dnschain) ->
             @log.info "rpc to namecoind on: %s:%d", params[1], params[0]
             # TODO: if namecoin.conf isn't found, disable like in bdns.coffee
 
-        shutdown: ->
+        shutdown: (cb=->) ->
             @log.debug 'shutting down!'
             # @peer.end() # TODO: fix this!
+            cb()
 
         resolve: (path, options, cb) ->
             @log.debug gLineInfo('nmc resolve'), {path:path}

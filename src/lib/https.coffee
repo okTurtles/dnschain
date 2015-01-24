@@ -132,6 +132,7 @@ module.exports = (dnschain) ->
             if fingerPrint.length == 0 then throw new Error "Cached fingerprint couldn't be read, this should not be possible."
             fingerPrint
 
-        shutdown: ->
-            @log.debug gLineInfo "HTTPS servers shutting down!"
-            @server.close()
+        shutdown: (cb=->) ->
+            @log.debug "HTTPS servers shutting down!"
+            TLSServer.close() # node docs don't indicate this takes a callback
+            @server.close cb

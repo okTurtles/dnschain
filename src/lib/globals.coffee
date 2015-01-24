@@ -26,6 +26,7 @@ module.exports = (dnschain) ->
         es         : 'event-stream'
         sa         : 'stream-array'
         Bottleneck : 'bottleneck'
+        Promise    : 'bluebird'
 
     # Initialize the global rate limiter pool, only an interface will be visible from the outside
     limiters = {}

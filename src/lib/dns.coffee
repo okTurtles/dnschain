@@ -62,9 +62,10 @@ module.exports = (dnschain) ->
 
             @log.info 'started DNS', gConf.get 'dns'
 
-        shutdown: ->
+        shutdown: (cb) ->
             @log.debug 'shutting down!'
-            @server.close()
+            @server.close() # native-dns.close doesn't take a callback
+            cb?()
 
         # (Notes on 'native-dns' version <=0.6.x, which I'd like to see changed.)
         # 

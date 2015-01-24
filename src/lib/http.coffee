@@ -41,9 +41,9 @@ module.exports = (dnschain) ->
             # @server.listen gConf.get 'http:port') or gErr "http listen"
             @log.info 'started HTTP', gConf.get 'http'
 
-        shutdown: ->
+        shutdown: (cb=->) ->
             @log.debug 'shutting down!'
-            @server.close()
+            @server.close cb
 
         # TODO: send a signed header proving the authenticity of our answer
 

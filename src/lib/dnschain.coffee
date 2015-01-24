@@ -63,7 +63,7 @@ HTTPServer = require('./http')(exports)
 EncryptedServer = require('./https')(exports)
 
 exports.DNSChain = class DNSChain
-    constructor: (callback) ->
+    constructor: ->
         @log = gNewLogger 'DNSChain'
         try
             @nmc = new NMCPeer @
@@ -75,19 +75,20 @@ exports.DNSChain = class DNSChain
 
             if process.getuid() isnt 0 and gConf.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
                 @log.warn "DNS port isn't 53!".bold.red, "While testing you should either run me as root or make sure to set standard ports in the configuration!".bold
-
-            callback?()
         catch e
             @log.error "DNSChain failed to start: ", e.stack
             @shutdown()
-            callback?(e)
             throw e # rethrow
 
-    # TODO: add callback to this
-    #       make sure it follows convention described here:
-    #       https://github.com/petkaantonov/bluebird/blob/master/API.md#promisepromisifyfunction-nodefunction--dynamic-receiver---function
-    #       meaning: (error, success) -> 
-    shutdown: (callback) ->
-        [@nmc, @dns, @http, @encryptedserver].forEach (s) -> s?.shutdown?()
-        callback?()
+    # callbacks must follows convention described here:
+    # https://github.com/petkaantonov/bluebird/blob/master/API.md#promisepromisifyfunction-nodefunction--dynamic-receiver---function
+    shutdown: (cb=->) ->
+        servers = [@nmc, @dns, @http, @encryptedserver].map (s, idx) ->
+            if s
+                new Promise (resolve) -> s.shutdown resolve
+            else
+                @log.warn "Undefined server at index #{idx}"
+                Promise.reject null
+        # calls 'cb' when all servers finish shutting down (or fail to)
+        Promise.settle(servers).then cb
 
