@@ -74,7 +74,6 @@ module.exports = (dnschain) ->
                     @log.debug gLineInfo('resolver failed'), {err:err}
                     return notFound()
                 else
-                    @dnschain.cache.setBlockchain("#{resolver.name}:#{path}:#{JSON.stringify(options)}", resolver.cacheTTL, result)
                     res.writeHead 200, 'Content-Type': 'application/json'
                     @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
                     res.write JSON.stringify result

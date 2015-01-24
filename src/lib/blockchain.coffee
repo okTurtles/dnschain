@@ -31,7 +31,7 @@ module.exports = (dnschain) ->
             #@name = 'templatechain'
             #@cacheTTL = 600 # in seconds, 0 == no cache, override here
 
-        cacheTTL: gConf.get('redis.blockchain.ttl') || 600
+        cacheTTL: gConf.get('redis:blockchain:ttl')
 
         config: ->
             #@log.debug 'Loading #{@name} resolver'

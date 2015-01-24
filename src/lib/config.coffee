@@ -61,10 +61,10 @@ module.exports = (dnschain) ->
             internalAdminPort: 3000 # Not accessible from the internet, used internally only
             host: '0.0.0.0' # what we bind to. 0.0.0.0 for the whole internet
         redis:
-            socket: '127.0.0.1:6379'
+            socket: '127.0.0.1:6379' # or UNIX domain socket path
             oldDNS:
                 enabled: false
-                ttl: 600
+                ttl: 600 # Maximum time to keep DNS records in cache, regardless of TTL
             blockchain:
                 enabled: false
                 ttl: 600

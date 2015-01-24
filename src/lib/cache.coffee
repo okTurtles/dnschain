@@ -20,21 +20,23 @@ module.exports = (dnschain) ->
 
     class ResolverCache
         constructor: (@dnschain) ->
-            @log = gNewLogger 'CACHE'
+            @log = gNewLogger 'Redis'
             @log.info "Loading Redis Cache..."
             if gConf.get('redis:blockchain:enabled') or gConf.get('redis:oldDNS:enabled')
                 @log.info "cache enabled"
                 [host,port] = gConf.get('redis:socket').split(':')
-                @cache = if port?
-                    port = parseInt port
-                    redis.createClient(port, host)
-                else
-                    redis.createClient(host)
+                @cache =
+                    if port?
+                        if isNaN(portNum = parseInt port)
+                            gErr "Redis port is NaN: #{port}"
+                        redis.createClient portNum, host
+                    else
+                        redis.createClient host
                 if gConf.get('redis:blockchain:enabled')
                     @blockchainEnabled = true
                 if gConf.get('redis:oldDNS:enabled')
                     @oldDNSEnabled = true
-                    @oldDNSTTL = 600
+                    @oldDNSTTL = gConf.get('redis:oldDNS:ttl')
                 @cache.on 'error', (err) =>
                     @log.error "cache errored"
                     @shutdown()
@@ -42,37 +44,36 @@ module.exports = (dnschain) ->
             else
                 @log.info "cache disabled"
 
+        get: (key, ttl, valueRetriever, valueDoer) ->
+            @cache.get key, (err, result) =>
+                if err
+                    @log.error gLineInfo('caching error'), {err: err}
+                if result?
+                    @log.debug gLineInfo('resolved from cache'), {key: key}
+                    valueDoer null, key, JSON.parse result
+                    return
+                valueRetriever key, (err2, value) =>
+                    @cache.setex(key, ttl, JSON.stringify value) if not err2
+                    valueDoer err, key, value
+
         resolveBlockchain: (resolver, path, options, cb) ->
             if @blockchainEnabled? and resolver.cacheTTL?
-                @cache.get "#{resolver.name}:#{path}:#{JSON.stringify(options)}", (err, result) =>
-                    if err or not result?
-                        resolver.resolve path, options, cb
-                    else
-                        @log.debug gLineInfo('resolved from cache'), {path: path, options: options}
-                        cb null, JSON.parse(result)
+                retriever = (key, callback) =>
+                    resolver.resolve path, options, callback
+                doer = (err, key, result) =>
+                    cb err, result
+                @get "#{resolver.name}:#{path}:#{JSON.stringify(options)}", resolver.cacheTTL, retriever, doer
             else
                 resolver.resolve path, options, cb
-
-        setBlockchain: (key, ttl, value) ->
-            return if not (@blockchainEnabled and ttl?)
-            @cache.setex key, ttl, JSON.stringify(value)
 
         resolveOldDNS: (req, cb) ->
             if @oldDNSEnabled?
                 q = req.question[0]
-                @cache.get "oldDNS:#{q.name}:#{q.type}", (err, result) =>
-                    if err or not result?
-                        @dnschain.dns.oldDNSLookup req, (result2, err2) =>
-                            if result2? and not err2
-                                ttl = if result2.answer[0]?.ttl
-                                    Math.min result2.answer[0]?.ttl, @oldDNSTTL
-                                else
-                                    @oldDNSTTL
-                                @cache.setex "oldDNS:#{q.name}:#{q.type}", ttl, JSON.stringify(result2)
-                            cb result2, err2
-                    else
-                        @log.debug gLineInfo('resolved oldDNS from cache'), {req: req}
-                        cb JSON.parse(result)
+                retriever = (key, callback) =>
+                    @dnschain.dns.oldDNSLookup req, callback
+                doer = (err, key, result) =>
+                    cb err, result
+                @get "oldDNS:#{q.name}:#{q.type}", @oldDNSTTL, retriever, doer
             else
                 @dnschain.dns.oldDNSLookup req, cb
 
