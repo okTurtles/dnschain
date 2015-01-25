@@ -16,16 +16,8 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    # Specifications listed here:
-    # - https://wiki.namecoin.info/index.php?title=Welcome
-    # - https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Importing_and_delegation
-    # - https://wiki.namecoin.info/index.php?title=Category:NEP
-    # - https://wiki.namecoin.info/index.php?title=Namecoin_Specification
-    VALID_NMC_DOMAINS = /^[a-zA-Z]+\/.+/
-
     class HTTPServer
         constructor: (@dnschain) ->
-            # @log = @dnschain.log.child server: "HTTP"
             @log = gNewLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
             @rateLimiting = gConf.get 'rateLimiting:http'
@@ -36,16 +28,12 @@ module.exports = (dnschain) ->
                 limiter.submit (@callback.bind @), req, res, null
             ) or gErr "http create"
             @server.on 'error', (err) -> gErr err
-            @server.on 'sockegError', (err) -> gErr err
-            @server.listen gConf.get('http:port'), gConf.get('http:host') or gErr "http listen"
-            # @server.listen gConf.get 'http:port') or gErr "http listen"
-            @log.info 'started HTTP', gConf.get 'http'
+            @server.listen gConf.get('http:port'), gConf.get('http:host'), =>
+                @log.info 'started HTTP', gConf.get 'http'
 
         shutdown: (cb=->) ->
             @log.debug 'shutting down!'
             @server.close cb
-
-        # TODO: send a signed header proving the authenticity of our answer
 
         callback: (req, res, cb) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s
@@ -58,25 +46,31 @@ module.exports = (dnschain) ->
                 res.end()
                 cb()
 
-            resolver = switch req.headers.host
-                when 'icann.dns' then 'dns'
-                when 'namecoin.dns' then 'nmc'
-                when 'bitshares.dns' then 'bdns'
+            [...,resolverName] =
+                if S(header = req.headers.blockchain || req.headers.host).endsWith('.dns')
+                    S(header).chompRight('.dns').s.split('.')
                 else
-                    @log.warn gLineInfo "unknown host type: #{req.headers.host} -- defaulting to namecoin.dns!"
-                    'nmc'
+                    ['none']
 
-            if resolver is 'nmc' and not VALID_NMC_DOMAINS.test path
-                @log.debug gLineInfo "ignoring request for: #{path}"
+            if not (resolver = @dnschain.chains[resolverName])
+                @log.warn gLineInfo('unknown blockchain'), {host: req.headers.host, blockchainHeader: req.headers.blockchain, remoteAddress: req.connection.remoteAddress}
+                res.writeHead 400, 'Content-Type': 'text/plain'
+                res.write "No Blockchain Found: #{resolverName}"
+                res.end()
+                cb()
+                return
+
+            if not resolver.validRequest path
+                @log.debug gLineInfo("invalid request: #{path}")
                 return notFound()
 
-            @dnschain[resolver].resolve path, options, (err,result) =>
+            @dnschain.cache.resolveBlockchain resolver, path, options, (err,result) =>
                 if err
                     @log.debug gLineInfo('resolver failed'), {err:err}
                     return notFound()
                 else
                     res.writeHead 200, 'Content-Type': 'application/json'
                     @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
-                    res.write @dnschain[resolver].toJSONstr result
+                    res.write JSON.stringify result
                     res.end()
                     cb()
