@@ -55,6 +55,7 @@ module.exports = (dnschain) ->
         # Override it above in the constructor for your blockchain. 
         cacheTTL: gConf.get 'redis:blockchain:ttl'
 
+        # return @(this) upon successful load, falsy otherwise
         config: ->
             @log.debug 'Loading #{@name} resolver'
             # Fill this in with code to load your config.
