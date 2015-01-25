@@ -32,11 +32,9 @@ module.exports = (dnschain) ->
                         redis.createClient portNum, host
                     else
                         redis.createClient host
-                if gConf.get('redis:blockchain:enabled')
-                    @blockchainEnabled = true
-                if gConf.get('redis:oldDNS:enabled')
-                    @oldDNSEnabled = true
-                    @oldDNSTTL = gConf.get('redis:oldDNS:ttl')
+                @blockchainEnabled = gConf.get 'redis:blockchain:enabled'
+                @oldDNSEnabled = gConf.get 'redis:oldDNS:enabled'
+                @oldDNSTTL = gConf.get 'redis:oldDNS:ttl'
                 @cache.on 'error', (err) =>
                     @log.error "cache errored"
                     @shutdown()
