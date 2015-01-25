@@ -215,4 +215,4 @@ module.exports = (dnschain) ->
             ANY: ->
                 # TODO: loop through 'data.value' and call approrpriate handlers
                 # TODO: enable EDNS reply
-                dnsTypeHandlers.namecoin.A.apply @, [].slice.call arguments
+                @dnsHandler.A.apply @, [].slice.call arguments
