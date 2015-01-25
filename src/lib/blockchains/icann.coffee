@@ -31,7 +31,7 @@ module.exports = (dnschain) ->
             @name = 'icann'
 
         config: ->
-            @log.debug 'Loading #{@name} resolver'
+            @log.debug "Loading #{@name} resolver"
             @
 
         shutdown: ->

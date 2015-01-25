@@ -57,7 +57,7 @@ module.exports = (dnschain) ->
 
         # return @(this) upon successful load, falsy otherwise
         config: ->
-            @log.debug 'Loading #{@name} resolver'
+            @log.debug "Loading #{@name} resolver"
             # Fill this in with code to load your config.
             # We recommend copying and editing the stuff from namecoin.coffee 
             # 
@@ -66,10 +66,10 @@ module.exports = (dnschain) ->
             # else
             #     return falsy value!
 
+        # Close connection to your blockchain and do any other cleanup,
+        # and only then call the callback (if one was passed in).
         shutdown: (cb) ->
             @log.debug 'shutting down!'
-            # Close connection to your blockchain and do any other cleanup,
-            # and only then call the callback (if one was passed in).
             cb?()
 
         # cb takes (error, resultObject)
