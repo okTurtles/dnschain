@@ -33,6 +33,7 @@ module.exports = (dnschain) ->
 
         cacheTTL: gConf.get('redis:blockchain:ttl')
 
+        # return @(this) upon successful load, falsy otherwise
         config: ->
             #@log.debug 'Loading #{@name} resolver'
             #load config
