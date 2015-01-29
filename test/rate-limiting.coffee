@@ -51,7 +51,7 @@ describe 'rate limiting', ->
             times = _.map results, 'time'
             diff = (times[0] + times[1])/2
             console.log "Space between requests: #{diff}ms".bold
-            diff.should.be.within(190, 400)
+            diff.should.be.within(150, 400)
             done()
 
     it 'should drop all requests except for one', (done) ->

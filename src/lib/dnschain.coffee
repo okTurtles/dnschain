@@ -104,9 +104,9 @@ exports.DNSChain = class DNSChain
     # callbacks must follows convention described here:
     # https://github.com/petkaantonov/bluebird/blob/master/API.md#promisepromisifyfunction-nodefunction--dynamic-receiver---function
     shutdown: (cb=->) ->
-        servers = @chains.append([@dns, @http, @encryptedserver, @cache]).map (s, idx) ->
+        servers = [@dns, @http, @encryptedserver, @cache].concat(_.values(@chains)).map (s, idx) =>
             if s
-                new Promise (resolve) -> s.shutdown resolve
+                new Promise (resolve) => s.shutdown resolve
             else
                 @log.warn "Undefined server at index #{idx}"
                 Promise.reject null

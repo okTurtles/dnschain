@@ -84,9 +84,10 @@ module.exports = (dnschain) ->
             else
                 @dnschain.dns.oldDNSLookup req, cb
 
-        shutdown: ->
+        shutdown: (cb) ->
             if @blockchainEnabled? or @oldDNSEnabled?
                 @blockchainEnabled = false
                 @oldDNSEnabled = false
                 @log.debug 'shutting down!'
                 @cache.end()
+            cb?()

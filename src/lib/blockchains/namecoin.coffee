@@ -63,10 +63,10 @@ module.exports = (dnschain) ->
             @log.info "rpc to namecoind on: %s:%d", params[1], params[0]
             @
 
-        shutdown: (cb=->) ->
+        shutdown: (cb) ->
             @log.debug 'shutting down!'
             # @peer.end() # TODO: fix this!
-            cb()
+            cb?()
 
         resolve: (path, options, cb) ->
             result = @resultTemplate()
