@@ -69,13 +69,13 @@ module.exports = (dnschain) ->
         resolveOldDNS: (req, cb) ->
             if @oldDNSEnabled?
                 q = req.question[0]
-                ttl =
-                    if result2.answer[0]?.ttl?
-                        Math.min result2.answer[0]?.ttl, @oldDNSTTL
-                    else
-                        @oldDNSTTL
                 retriever = (key, callback) =>
                     f = (err, result) =>
+                        ttl =
+                            if result.answer[0]?.ttl?
+                                Math.min result.answer[0]?.ttl, @oldDNSTTL
+                            else
+                                @oldDNSTTL
                         callback err, ttl, result
                     @dnschain.dns.oldDNSLookup req, f
                 doer = (err, key, result) =>
