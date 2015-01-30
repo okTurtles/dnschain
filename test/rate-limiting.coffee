@@ -48,10 +48,9 @@ describe 'rate limiting', ->
         digBashAsync {parallelism:2}, (err, results) ->
             results.should.have.length 2
             _.some(results, 'err').should.be.empty
-            times = _.map results, 'time'
-            diff = (times[0] + times[1])/2
+            diff = Math.abs _(results).map('time').reduce (sum,n) -> sum - n
             console.log "Space between requests: #{diff}ms".bold
-            diff.should.be.within(150, 400)
+            diff.should.be.within(100, 400)
             done()
 
     it 'should drop all requests except for one', (done) ->
