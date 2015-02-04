@@ -61,7 +61,7 @@ module.exports = (dnschain) ->
                         # letter of the fourth, and the full parts of the last three
                         # This isn't perfect, especially because of:
                         # https://publicsuffix.org/list/effective_tld_names.dat
-                        # 
+                        #
                         # See: https://github.com/okTurtles/dnschain/issues/107 !
                         domain = [domain[-4..1][0][-1..]].concat(domain[-3..]).join '.'
                     else
@@ -166,8 +166,7 @@ module.exports = (dnschain) ->
             else
                 @log.debug gLineInfo("deferring request"), {q:q}
                 @dnschain.cache.resolveOldDNS req, (code, packet) =>
-                    _.assign res, _.pick packet, ['edns_version', 'edns_options',
-                        'edns', 'answer', 'authority', 'additional']
+                    _.assign res, packet
                     if code
                         @sendErr res, code, cb
                     else
@@ -178,6 +177,8 @@ module.exports = (dnschain) ->
             res = new Packet()
             sig = "oldDNS{#{@method}}"
             q = req.question[0]
+            filterRes = (p) ->
+                _.pick p, ['edns_version', 'edns_options', 'edns', 'answer', 'authority', 'additional']
 
             @log.debug {fn:sig+':start', q:q}
 
@@ -211,20 +212,20 @@ module.exports = (dnschain) ->
                 req2.on 'end', =>
                     if success
                         @log.debug gLineInfo('success!'), {q:q, res: _.omit(res, '_socket')}
-                        cb null, res
+                        cb null, filterRes(res)
                     else
                         # TODO: this is noisy.
                         #       also make log output look good in journalctl
                         # you can log IP with: res._socket.remote.address
                         @log.warn gLineInfo('oldDNS lookup failed'), {q:q, err:req2.DNSErr}
-                        cb NAME_RCODE.SERVFAIL, res
+                        cb NAME_RCODE.SERVFAIL, filterRes(res)
                 # @log.debug {fn:"beforesend", req:req2}
                 req2.send()
             else if @method is gConsts.oldDNS.NODE_DNS
                 dns.resolve q.name, QTYPE_NAME[q.type], (err, addrs) =>
                     if err
                         @log.debug {fn:sig+':fail', q:q, err:err?.message}
-                        cb NAME_RCODE.SERVFAIL, res
+                        cb NAME_RCODE.SERVFAIL, filterRes(res)
                     else
                         # USING THIS METHOD IS DISCOURAGED BECAUSE IT DOESN'T
                         # PROVIDE US WITH CORRECT TTL VALUES!!
@@ -232,7 +233,7 @@ module.exports = (dnschain) ->
                         ttl = Math.floor(Math.random() * 3600) + 30
                         res.answer.push (addrs.map gIP2type(q.name, ttl, QTYPE_NAME[q.type]))...
                         @log.debug {fn:sig+':success', answer:res.answer, q:q.name}
-                        cb null, res
+                        cb null, filterRes(res)
             else
                 # refuse all such queries
                 cb NAME_RCODE.REFUSED, res
