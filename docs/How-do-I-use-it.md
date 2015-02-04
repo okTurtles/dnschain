@@ -16,6 +16,9 @@ DNSChain's [`.dns` metaTLD](What-is-it.md#metaTLD) can be accessed over traditio
 
 This means you can immediately begin writing [JavaScript apps](http://okturtles.com) that query the blockchain. :)
 
+| **:exclamation:** The public fingerprint of the DNSChain server must be pinned in client software for the queries to be [MITM-proof](https://github.com/okTurtles/dnschain/blob/master/docs/What-is-it.md#MITMProof)! |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
 <a name="Servers"/></a>
 ## Free public DNSChain servers
 
