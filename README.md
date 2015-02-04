@@ -76,6 +76,14 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 
 - Securing Your Apps With DNSChain
 - Contributing to DNSChain development
+- Running Tests
+
+<a name="Community"></a>
+## Community
+
+- [Forums](https://forums.okturtles.com)
+- [@DNSChain](https://twitter.com/dnschain) + [@okTurtles](https://twitter.com/okTurtles)
+- [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/okTurtles/dnschain)
 
 <a name="Resources"></a>
 ## Other Resources
@@ -103,13 +111,6 @@ __:page_facing_up: Read__
 - [DNSChain versus...](docs/Comparison.md)
 
 _Have a link? [Let us know](https://twitter.com/dnschain)!_
-
-<a name="Community"></a>
-## Community
-
-- [Forums](https://forums.okturtles.com)
-- [@DNSChain](https://twitter.com/dnschain) + [@okTurtles](https://twitter.com/okTurtles)
-- [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/okTurtles/dnschain)
 
 <a name="Contributors"></a>
 ## Contributors

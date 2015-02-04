@@ -26,6 +26,7 @@ module.exports = (dnschain) ->
         es         : 'event-stream'
         sa         : 'stream-array'
         Bottleneck : 'bottleneck'
+        Promise    : 'bluebird'
 
     # Initialize the global rate limiter pool, only an interface will be visible from the outside
     limiters = {}
@@ -40,7 +41,7 @@ module.exports = (dnschain) ->
     , 60*1000 # Every minute
 
     # no renaming done for these
-    for d in ['net', 'dns', 'http', 'tls', 'fs', 'url', 'util', 'os', 'path', 'winston']
+    for d in ['dns', 'fs', 'http','net', 'os', 'path', 'tls', 'url', 'util', 'winston']
         dnschain.globals[d] = d
 
     # replace all the string values in dnschain.globals with the module they represent
@@ -87,7 +88,12 @@ module.exports = (dnschain) ->
                     else
                         unless ips = (faces = os.networkInterfaces())[iface]
                             throw new Error util.format("No such interface '%s'. Available: %j", iface, faces)
-                        _.find(ips, {family:fam, internal:internal}).address
+                        if (address = _.find(ips, {family:fam, internal:internal})?.address)
+                            address
+                        else
+                            console.warn "Couldn't find 'address' in:".bold.red, ips
+                            console.warn "Couldn't figure out external IPv4 IP! Make SURE to manually set it in your configuration!".bold.red
+                            "NOT AN IP! SEE: https://github.com/okTurtles/dnschain/issues/111#issuecomment-71958236"
         
         gNewLogger: (name) ->
             new winston.Logger

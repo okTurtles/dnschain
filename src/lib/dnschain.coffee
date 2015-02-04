@@ -37,7 +37,7 @@ design:
 
 security:
 
-- protect against DDoS DNS amplification attacks. 
+- protect against DDoS DNS amplification attacks.
 
 DNS libraries used and considered:
 
@@ -56,21 +56,42 @@ for k of require('./globals')(exports)
 
 exports.createServer = (a...) -> new DNSChain a...
 
-NMCPeer = require('./nmc')(exports)
-BDNSPeer = require('./bdns')(exports)
 DNSServer = require('./dns')(exports)
 HTTPServer = require('./http')(exports)
 EncryptedServer = require('./https')(exports)
+ResolverCache = require('./cache')(exports)
+
+localhosts = ->
+    _.uniq [
+        "127.0.0.", "10.0.0.", "192.168.", "::1", "fe80::"
+        gConf.get('dns:host'), gConf.get('http:host')
+        gConf.get('dns:externalIP'), gExternalIP()
+        _.map(gConf.chains, (c) ->
+            c.get('host'))...
+    ].filter (o)-> typeof(o) is 'string'
 
 exports.DNSChain = class DNSChain
     constructor: ->
         @log = gNewLogger 'DNSChain'
         try
-            @nmc = new NMCPeer @
-            @bdns = new BDNSPeer @
+            chainDir = path.join __dirname, 'blockchains'
+            @chains = _.omit(_.mapValues(_.indexBy(fs.readdirSync(chainDir), (file) =>
+                S(file).chompRight('.coffee').s
+            ), (file) =>
+                chain = new (require('./blockchains/'+file)(exports)) @
+                chain.config()
+            ), (chain) =>
+                not chain
+            )
+            @chainsTLDs = _.indexBy _.compact(_.map(@chains, (chain) ->
+                return chain if chain.tld?
+                return null
+            )), 'tld'
+            gConf.localhosts = localhosts.call @
             @dns = new DNSServer @
             @http = new HTTPServer @
             @encryptedserver = new EncryptedServer @
+            @cache = new ResolverCache @
             @log.info "DNSChain started and advertising on: #{gConf.get 'dns:externalIP'}"
 
             if process.getuid() isnt 0 and gConf.get('dns:port') isnt 53 and require('tty').isatty(process.stdout)
@@ -80,5 +101,14 @@ exports.DNSChain = class DNSChain
             @shutdown()
             throw e # rethrow
 
-    shutdown: -> [@nmc, @dns, @http, @encryptedserver].forEach (s) -> s?.shutdown?()
-
+    # callbacks must follows convention described here:
+    # https://github.com/petkaantonov/bluebird/blob/master/API.md#promisepromisifyfunction-nodefunction--dynamic-receiver---function
+    shutdown: (cb=->) ->
+        servers = [@dns, @http, @encryptedserver, @cache].concat(_.values(@chains)).map (s, idx) =>
+            if s
+                new Promise (resolve) => s.shutdown resolve
+            else
+                @log.warn "Undefined server at index #{idx}"
+                Promise.reject null
+        # calls 'cb' when all servers finish shutting down (or fail to)
+        Promise.settle(servers).then cb

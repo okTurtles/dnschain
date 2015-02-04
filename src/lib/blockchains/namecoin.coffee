@@ -3,7 +3,7 @@
 dnschain
 http://dnschain.net
 
-Copyright (c) 2013-2014 Greg Slepak
+Copyright (c) 2014 okTurtles Foundation
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,7 +16,8 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    ResolverStream  = require('./resolver-stream')(dnschain)
+    BlockchainResolver = require('../blockchain.coffee')(dnschain)
+    ResolverStream  = require('../resolver-stream')(dnschain)
 
     QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
     NAME_QTYPE = dns2.consts.NAME_TO_QTYPE
@@ -24,30 +25,76 @@ module.exports = (dnschain) ->
     RCODE_NAME = dns2.consts.RCODE_TO_NAME
     BLOCKS2SEC = 10 * 60
 
-    LOCALHOSTS = _.uniq [
-        "127.0.0.", "10.0.0.", "192.168.", "::1", "fe80::"
-        gConf.get('dns:host'), gConf.get('http:host')
-        gConf.get('dns:externalIP'), gExternalIP()
-        gConf.nmc.get('rpcconnect')
-    ].filter (o)-> typeof(o) is 'string'
+    # Specifications listed here:
+    # - https://wiki.namecoin.info/index.php?title=Welcome
+    # - https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Importing_and_delegation
+    # - https://wiki.namecoin.info/index.php?title=Category:NEP
+    # - https://wiki.namecoin.info/index.php?title=Namecoin_Specification
+    VALID_NMC_DOMAINS = /^[a-zA-Z]+\/.+/
 
-    # instanceNum = 0 # debugging
+    class NamecoinResolver extends BlockchainResolver
+        constructor: (@dnschain) ->
+            @log = gNewLogger 'NMC'
+            @name = 'namecoin'
+            @tld = 'bit'
 
-    # It is the hander's job to add answers to 'res' but *NOT* to send them!
-    # Instead, it should call the callback function 'cb'.
-    # Pass in a NAME_RCODE to 'cb' on error, or nothing on success.
-    # 
-    # IMPORTANT: these functions __*MUST*__ be bound to the DNSServer instance 
-    #            that calls them!
-    dnsTypeHandlers =
-        namecoin:
+        config: ->
+            @log.debug "Loading #{@name} resolver"
+
+            gConf.add @name, _.map(_.filter([
+                [process.env.APPDATA, 'Namecoin', 'namecoin.conf']
+                [process.env.HOME, '.namecoin', 'namecoin.conf']
+                [process.env.HOME, 'Library', 'Application Support', 'Namecoin', 'namecoin.conf']
+                ['/etc/namecoin/namecoin.conf']]
+            , (x) -> !!x[0])
+            , (x) -> path.join x...), 'INI'
+
+            # we want them in this exact order:
+            params = ["port", "connect", "user", "password"].map (x) => gConf.chains[@name].get 'rpc'+x
+            params[1] ?= "127.0.0.1"
+            if not _.every params
+                @log.info "#{@name} disabled. (namecoin.conf not found, or rpcuser, rpcpassword, rpcport not found)"
+                return
+            gConf.chains[@name].set 'host', gConf.chains[@name].get('rpcconnect')
+            @peer = rpc.Client.$create(params...) or gErr "rpc create"
+
+            # TODO: $create doesn't actually connect. you need to open a raw socket
+            #       or an http socket and see if that works before declaring it works
+            @log.info "rpc to namecoind on: %s:%d", params[1], params[0]
+            @
+
+        shutdown: (cb) ->
+            @log.debug 'shutting down!'
+            # @peer.end() # TODO: fix this!
+            cb?()
+
+        resolve: (path, options, cb) ->
+            result = @resultTemplate()
+            if S(path).endsWith(".#{@tld}") # naimcoinize Domain
+                path = S(path).chompRight(".#{@tld}").s
+                if (dotIdx = path.lastIndexOf('.')) != -1
+                    path = path.slice(dotIdx+1) #rm subdomain
+                path = 'd/' + path
+            @log.debug gLineInfo("#{@name} resolve"), {path:path}
+            @peer.call 'name_show', [path], (err, ans) ->
+                return cb(err) if err
+                try
+                    result.value = JSON.parse ans.value
+                    cb null, result
+                catch e
+                    @log.error gLineInfo(e.message)
+                    cb e
+
+        validRequest: (path) -> VALID_NMC_DOMAINS.test path
+
+        dnsHandler:
             # TODO: handle all the types specified in the specification!
             #       https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Value_field
-            #       
+            #
             # TODO: handle other info outside of the specification!
             #       - GNS support
             #       - DNSSEC support?
-            #       
+            #
             # *ALL* namecoin handlers must be of the this type
             A: (req, res, qIdx, data, cb) ->
                 # @log.warn gLineInfo('debug A handler...'), {data: data}
@@ -63,7 +110,7 @@ module.exports = (dnschain) ->
                     # 2. Send request to each of the servers, separated by `stackedDelay`.
                     #    On receiving the first answer from any of them, cancel all other
                     #    pending requests and respond to our client.
-                    # 
+                    #
                     # TODO: handle ns = IPv6 addr!
                     [nsIPs, nsCNAMEs] = [[],[]]
 
@@ -86,7 +133,7 @@ module.exports = (dnschain) ->
                     #            It's far safer to tell DNSChain to use a different resolver
                     #            that won't re-ask DNSChain any questions.
                     nsCNAMEs = _.reject nsCNAMEs, (ns)->/\.(bit|dns)$/.test ns
-                    # IPs like 127.0.0.1 are checked below against LOCALHOSTS array
+                    # IPs like 127.0.0.1 are checked below against gConf.localhosts array
 
                     if nsIPs.length == nsCNAMEs.length == 0
                         return cb NAME_RCODE.REFUSED
@@ -115,7 +162,7 @@ module.exports = (dnschain) ->
                         cb code
 
                     nsIPs.on 'data', (nsIP) =>
-                        if _.find(LOCALHOSTS, (ip)->S(nsIP).startsWith ip)
+                        if _.find(gConf.localhosts, (ip)->S(nsIP).startsWith ip)
                             # avoid the possible infinite-loop on some (perhaps poorly) configured systems
                             @log.warn gLineInfo('dropping query, NMC NS ~= localhost!'), {q:q, nsIP:nsIP, info:info}
                         else
@@ -152,7 +199,7 @@ module.exports = (dnschain) ->
             # TODO: implement this!
             AAAA: (req, res, qIdx, data, cb) ->
                 cb NAME_RCODE.NOTIMP
-            
+
             TLSA: (req, res, qIdx, data, cb) ->
                 len = res.answer.length
                 ttl = data.expires_in? * BLOCKS2SEC
@@ -169,4 +216,4 @@ module.exports = (dnschain) ->
             ANY: ->
                 # TODO: loop through 'data.value' and call approrpriate handlers
                 # TODO: enable EDNS reply
-                dnsTypeHandlers.namecoin.A.apply @, [].slice.call arguments
+                @dnsHandler.A.apply @, [].slice.call arguments

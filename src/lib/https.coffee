@@ -79,7 +79,7 @@ module.exports = (dnschain) ->
                 limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
                 limiter.submit (@callback.bind @), c, null
             @server.on "error", (err) -> gErr err
-            @server.on "close", -> gErr "HTTPS server was closed unexpectedly."
+            @server.on "close", => @log.info "HTTPS server has shutdown."
             @server.listen httpSettings.tlsPort, httpSettings.host, =>
                 @log.info gLineInfo("started HTTPS server "), httpSettings
 
@@ -132,6 +132,7 @@ module.exports = (dnschain) ->
             if fingerPrint.length == 0 then throw new Error "Cached fingerprint couldn't be read, this should not be possible."
             fingerPrint
 
-        shutdown: ->
-            @log.debug gLineInfo "HTTPS servers shutting down!"
-            @server.close()
+        shutdown: (cb=->) ->
+            @log.debug "HTTPS servers shutting down!"
+            TLSServer.close() # node docs don't indicate this takes a callback
+            @server.close cb
