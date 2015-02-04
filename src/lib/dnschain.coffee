@@ -101,4 +101,14 @@ exports.DNSChain = class DNSChain
             @shutdown()
             throw e # rethrow
 
-    shutdown: -> @chains.append([@dns, @http, @encryptedserver, @cache]).forEach (s) -> s.shutdown()
+    # callbacks must follows convention described here:
+    # https://github.com/petkaantonov/bluebird/blob/master/API.md#promisepromisifyfunction-nodefunction--dynamic-receiver---function
+    shutdown: (cb=->) ->
+        servers = [@dns, @http, @encryptedserver, @cache].concat(_.values(@chains)).map (s, idx) =>
+            if s
+                new Promise (resolve) => s.shutdown resolve
+            else
+                @log.warn "Undefined server at index #{idx}"
+                Promise.reject null
+        # calls 'cb' when all servers finish shutting down (or fail to)
+        Promise.settle(servers).then cb

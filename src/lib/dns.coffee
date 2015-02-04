@@ -51,18 +51,36 @@ module.exports = (dnschain) ->
                 gErr "No such oldDNSMethod: #{@method}"
 
             @server = dns2.createServer() or gErr "dns2 create"
-            @server.on 'sockegError', (err) -> gErr err
+            @server.on 'socketError', (err) -> gErr err
             @server.on 'request', (req, res) =>
-                key = "dns-#{req.address.address}-#{req.question[0]?.name}"
-                limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
-                limiter.changePenalty(@rateLimiting.penalty).submit (@callback.bind @), req, res, null
+                domain = req.question[0]?.name
+                if domain
+                    domain = domain.split(".")
+                    if domain.length > 3
+                        # if there are more than 3 parts to the domain, we use the last
+                        # letter of the fourth, and the full parts of the last three
+                        # This isn't perfect, especially because of:
+                        # https://publicsuffix.org/list/effective_tld_names.dat
+                        # 
+                        # See: https://github.com/okTurtles/dnschain/issues/107 !
+                        domain = [domain[-4..1][0][-1..]].concat(domain[-3..]).join '.'
+                    else
+                        domain = domain[-3..].join '.'
+
+                    key = "dns-#{req.address.address}-#{domain}"
+                    @log.debug gLineInfo("creating bottleneck on: #{key}")
+                    limiter = gThrottle key, => new Bottleneck _.at(@rateLimiting, ['maxConcurrent', 'minTime', 'highWater', 'strategy'])...
+                    limiter.changePenalty(@rateLimiting.penalty).submit (@callback.bind @), req, res, null
+                else
+                    @log.warn gLineInfo('received empty request!'), {req:req}
             @server.serve gConf.get('dns:port'), gConf.get('dns:host')
 
             @log.info 'started DNS', gConf.get 'dns'
 
-        shutdown: ->
+        shutdown: (cb) ->
             @log.debug 'shutting down!'
-            @server.close()
+            @server.close() # native-dns.close doesn't take a callback
+            cb?()
 
         # (Notes on 'native-dns' version <=0.6.x, which I'd like to see changed.)
         #

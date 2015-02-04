@@ -31,11 +31,12 @@ module.exports = (dnschain) ->
             @name = 'icann'
 
         config: ->
-            @log.debug 'Loading #{@name} resolver'
+            @log.debug "Loading #{@name} resolver"
             @
 
-        shutdown: ->
+        shutdown: (cb) ->
             @log.debug 'shutting down!'
+            cb?()
 
         resolve: (path, options, cb) ->
             req = new Packet()

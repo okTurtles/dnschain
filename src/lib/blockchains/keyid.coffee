@@ -37,7 +37,7 @@ module.exports = (dnschain) ->
             endpoint = get('rpc:httpd_endpoint')?.split ':'
             if endpoint?
                 [host, port] = [endpoint[0], parseInt endpoint[1]]
-                gConf[@name].set 'host', host
+                gConf.chains[@name].set 'host', host
                 @peer = rpc.Client.$create port, host, get('rpc:rpc_user'), get('rpc:rpc_password')
                 gErr "rpc $create #{@name}" unless @peer
                 @log.info "rpc to bitshares_client on: %s:%d/rpc", host, port
@@ -46,9 +46,10 @@ module.exports = (dnschain) ->
                 @log.info "#{@name} disabled. (config.json not found)"
                 return
 
-        shutdown: ->
+        shutdown: (cb) ->
             @log.debug 'shutting down!'
             # @peer.end() # TODO: fix this!
+            cb?()
 
         resolve: (path, options, cb) ->
             result = @resultTemplate()
