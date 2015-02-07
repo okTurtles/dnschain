@@ -42,12 +42,10 @@ module.exports = (dnschain) ->
             @log.debug "Loading #{@name} resolver"
 
             params = ["port", "connect"].map (x)-> gConf.get "nxt:#{x}"
+            params[0] ?= "7876"
             params[1] ?= "127.0.0.1"
-            if not _.every params
-                @log.info "#{@name} disabled. (host or port not found)"
-                return
 
-            @peer = 'http://' + params[1] + ":" + params[0] + '/nxt?requestType=getAlias&aliasName='
+            @peer = 'http://' + params[1] + ':' + params[0] + '/nxt?requestType=getAlias&aliasName='
 
             # TODO: $create doesn't actually connect. you need to open a raw socket
             #       or an http socket and see if that works before declaring it works
@@ -81,7 +79,7 @@ module.exports = (dnschain) ->
                     catch e
                       cb e  
             req.on 'error', ->
-                cb 'Nxt unreachable'
+                cb
 
         validRequest: (path) -> VALID_NXT_DOMAINS.test path
 
