@@ -20,7 +20,7 @@ describe 'https', ->
         setTimeout done, 100 # wait for it to finish starting
 
 
-    it 'should fetch profile over HTTPS', (done) ->
+    it 'should fetch profile over HTTPS via IP', (done) ->
         # TODO: this
         
         done()

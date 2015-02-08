@@ -56,7 +56,7 @@ module.exports = (dnschain) ->
 
     # We fetch the fingerprint directly using OpenSSL and then make sure we got the right thing.
     fingerprint = ""
-    fingerprintCmd = "openssl x509 -fingerprint -sha256 -text -noout -in #{httpSettings.tlsCert} | grep SHA256"
+    fingerprintCmd = "openssl x509 -fingerprint -sha256 -text -noout -in \"#{httpSettings.tlsCert}\" | grep SHA256"
 
     # TODO: convert to `execSync` when more people switch to node 0.12
     require('child_process').exec fingerprintCmd, {timeout:1000}, (err, stdout, stderr) ->
@@ -135,8 +135,8 @@ module.exports = (dnschain) ->
                     stream.write buf
                     c.pipe(stream).pipe(c)
                     c.resume()
+                    @log.debug gLineInfo "Tunnel: #{host}"
                     cb()
-                    @log.debug gLineInfo "Tunnel: "+host
 
         getFingerprint: ->
             if fingerprint.length == 0

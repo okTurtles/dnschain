@@ -125,6 +125,9 @@ _Approximate chronological order._
 - [Cayman Nava](https://github.com/WeMeetAgain) (Ethereum support, api.icann.dns, and core developer)
 - [Vignesh Anand](https://github.com/vegetableman) (Front-end + back-end for DNSChain admin interface)
 - [Mike Ward](https://twitter.com/bocamike) (Documentation)
+- [Dionysis Zindros](https://github.com/dionyziz) ([pydnschain](https://github.com/okTurtles/pydnschain) work)
+- [Chara Podimata](https://www.linkedin.com/in/charapodimata) ([pydnschain](https://github.com/okTurtles/pydnschain) work)
+- [Konstantinos Lolos](https://www.linkedin.com/in/kostislolos) ([pydnschain](https://github.com/okTurtles/pydnschain) work)
 - *Your name & link of choice here!*
 
 <a name="Release"></a>
