@@ -10,6 +10,8 @@ nconf.overrides
         port: 5333
     http:
         port: 8088
+        tlsKey: __dirname + "/key.pem"
+        tlsCert: __dirname + "/cert.pem"
     rateLimiting:
         dns:
             maxConcurrent: 1

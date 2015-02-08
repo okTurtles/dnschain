@@ -11,17 +11,30 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 
-# TODO: go through 'TODO's!
-
 ###
-- DNSChain configuration:
-    - local in ~/.dnschain.conf (or ~/.dnschain/dnschain.conf)
-    - global in /etc/dnschain/dnschain.conf
-- Namecoin
-    - Non-Windows: ~/.namecoin/namecoin.conf
-    - Windows: %APPDATA%\Namecoin\namecoin.conf
+All configuration options can be overwritten using command line args
+and/or environment variables.
 
-All parametrs can be overwritten using command line args and/or environment variables.
+Below you will see the available options and their defaults.
+
+- The top-level options map to sections in the config file.
+  I.e. `dns` and `log` designate the sections `[dns]` and `[log]`
+- All non top-level options are respresented via dot notation.
+  I.e. to set the `oldDNS` `address`, you'd do:
+
+    [dns]
+    oldDNS.address = 8.8.4.4
+
+- For each blockchain, you can specify its configuration file
+  by specifying the blockchain name as a section, and then
+  setting the config variable.
+  Example:
+
+    [namecoin]
+    config = /home/namecoin/.namecoin/namecoin.conf  
+
+See also:
+<https://github.com/okTurtles/dnschain/blob/master/docs/How-do-I-run-my-own.md#Configuration>
 ###
 
 nconf = require 'nconf'
@@ -37,6 +50,9 @@ module.exports = (dnschain) ->
     # TODO: add path to our private key for signing answers
     amRoot = process.getuid() is 0
 
+    # =================================================
+    # BEGIN DNSCHAIN CONFIGURATION OPTIONS AND DEFAULTS
+    # =================================================
     defaults = {
         log:
             level: if process.env.DNS_EXAMPLE then 'debug' else 'info'
@@ -96,7 +112,10 @@ module.exports = (dnschain) ->
                 minTime: 150
                 highWater: 10
                 strategy: Bottleneck.strategy.OVERFLOW
-    } # </dnschain defaults>
+    }
+    # ===============================================
+    # END DNSCHAIN CONFIGURATION OPTIONS AND DEFAULTS
+    # ===============================================
 
     fileFormatOpts =
         comments: ['#', ';']
@@ -111,34 +130,44 @@ module.exports = (dnschain) ->
         JSON: JSON
 
     # load our config
-    appname = "dnschain"
     nconf.argv().env()
+    dnscConf = _.find [
+        "#{process.env.HOME}/.dnschain.conf",
+        "#{process.env.HOME}/.dnschain/dnschain.conf",
+        "/etc/dnschain/dnschain.conf"
+    ]
+    , (x) -> fs.existsSync x
 
-    if process.env.HOME?
-        dnscConf = path.join process.env.HOME, ".#{appname}.conf"
-        unless fs.existsSync dnscConf
-            dnscConf = path.join process.env.HOME, ".#{appname}", "#{appname}.conf"
+    if dnscConf
+        console.info "[INFO] Loading DNSChain config from: #{dnscConf}"
         nconf.file 'user', {file: dnscConf, format: props}
-
-    nconf.file 'global', {file:"/etc/#{appname}/#{appname}.conf", format:props}
+    else
+        console.warn "[WARN] No DNSChain configuration file found. Using defaults!".yellow
 
     config =
         get: (key, store="dnschain") -> config.chains[store].get key
         set: (key, value, store="dnschain") -> config.chains[store].set key, value
         chains:
             dnschain: nconf.defaults defaults
-        add: (name, path, type) ->
+        add: (name, paths, type) ->
             return if config.chains[name]?
-            path = [path] if not Array.isArray(path)
+            paths = [paths] unless Array.isArray(paths)
             type = confTypes[type] || confTypes['JSON']
 
             # if dnschain's config specifies this chain's config path, prioritize it
             # fixes: https://github.com/okTurtles/dnschain/issues/60
-            path.push(config.chains.dnschain.get("#{name}:config")) if config.chains.dnschain.get("#{name}:config")?
+            if config.chains.dnschain.get("#{name}:config")?
+                paths.push config.chains.dnschain.get "#{name}:config"
 
             conf = (new nconf.Provider()).argv().env()
-            confFile = _.find path, (x) -> fs.existsSync x
-            conf.file('user',{file: confFile, format: type}) if confFile
+            confFile = _.find paths, (x) -> fs.existsSync x
+
+            if confFile
+                conf.file 'user', {file: confFile, format: type}
+            else
+                console.warn "[WARN] Couldn't find #{name} configuration:\n%j".bold.yellow, paths
+            
             # if dnschain's config specifies this chain's config information, use it as default
-            conf.defaults(config.chains.dnschain.get("#{name}")) if config.chains.dnschain.get("#{name}")?
+            if config.chains.dnschain.get("#{name}")?
+                conf.defaults config.chains.dnschain.get "#{name}"
             config.chains[name] = conf

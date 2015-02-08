@@ -14,11 +14,9 @@ Get yourself a Linux server (they come as cheap as $2/month), and then make sure
 1. `nodejs` and `npm` - We recommend using a package manager to install them.
 2. [coffee-script](https://github.com/jashkenas/coffee-script) (version 1.7.1+) - install via `npm install -g coffee-script`
 3. `grunt-cli` - install via `npm install -g grunt-cli`, provides the `grunt` command.
-4. `namecoind`
+4. A supported blockchain daemon like `namecoind`
 
-<!--5. `libgmp` - needed by Mozilla's [jwcrypto](https://github.com/mozilla/jwcrypto), install using `apt-get install libgmp-dev` (Debian) or `brew install gmp` (OS X).
-
-DNSChain __does not use the NodeJS crypto module__ for generating signed headers because that module uses `OpenSSL` (which is considered harmful [1](http://www.peereboom.us/assl/assl/html/openssl.html)[2](https://www.openssl.org/news/vulnerabilities.html)). Instead, Mozilla's [jwcrypto](https://github.com/mozilla/jwcrypto) is used.-->
+<!-- DNSChain __does not use the NodeJS crypto module__ for generating signed headers because that module uses `OpenSSL` (which is considered harmful [1](http://www.peereboom.us/assl/assl/html/openssl.html)[2](https://www.openssl.org/news/vulnerabilities.html)). Instead, Mozilla's [jwcrypto](https://github.com/mozilla/jwcrypto) is used. -->
 
 <a name="Getting"/>
 ## Getting Started
@@ -27,7 +25,28 @@ DNSChain __does not use the NodeJS crypto module__ for generating signed headers
 2. Run `namecoind` in the background. You can use `systemd` and create a `namecoin.service` file for it based off of [dnschain.service](<../scripts/dnschain.service>).
 3. If an update is released, update your copy using `npm update -g dnschain`.
 
+##### Generate SSL/TLS key and certificate
+
+By default DNSChain will look for its private key in `~/.dnschain/key.pem` and its public certificate in `~/.dnschain/cert.pem`.
+
+Here's how to create a self-signed certificate with `openssl` that expires in 2 years:
+
+    $ cd ~/.dnschain      # Or /etc/dnschain
+    $ openssl req -new -newkey rsa:4096 -days 730 -nodes -sha256 -x509 \
+              -subj "/C=US/ST=Florida/L=Miami/O=Company/CN=www.example.com" \
+              -keyout key.pem \
+              -out cert.pem
+
+- DNSChain will output the certificate fingerprint to the console when it runs.
+- __Important:__ make sure to `chmod` the private key `key.pem` so that only the user that DNSChain is running as can read it!
+
+##### Verify it runs
+
 Test DNSChain by simply running `dnschain` from the command line (developers [see here](#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](<../scripts/dnschain.service>) that you can use to run it.
+
+By default, it will start listening for DNS requests on port `53` if you run it as `root`, and `5333` otherwise. You can test `.bit` resolution with `dig`:
+
+    $ dig @localhost -p 5333 okturtles.bit
 
 **:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Debian Wheezy](setting-up-dnschain-namecoin-powerdns-server.md)**
 

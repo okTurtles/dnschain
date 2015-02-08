@@ -36,28 +36,38 @@ module.exports = (dnschain) ->
     libHTTPS = new ((require "./httpsUtils")(dnschain))
     httpSettings = gConf.get "http"
     unblockSettings = gConf.get "unblock"
-
     tlsLog = gNewLogger "TLSServer"
 
-    # We fetch the fingerprint directly using OpenSSL and then make sure we got the right thing.
-    fingerPrint = ""
-    require("child_process").exec "openssl x509 -fingerprint -sha256 -text -noout -in #{httpSettings.tlsCert} | grep SHA256", (err, stdout, stderr) ->
-        if err? then throw err
-        if stderr.length > 0 then throw new Error stderr
-        fingerPrint = stdout.replace(/\r/g, "\n").split("\n")[0].trim()[-95..]
-        if not /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test fingerPrint then throw new Error "Could not validate the certificate fingerprint (#{fingerPrint})"
-        tlsLog.info "Your certificate fingerprint is #{fingerPrint}"
-    setTimeout (() -> if fingerPrint.length == 0 then throw new Error "Took too long to fetch fingerprint"), 1000
+    try
+        for f in ['tlsKey', 'tlsCert']
+            throw f unless fs.existsSync httpSettings[f]
+    catch key
+        tlsLog.error (msg = "file for http:#{key} does not exist: #{httpSettings[key]}").bold.red
+        tlsLog.error "Vist this link for information on how to generate this file:".bold
+        tlsLog.error "https://github.com/okTurtles/dnschain/blob/master/docs/How-do-I-run-my-own.md#getting-started".bold
+        throw new Error msg
 
-    tlsOptions = try
-        {
-            key: fs.readFileSync httpSettings.tlsKey
-            cert: fs.readFileSync httpSettings.tlsCert
-        }
-    catch err
-        tlsLog.error "Cannot read the key/cert pair. See the README for instructions on how to generate them.".bold.red
-        tlsLog.error err.message.bold.red
-        process.exit -1
+    tlsLog.info " Key path: #{httpSettings.tlsKey}"
+    tlsLog.info "Cert path: #{httpSettings.tlsCert}"
+
+    tlsOptions =
+        key: fs.readFileSync httpSettings.tlsKey
+        cert: fs.readFileSync httpSettings.tlsCert
+
+    # We fetch the fingerprint directly using OpenSSL and then make sure we got the right thing.
+    fingerprint = ""
+    fingerprintCmd = "openssl x509 -fingerprint -sha256 -text -noout -in #{httpSettings.tlsCert} | grep SHA256"
+
+    # TODO: convert to `execSync` when more people switch to node 0.12
+    require('child_process').exec fingerprintCmd, {timeout:1000}, (err, stdout, stderr) ->
+        throw err if err?
+        throw new Error stderr if stderr.length > 0
+        fingerprint = stdout.replace(/\r/g, "\n").split("\n")[0].trim()[-95..]
+        unless /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test fingerprint
+            throw new Error "Could not validate the certificate fingerprint (#{fingerprint})"
+        
+        tlsLog.info "Your certificate fingerprint is:", fingerprint.bold
+
     TLSServer = tls.createServer tlsOptions, (c) ->
         libHTTPS.getStream "127.0.0.1", httpSettings.port, (err, stream) ->
             if err?
@@ -128,9 +138,11 @@ module.exports = (dnschain) ->
                     cb()
                     @log.debug gLineInfo "Tunnel: "+host
 
-        getFingerPrint: ->
-            if fingerPrint.length == 0 then throw new Error "Cached fingerprint couldn't be read, this should not be possible."
-            fingerPrint
+        getFingerprint: ->
+            if fingerprint.length == 0
+                throw new Error "Cached fingerprint couldn't be read."
+            else
+                fingerprint
 
         shutdown: (cb=->) ->
             @log.debug "HTTPS servers shutting down!"
