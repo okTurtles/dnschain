@@ -138,6 +138,8 @@ module.exports = (dnschain) ->
     ]
     , (x) -> fs.existsSync x
 
+    # we can't access `dnschain.globals.gLogger` here because it hasn't
+    # been defined yet unfortunately.
     if dnscConf
         console.info "[INFO] Loading DNSChain config from: #{dnscConf}"
         nconf.file 'user', {file: dnscConf, format: props}
@@ -150,22 +152,26 @@ module.exports = (dnschain) ->
         chains:
             dnschain: nconf.defaults defaults
         add: (name, paths, type) ->
+            log = dnschain.globals.gLogger
             return if config.chains[name]?
             paths = [paths] unless Array.isArray(paths)
             type = confTypes[type] || confTypes['JSON']
 
             # if dnschain's config specifies this chain's config path, prioritize it
             # fixes: https://github.com/okTurtles/dnschain/issues/60
-            if config.chains.dnschain.get("#{name}:config")?
-                paths.push config.chains.dnschain.get "#{name}:config"
+            customConfigPath = config.chains.dnschain.get "#{name}:config"
+            if customConfigPath?
+                paths = [customConfigPath]
+                log.info "custom config path for #{name}: #{paths[0]}"
 
             conf = (new nconf.Provider()).argv().env()
             confFile = _.find paths, (x) -> fs.existsSync x
 
             if confFile
+                log.info "#{name} configuration path: #{confFile}"
                 conf.file 'user', {file: confFile, format: type}
             else
-                console.warn "[WARN] Couldn't find #{name} configuration:\n%j".bold.yellow, paths
+                log.warn "Couldn't find #{name} configuration:".bold.yellow, paths
             
             # if dnschain's config specifies this chain's config information, use it as default
             if config.chains.dnschain.get("#{name}")?
