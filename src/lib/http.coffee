@@ -66,7 +66,7 @@ module.exports = (dnschain) ->
 
             @dnschain.cache.resolveBlockchain resolver, path, options, (err,result) =>
                 if err
-                    @log.debug gLineInfo('resolver failed'), {err:err}
+                    @log.debug gLineInfo('resolver failed'), {err:err.message}
                     return notFound()
                 else
                     res.writeHead 200, 'Content-Type': 'application/json'

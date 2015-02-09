@@ -11,7 +11,10 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 
-redis = require 'redis'
+if process.env.TEST_DNSCHAIN and not process.env.TEST_REAL_REDIS
+    redis = require 'fakeredis'
+else
+    redis = require 'redis'
 
 module.exports = (dnschain) ->
     # expose these into our namespace

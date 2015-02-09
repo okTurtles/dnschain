@@ -50,12 +50,13 @@ module.exports = (dnschain) ->
             , (x) -> path.join x...), 'INI'
 
             # we want them in this exact order:
-            params = ["port", "connect", "user", "password"].map (x) => gConf.chains[@name].get 'rpc'+x
+            params = ["port", "connect", "user", "password"].map (x) =>
+                gConf.chains[@name].get 'rpc'+x
             params[1] ?= "127.0.0.1"
             if not _.every params
                 @log.info "#{@name} disabled. (namecoin.conf not found, or rpcuser, rpcpassword, rpcport not found)"
                 return
-            gConf.chains[@name].set 'host', gConf.chains[@name].get('rpcconnect')
+            gConf.chains[@name].set 'host', params[1]
             @peer = rpc.Client.$create(params...) or gErr "rpc create"
 
             # TODO: $create doesn't actually connect. you need to open a raw socket
@@ -76,9 +77,10 @@ module.exports = (dnschain) ->
                     path = path.slice(dotIdx+1) #rm subdomain
                 path = 'd/' + path
             @log.debug gLineInfo("#{@name} resolve"), {path:path}
-            @peer.call 'name_show', [path], (err, ans) ->
+            @peer.call 'name_show', [path], (err, ans) =>
                 return cb(err) if err
                 try
+                    # @log.debug "got response back:", ans
                     result.value = JSON.parse ans.value
                     cb null, result
                 catch e
