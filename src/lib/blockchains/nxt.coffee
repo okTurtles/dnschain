@@ -75,8 +75,8 @@ module.exports = (dnschain) ->
                     data += chunk.toString()
                 res.on 'end', () ->
                     try
-                      result = JSON.parse data
-                      result.value = JSON.parse result.aliasURI
+                      response = JSON.parse data
+                      result.value = JSON.parse response.aliasURI
                       cb null, result
                     catch e
                       cb e  
