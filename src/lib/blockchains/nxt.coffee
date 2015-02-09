@@ -69,7 +69,7 @@ module.exports = (dnschain) ->
 
             @log.debug gLineInfo("#{@name} resolve"), {path:path}
             
-            req = http.get @peer + path, (res) ->
+            req = http.get @peer + encodeURIComponent(path), (res) ->
                 data = ''
                 res.on 'data', (chunk) ->
                     data += chunk.toString()
@@ -80,8 +80,8 @@ module.exports = (dnschain) ->
                       cb null, result
                     catch e
                       cb e  
-            req.on 'error', ->
-                cb
+            req.on 'error', (e) ->
+                cb e
 
         validRequest: (path) -> VALID_NXT_DOMAINS.test path
 
