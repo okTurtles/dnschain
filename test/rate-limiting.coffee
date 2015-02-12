@@ -3,7 +3,7 @@
 assert = require 'assert'
 should = require 'should'
 Promise = require 'bluebird'
-_ = require 'lodash-contrib'
+_ = require 'lodash'
 execAsync = Promise.promisify require('child_process').exec
 {dnschain: {DNSChain, globals: {gConf}}} = require './support/env'
 {TimeoutError} = Promise
@@ -39,7 +39,7 @@ digAsync = ({parallelism, timeout, domain}, cb)->
         cb null, results
 
 describe 'rate limiting', ->
-    this.timeout 6 * 1000
+    this.timeout 10 * 1000
     server = null
 
     it 'should start with default settings', (done) ->
@@ -65,12 +65,13 @@ describe 'rate limiting', ->
         # See: https://github.com/okTurtles/dnschain/issues/107
         digAsync {parallelism:5, domain:'ssl-google-analytics.l.google.com'}, (err, results) ->
             results.should.have.length(5)
-            _(results).where('err').map('err').value().should.matchEach 'TimeoutError'
-            _.where(results, 'status').should.have.length(1)
+            errors = _(results).where(err:'TimeoutError').map('err').value()
+            errors.should.matchEach 'TimeoutError'
+            errors.should.have.length(4)
             done()
 
     it 'should succeed on all requests', (done) ->
-        this.slow 1000 # milliseconds
+        this.slow 3000 # milliseconds
         
         # different domains = complete parallelism
         domains = ['okturtles.org', 'eff.org', 'lobste.rs', 'taoeffect.com', 'twitter.com']

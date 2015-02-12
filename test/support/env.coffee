@@ -3,6 +3,7 @@
 nconf = require 'nconf'
 Bottleneck = require 'bottleneck'
 rpc = require 'json-rpc2'
+require 'winston' # for strong coloring
 
 process.env.TEST_DNSCHAIN = 1
 
@@ -12,9 +13,18 @@ process.env.TEST_DNSCHAIN = 1
 # By default we use fakeredis.
 # Set the TEST_REAL_REDIS environment variable to test with real server.
 
-nconf.overrides
+if process.env.TRAVIS and process.env.CI
+    console.info "Detected Travic CI!".bold
+    # travis has support for redis
+    process.env.TEST_REAL_REDIS = 1
+
+console.info "Setting up test environment...".bold
+
+overrides =
     dns:
         port: 5333
+        oldDNS:
+            address: '192.184.93.146'
     http:
         port: 8088
         tlsKey: __dirname + "/key.pem"
@@ -22,10 +32,8 @@ nconf.overrides
     redis:
         socket: '127.0.0.1:6379'
         oldDNS:
-            enabled: false # this will be enabled in the redis test
             ttl: 600
         blockchain:
-            enabled: false # this will be enabled in the redis test
             ttl: 600
     rateLimiting:
         dns:
@@ -47,9 +55,7 @@ nconf.overrides
 
 # set TEST_REAL_NAMECOIN environment variable to test with real namecoin instance
 unless process.env.TEST_REAL_NAMECOIN
-    nconf.overrides
-        namecoin:
-            config: __dirname + "/namecoin.conf"
+    overrides.namecoin = config: __dirname + "/namecoin.conf"
 
     rpcMockServer = rpc.Server.$create()
     rpcMockServer.enableAuth (u,p) -> u is 'user' and p is 'password'
@@ -66,5 +72,10 @@ unless process.env.TEST_REAL_NAMECOIN
     # listen on the port that's defined in support/namecoin.conf
     rpcMockServer.listen 8337, 'localhost'
 
+nconf.overrides overrides
+
 module.exports =
     dnschain: require '../../src/lib/dnschain'
+    overrides: overrides # passing this this makes it
+                         # possible to override the overrides
+                         # later one (see test/https.coffee for example)

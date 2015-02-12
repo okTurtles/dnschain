@@ -63,7 +63,7 @@ module.exports = (dnschain) ->
                         # https://publicsuffix.org/list/effective_tld_names.dat
                         #
                         # See: https://github.com/okTurtles/dnschain/issues/107 !
-                        domain = [domain[-4..1][0][-1..]].concat(domain[-3..]).join '.'
+                        domain = [domain[-4..][0][-1..]].concat(domain[-3..]).join '.'
                     else
                         domain = domain[-3..].join '.'
 

@@ -75,11 +75,11 @@ module.exports = (dnschain) ->
                     data += chunk.toString()
                 res.on 'end', () ->
                     try
-                      response = JSON.parse data
-                      result.value = JSON.parse response.aliasURI
-                      cb null, result
+                        response = JSON.parse data
+                        result.value = JSON.parse response.aliasURI
+                        cb null, result
                     catch e
-                      cb e  
+                        cb e
             req.on 'error', (e) ->
                 cb e
 

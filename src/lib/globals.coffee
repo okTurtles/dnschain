@@ -20,7 +20,7 @@ module.exports = (dnschain) ->
 
     dnschain.globals =
         rpc        : 'json-rpc2'
-        _          : 'lodash-contrib'
+        _          : 'lodash'
         S          : 'string'
         dns2       : 'native-dns'
         es         : 'event-stream'

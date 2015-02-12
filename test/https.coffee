@@ -3,9 +3,9 @@
 assert = require 'assert'
 should = require 'should'
 Promise = require 'bluebird'
-_ = require 'lodash-contrib'
+_ = require 'lodash'
 execAsync = Promise.promisify require('child_process').exec
-{dnschain: {DNSChain, globals: {gConf}}} = require './support/env'
+{dnschain: {DNSChain, globals: {gConf}}, overrides} = require './support/env'
 {TimeoutError} = Promise
 
 describe 'https', ->
@@ -48,8 +48,14 @@ describe 'https', ->
         nconf = require 'nconf'
         savedPath = gConf.get 'http:tlsCert'
         fakePath = '/this/path/shouldnt/exist.pem'
-        console.info "was: #{savedPath}".bold
-        nconf.overrides http: tlsCert: fakePath
+        console.info "was   : #{savedPath}".bold
+        # yes, this is hackish, and it would be ideal to use
+        #   gConf.set('http:tlsCert', fakePath)
+        # But that doesn't work ... because nconf is lacking.
+        # So we do it this way instead. (I tried several other methods,
+        # and only this worked without breaking anything else.)
+        overrides.http.tlsCert = fakePath
+        nconf.overrides overrides
         console.info "now is: #{gConf.get 'http:tlsCert'}".bold
         gConf.get('http:tlsCert').should.equal fakePath
         assert.throws ->
@@ -59,5 +65,6 @@ describe 'https', ->
             catch e
                 console.info e.stack
                 # reset path so that future tests work OK
-                nconf.overrides http: tlsCert: savedPath
+                overrides.http.tlsCert = savedPath
+                nconf.overrides overrides
                 throw e

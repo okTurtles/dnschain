@@ -128,6 +128,7 @@ _Approximate chronological order._
 - [Dionysis Zindros](https://github.com/dionyziz) ([pydnschain](https://github.com/okTurtles/pydnschain) work)
 - [Chara Podimata](https://www.linkedin.com/in/charapodimata) ([pydnschain](https://github.com/okTurtles/pydnschain) work)
 - [Konstantinos Lolos](https://www.linkedin.com/in/kostislolos) ([pydnschain](https://github.com/okTurtles/pydnschain) work)
+- [Anton Wilhelm](https://github.com/toenu23) (Support for [Nxt](http://nxt.org) cryptocurrency)
 - *Your name & link of choice here!*
 
 <a name="Release"></a>
