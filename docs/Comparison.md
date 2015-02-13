@@ -10,7 +10,8 @@ Google's Certificate Transparency proposal wants certificate authorities (CAs) t
 
 [DNSSEC](http://www.icann.org/en/about/learning/factsheets/dnssec-qaa-09oct08-en.htm) suggests a complicated mechanism to essentially re-create many of the same problems with X509 and CAs in DNS itself, by providing a chain of trust to untrustworthy entities. Its intended goal is to secure DNS and thereby assure clients that when they ask for apple.com, they are actually visiting apple.com. This proposal [does not protect against MITM attacks](http://www.thoughtcrime.org/blog/ssl-and-the-future-of-authenticity/). It suffers from extreme and unnecessary complexity, a systemic fault that's antithetical to secure systems.
 
-- __See also: [why DNSSEC is considered harmful.](http://ianix.com/pub/dnssec-outages.html)__
+- :page_facing_up: __[DNSSEC Outages](http://ianix.com/pub/dnssec-outages.html)__ (Scroll down to __"Miscellaneous"__ section)
+- :page_facing_up: __[Against DNSSEC](http://sockpuppet.org/blog/2015/01/15/against-dnssec/)__
 
 ## Convergence
 
