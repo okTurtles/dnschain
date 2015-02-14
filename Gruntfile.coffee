@@ -28,6 +28,7 @@ module.exports = (grunt)->
         coffeelint:
             gruntfile: ['<%= watch.gruntfile.files %>']
             src: ['<%= watch.src.files %>']
+            test: ['test/**/*.coffee']
             options:
                 configFile: "coffeelint.json"
         watch:

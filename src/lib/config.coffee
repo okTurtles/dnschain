@@ -138,6 +138,11 @@ module.exports = (dnschain) ->
     ]
     , (x) -> fs.existsSync x
 
+    if process.env.HOME and not fs.existsSync "#{process.env.HOME}/.dnschain"
+        # create this folder on UNIX based systems so that https.coffee
+        # can autogen the private/public key if they don't exist
+        fs.mkdirSync "#{process.env.HOME}/.dnschain", 0o710
+
     # we can't access `dnschain.globals.gLogger` here because it hasn't
     # been defined yet unfortunately.
     if dnscConf

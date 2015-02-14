@@ -112,14 +112,14 @@ describe 'Redis DNS cache', ->
 describe 'Redis HTTP API cache', ->
 
     # time how long it takes to do a bunch of DNS requests
-    it 'should measure non-redis HTTP API performance', ->
+    it.skip 'should measure non-redis HTTP API performance', ->
         console.warn "TODO: this test!".bold.yellow
 
     # time how long it takes to do a bunch of DNS requests
-    it 'should measure how long it takes to repeat queries with redis disabled', ->
+    it.skip 'should measure how long it takes to repeat queries with redis disabled', ->
         console.warn "TODO: this test!".bold.yellow
 
     # make the same queries now 
-    it 'should be significantly faster to repeat queries with redis enabled', ->
+    it.skip 'should be significantly faster to repeat queries with redis enabled', ->
         console.warn "TODO: this test!".bold.yellow
 
