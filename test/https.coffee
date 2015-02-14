@@ -98,14 +98,14 @@ describe 'https', ->
 
     it 'should autogenerate certificate/key files', ->
         this.timeout = 10 * 1000
-        material =
+        keyMaterial =
             tlsCert: __dirname + "/support/_tmpCert.pem"
             tlsKey : __dirname + "/support/_tmpKey.pem"
         {dnschain} = require './support/env'
         genKeyCertPairAsync = Promise.promisify require('../src/lib/pem')(dnschain).genKeyCertPair
 
-        genKeyCertPairAsync(material.tlsKey, material.tlsCert).then ->
-            keyMaterial = _(material).transform((o, v, k)->
+        genKeyCertPairAsync(keyMaterial.tlsKey, keyMaterial.tlsCert).then ->
+            keyMaterial = _(keyMaterial).transform((o, v, k)->
                 o[k] = { key:k, path:v, exists: fs.existsSync(v) }
             ).value()
             _.where(keyMaterial, exists:true).map (f)->
