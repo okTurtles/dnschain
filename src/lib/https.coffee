@@ -73,7 +73,7 @@ module.exports = (dnschain) ->
 
     # Fetch the public key fingerprint of the cert we're using and log to console 
     fingerprint = ""
-    pem.certFingerprint (err, f) ->
+    pem.certFingerprint httpSettings.tlsCert, (err, f) ->
         throw err if err
         tlsLog.info "Your certificate fingerprint is:", (fingerprint = f).bold
 

@@ -16,6 +16,7 @@ describe 'https', ->
     port = gConf.get 'http:tlsPort'
     testData = /hi@okturtles.com/ # results should contain this
     httpSettings = gConf.get "http"
+    this.timeout 20 * 1000
 
     it 'should start with default settings', ->
         console.log "START: default settings".bold
@@ -97,7 +98,6 @@ describe 'https', ->
 
     # TODO: skip or remove this when the one above works.
     it 'should generate certificate/key files', ->
-        this.timeout = 10 * 1000
         keyMaterial =
             tlsCert: __dirname + "/support/_tmpCert.pem"
             tlsKey : __dirname + "/support/_tmpKey.pem"

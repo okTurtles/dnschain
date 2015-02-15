@@ -51,7 +51,7 @@ module.exports = (dnschain) ->
 
         shutdown: ->
             @shutdownCheck (cb) =>
-                @cache.end()
+                @cache?.end()
                 cb()
 
         get: (key, valueRetriever, valueDoer) ->
@@ -67,7 +67,7 @@ module.exports = (dnschain) ->
                     valueDoer err, key, value
 
         resolveBlockchain: (resolver, path, options, cb) ->
-            if @blockchainEnabled? and resolver.cacheTTL?
+            if @blockchainEnabled and resolver.cacheTTL?
                 retriever = (key, callback) =>
                     f = (err, result) =>
                         callback err, resolver.cacheTTL, result
@@ -79,7 +79,7 @@ module.exports = (dnschain) ->
                 resolver.resolve path, options, cb
 
         resolveOldDNS: (req, cb) ->
-            if @oldDNSEnabled?
+            if @oldDNSEnabled
                 q = req.question[0]
                 retriever = (key, callback) =>
                     f = (err, result) =>

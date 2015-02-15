@@ -50,13 +50,12 @@ describe 'Redis DNS cache', ->
     server = null
     testTimes = []
 
-    it 'should start with default settings', (done) ->
+    it 'should start with default settings', ->
         this.slow 1000
         console.log "START: default settings".bold
         gConf.set 'redis:oldDNS:enabled', false
         gConf.set 'redis:blockchain:enabled', false
-        server = new DNSChain()
-        server.start()
+        (server = new DNSChain()).start()
 
     # time how long it takes to do a bunch of DNS requests
     it 'should measure non-redis DNS performance', ->

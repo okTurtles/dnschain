@@ -57,13 +57,13 @@ exports.DNSChain = class DNSChain
         gFillWithRunningChecks @
 
     start: ->
-        @startCheck Promise.all(@servers.map (s)-> s.start()).then ->
-            [host, port] = ['dns:externalIP', 'dns:port'].map gConf.get
+        @startCheck Promise.all(@servers.map (s)-> s.start()).then =>
+            [host, port] = ['dns:externalIP', 'dns:port'].map (x)-> gConf.get x
             @log.info "DNSChain started and advertising DNS on: #{host}:#{port}"
 
             if process.getuid() isnt 0 and port isnt 53 and require('tty').isatty process.stdout
                 @log.warn "DNS port isn't 53!".bold.red, "While testing you should either run me as root or make sure to set standard ports in the configuration!".bold
-        .catch (e) ->
+        .catch (e) =>
             @log.error "DNSChain failed to start:", e.stack
             @shutdown()
             throw e # re-throw to indicate that this promise failed
