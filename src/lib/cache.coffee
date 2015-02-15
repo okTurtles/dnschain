@@ -33,9 +33,9 @@ module.exports = (dnschain) ->
                 @oldDNSTTL = gConf.get 'redis:oldDNS:ttl'
 
                 if !@blockchainEnabled and !@oldDNSEnabled
-                    @log.info "cache not enabled"
+                    @log.info "cache not enabled".bold.yellow
                 else
-                    @log.info "cache is enabled"
+                    @log.info "cache is enabled".bold
                     [host,port] = gConf.get('redis:socket').split(':')
                     @cache =
                         if port?

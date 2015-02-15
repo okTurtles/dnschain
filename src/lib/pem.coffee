@@ -28,7 +28,7 @@ module.exports = (dnschain) ->
                 if err
                     cb new Error "Failed to read public key fingerprint: #{err?.message}: #{stderr}"
                 else
-                    cb null, c.match(/SHA256 Fingerprint=([0-9A-F:]{95})$/m)[1]
+                    cb null, stdout.match(/SHA256 Fingerprint=([0-9A-F:]{95})$/m)[1]
 
         genKeyCertPair: (key, cert, [opts]..., cb) ->
             opts = _.defaults((opts || {}), {timeout:10000, encoding:'utf8'})

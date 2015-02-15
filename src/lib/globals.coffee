@@ -129,10 +129,12 @@ module.exports = (dnschain) ->
                     @log.warn gLineInfo "Shutdown called when not running!"
                     Promise.reject()
             server.startFinished = (args...) ->
+                args[0] = '' if args.length is 1 and !args[0]?
                 @log.info "Server started.", args...
                 @running = true
                 Promise.resolve()
             server.shutdownFinished = (args...) ->
+                args[0] = '' if args.length is 1 and !args[0]?
                 @log.info "Server shutdown successfully.", args...
                 @running = false
                 Promise.resolve()
