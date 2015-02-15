@@ -77,10 +77,16 @@ module.exports = (dnschain) ->
 
             @log.info 'started DNS', gConf.get 'dns'
 
-        shutdown: (cb) ->
+        start: ->
+            # TODO: set this up with gFillWithRunningChecks
+            # native-dns doesn't take a callback for @server.serve
+            Promise.resolve()
+
+
+        shutdown: ->
             @log.debug 'shutting down!'
             @server.close() # native-dns.close doesn't take a callback
-            cb?()
+            Promise.resolve()
 
         # (Notes on 'native-dns' version <=0.6.x, which I'd like to see changed.)
         #

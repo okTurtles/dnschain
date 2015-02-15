@@ -28,12 +28,17 @@ module.exports = (dnschain) ->
                 limiter.submit (@callback.bind @), req, res, null
             ) or gErr "http create"
             @server.on 'error', (err) -> gErr err
-            @server.listen gConf.get('http:port'), gConf.get('http:host'), =>
-                @log.info 'started HTTP', gConf.get 'http'
+            gFillWithRunningChecks @
 
-        shutdown: (cb=->) ->
-            @log.debug 'shutting down!'
-            @server.close cb
+        start: ->
+            @startCheck (cb) =>
+                @server.listen gConf.get('http:port'), gConf.get('http:host'), =>
+                    cb gConf.get 'http'
+
+        shutdown: ->
+            @shutdownCheck (cb) =>
+                @log.debug 'shutting down!'
+                @server.close cb
 
         callback: (req, res, cb) ->
             path = S(url.parse(req.url).pathname).chompLeft('/').s

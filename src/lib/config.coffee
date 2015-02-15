@@ -169,15 +169,15 @@ module.exports = (dnschain) ->
                 paths = [customConfigPath]
                 log.info "custom config path for #{name}: #{paths[0]}"
 
-            conf = (new nconf.Provider()).argv().env()
             confFile = _.find paths, (x) -> fs.existsSync x
 
-            if confFile
-                log.info "#{name} configuration path: #{confFile}"
-                conf.file 'user', {file: confFile, format: type}
-            else
+            unless confFile
                 log.warn "Couldn't find #{name} configuration:".bold.yellow, paths
+                return
             
+            conf = (new nconf.Provider()).argv().env()
+            log.info "#{name} configuration path: #{confFile}"
+            conf.file 'user', {file: confFile, format: type}
             # if dnschain's config specifies this chain's config information, use it as default
             if config.chains.dnschain.get("#{name}")?
                 conf.defaults config.chains.dnschain.get "#{name}"

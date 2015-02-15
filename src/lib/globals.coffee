@@ -113,6 +113,31 @@ module.exports = (dnschain) ->
             gLogger.error e.stack
             throw e
 
+        gFillWithRunningChecks: (server) ->
+            server.startCheck = (cbOrPromise) ->
+                if @running?
+                    @log.warn gLineInfo "Already running!"
+                    Promise.reject()
+                else
+                    @log.info "Starting up..."
+                    (cbOrPromise.then ? cbOrPromise) @shutdownFinished.bind @
+            server.shutdownCheck = (cbOrPromise) ->
+                if @running?
+                    @log.info "Shutting down..."
+                    (cbOrPromise.then ? cbOrPromise) @shutdownFinished.bind @
+                else
+                    @log.warn gLineInfo "Shutdown called when not running!"
+                    Promise.reject()
+            server.startFinished = (args...) ->
+                @log.info "Server started.", args...
+                @running = true
+                Promise.resolve()
+            server.shutdownFinished = (args...) ->
+                @log.info "Server shutdown successfully.", args...
+                @running = false
+                Promise.resolve()
+            server # as a convenience, return the server instance
+
         gThrottle: (key, makeLimiter) -> limiters[key] ? (limiters[key] = makeLimiter())
 
         # TODO: this function should take one parameter: an IP string

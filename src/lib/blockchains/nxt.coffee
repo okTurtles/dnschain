@@ -37,27 +37,24 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'NXT'
             @name = 'nxt'
             @tld = 'nxt'
+            gFillWithRunningChecks @
 
         config: ->
             @log.debug "Loading #{@name} resolver"
 
-            params = ["port", "connect"].map (x)-> gConf.get "nxt:#{x}"
+            @params = _.transform ["port", "connect"], (o,v) =>
+                o[v] = gConf.get 'nxt:'+v
+            , {}
 
-            if not _.every params
-                @log.info "#{@name} disabled. (host or port not defined)"
+            unless _(@params).values().every()
+                missing = _.transform @params, ((o,v,k)->if !v then o.push 'nxt:'+k), []
+                @log.info "Disabled. Missing params:", missing
                 return
 
-            @peer = 'http://' + params[1] + ':' + params[0] + '/nxt?requestType=getAlias&aliasName='
+            @peer = "http://#{@params.connect}:#{@params.port}/nxt?requestType=getAlias&aliasName="
 
-            # TODO: $create doesn't actually connect. you need to open a raw socket
-            #       or an http socket and see if that works before declaring it works
-            @log.info "Nxt API on: %s:%d", params[1], params[0]
+            @log.info "Nxt API on:", @params
             @
-
-        shutdown: (cb) ->
-            @log.debug 'shutting down!'
-            # @peer.end() # TODO: fix this!
-            cb?()
 
         resolve: (path, options, cb) ->
             result = @resultTemplate()

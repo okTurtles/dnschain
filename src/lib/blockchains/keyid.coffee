@@ -23,33 +23,40 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'BDNS'
             @tld = 'p2p'
             @name = 'keyid'
+            gFillWithRunningChecks @
 
         config: ->
             @log.debug "Loading #{@name} resolver"
 
-            gConf.add @name, _.map(_.filter([
+            return unless gConf.add @name, _.map(_.filter([
                 [process.env.APPDATA, 'KeyID', 'config.json'],
                 [process.env.HOME, '.KeyID', 'config.json'],
                 [process.env.HOME, 'Library', 'Application Support', 'KeyID', 'config.json']]
             , (x) -> !!x[0])
             , (x) -> path.join x...)
-            get = gConf.chains[@name].get.bind(gConf.chains[@name])
-            endpoint = get('rpc:httpd_endpoint')?.split ':'
-            if endpoint?
-                [host, port] = [endpoint[0], parseInt endpoint[1]]
-                gConf.chains[@name].set 'host', host
-                @peer = rpc.Client.$create port, host, get('rpc:rpc_user'), get('rpc:rpc_password')
-                gErr "rpc $create #{@name}" unless @peer
-                @log.info "rpc to bitshares_client on: %s:%d/rpc", host, port
-                return @
-            else
-                @log.info "#{@name} disabled. (config.json not found)"
+
+            @params = _.transform ["httpd_endpoint", "rpc_user", "rpc_password"], (o,v) =>
+                o[v] = gConf.chains[@name].get 'rpc:'+v
+            , {}
+
+            unless _(@params).values().every()
+                missing = _.transform @params, ((o,v,k)->if !v then o.push 'rpc:'+k), []
+                @log.info "Disabled. Missing params:", missing
                 return
 
-        shutdown: (cb) ->
-            @log.debug 'shutting down!'
-            # @peer.end() # TODO: fix this!
-            cb?()
+            [@params.host, @params.port] = @params.httpd_endpoint.split ':'
+            @params.port = parseInt @params.port
+            gConf.chains[@name].set 'host', @params.host
+            @
+
+        start: ->
+            @startCheck (success) =>
+                params = _.at @params, ["port", "host", "rpc_user", "rpc_password"]
+                # TODO: $create doesn't actually connect. you need to open a raw socket
+                #       or an http socket and see if that works before declaring it works
+                @peer = rpc.Client.$create(params...) or gErr "rpc create"
+                @log.info "rpc to bitshares_client on: %s:%d/rpc", @params.host, @params.port
+                success()
 
         resolve: (path, options, cb) ->
             result = @resultTemplate()

@@ -99,8 +99,17 @@ module.exports = (dnschain) ->
                 limiter.submit (@callback.bind @), c, null
             @server.on "error", (err) -> gErr err
             @server.on "close", => @log.info "HTTPS server has shutdown."
-            @server.listen httpSettings.tlsPort, httpSettings.host, =>
-                @log.info gLineInfo("started HTTPS server"), httpSettings
+            gFillWithRunningChecks @
+
+        start: ->
+            @startCheck (cb) =>
+                @server.listen httpSettings.tlsPort, httpSettings.host, =>
+                    cb httpSettings
+
+        shutdown: ->
+            @shutdownCheck (cb) =>
+                TLSServer.close() # node docs don't indicate this takes a callback
+                @server.close cb
 
         callback: (c, cb) ->
             libHTTPS.getClientHello c, (err, category, host, buf) =>
@@ -152,8 +161,3 @@ module.exports = (dnschain) ->
                 gErr "Cached fingerprint couldn't be read in time."
             else
                 fingerprint
-
-        shutdown: (cb=->) ->
-            @log.debug "HTTPS servers shutting down!"
-            TLSServer.close() # node docs don't indicate this takes a callback
-            @server.close cb

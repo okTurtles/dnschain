@@ -37,11 +37,12 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'NMC'
             @name = 'namecoin'
             @tld = 'bit'
+            gFillWithRunningChecks @
 
         config: ->
             @log.debug "Loading #{@name} resolver"
 
-            gConf.add @name, _.map(_.filter([
+            return unless gConf.add @name, _.map(_.filter([
                 [process.env.APPDATA, 'Namecoin', 'namecoin.conf']
                 [process.env.HOME, '.namecoin', 'namecoin.conf']
                 [process.env.HOME, 'Library', 'Application Support', 'Namecoin', 'namecoin.conf']
@@ -49,25 +50,27 @@ module.exports = (dnschain) ->
             , (x) -> !!x[0])
             , (x) -> path.join x...), 'INI'
 
-            # we want them in this exact order:
-            params = ["port", "connect", "user", "password"].map (x) =>
-                gConf.chains[@name].get 'rpc'+x
-            params[1] ?= "127.0.0.1"
-            if not _.every params
-                @log.info "#{@name} disabled. (namecoin.conf not found, or rpcuser, rpcpassword, rpcport not found)"
-                return
-            gConf.chains[@name].set 'host', params[1]
-            @peer = rpc.Client.$create(params...) or gErr "rpc create"
+            @params = _.transform ["port", "connect", "user", "password"], (o,v) =>
+                o[v] = gConf.chains[@name].get 'rpc'+v
+            , {}
+            @params.connect ?= "127.0.0.1"
 
-            # TODO: $create doesn't actually connect. you need to open a raw socket
-            #       or an http socket and see if that works before declaring it works
-            @log.info "rpc to namecoind on: %s:%d", params[1], params[0]
+            unless _(@params).values().every()
+                missing = _.transform @params, ((o,v,k)->if !v then o.push 'rpc'+k), []
+                @log.info "Disabled. Missing params:", missing
+                return
+
+            gConf.chains[@name].set 'host', @params.connect
             @
 
-        shutdown: (cb) ->
-            @log.debug 'shutting down!'
-            # @peer.end() # TODO: fix this!
-            cb?()
+        start: ->
+            @startCheck (success) =>
+                params = _.at @params, ["port", "connect", "user", "password"]
+                # TODO: $create doesn't actually connect. you need to open a raw socket
+                #       or an http socket and see if that works before declaring it works
+                @peer = rpc.Client.$create(params...) or gErr "rpc create"
+                @log.info "rpc to namecoind on: %s:%d", @params.connect, @params.port
+                success()
 
         resolve: (path, options, cb) ->
             result = @resultTemplate()

@@ -45,7 +45,7 @@ describe 'rate limiting', ->
     it 'should start with default settings', (done) ->
         console.log "START: default settings".bold
         server = new DNSChain()
-        setTimeout done, 100 # wait for it to finish starting
+        server.start()
 
     it 'should be ~200ms apart', (done) ->
         this.slow 600 # milliseconds

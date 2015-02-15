@@ -24,26 +24,35 @@ module.exports = (dnschain) ->
     class ResolverCache
         constructor: (@dnschain) ->
             @log = gNewLogger 'Redis'
-            @log.info "Loading Redis Cache..."
-            if gConf.get('redis:blockchain:enabled') or gConf.get('redis:oldDNS:enabled')
-                @log.info "cache enabled"
-                [host,port] = gConf.get('redis:socket').split(':')
-                @cache =
-                    if port?
-                        if isNaN(portNum = parseInt port)
-                            gErr "Redis port is NaN: #{port}"
-                        redis.createClient portNum, host
-                    else
-                        redis.createClient host
+            gFillWithRunningChecks @
+
+        start: ->
+            @startCheck (cb) =>
                 @blockchainEnabled = gConf.get 'redis:blockchain:enabled'
                 @oldDNSEnabled = gConf.get 'redis:oldDNS:enabled'
                 @oldDNSTTL = gConf.get 'redis:oldDNS:ttl'
-                @cache.on 'error', (err) =>
-                    @log.error "cache errored"
-                    @shutdown()
 
-            else
-                @log.info "cache disabled"
+                if !@blockchainEnabled and !@oldDNSEnabled
+                    @log.info "cache not enabled"
+                else
+                    @log.info "cache is enabled"
+                    [host,port] = gConf.get('redis:socket').split(':')
+                    @cache =
+                        if port?
+                            if isNaN(portNum = parseInt port)
+                                gErr "Redis port is NaN: #{port}"
+                            redis.createClient portNum, host
+                        else
+                            redis.createClient host
+                    @cache.on 'error', (err) =>
+                        @log.error "cache errored: #{err.message}", err
+                        @shutdown()
+                cb()
+
+        shutdown: ->
+            @shutdownCheck (cb) =>
+                @cache.end()
+                cb()
 
         get: (key, valueRetriever, valueDoer) ->
             @cache.get key, (err, result) =>
@@ -86,11 +95,3 @@ module.exports = (dnschain) ->
                 @get "oldDNS:#{q.name}:#{q.type}", retriever, doer
             else
                 @dnschain.dns.oldDNSLookup req, cb
-
-        shutdown: (cb) ->
-            if @blockchainEnabled? or @oldDNSEnabled?
-                @blockchainEnabled = false
-                @oldDNSEnabled = false
-                @log.debug 'shutting down!'
-                @cache.end()
-            cb?()

@@ -17,10 +17,9 @@ describe 'https', ->
     testData = /hi@okturtles.com/ # results should contain this
     httpSettings = gConf.get "http"
 
-    it 'should start with default settings', (done) ->
+    it 'should start with default settings', ->
         console.log "START: default settings".bold
-        server = new DNSChain()
-        setTimeout done, 100 # wait for it to finish starting
+        (server = new DNSChain()).start()
 
     it 'should have Namecoin blockchain available for testing', ->
         blockchain = server.chains.namecoin
@@ -96,7 +95,8 @@ describe 'https', ->
             overrides.http = httpSettings
             nconf.overrides overrides
 
-    it 'should autogenerate certificate/key files', ->
+    # TODO: skip or remove this when the one above works.
+    it 'should generate certificate/key files', ->
         this.timeout = 10 * 1000
         keyMaterial =
             tlsCert: __dirname + "/support/_tmpCert.pem"

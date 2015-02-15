@@ -29,14 +29,7 @@ module.exports = (dnschain) ->
         constructor: (@dnschain) ->
             @log = gNewLogger 'ICANN'
             @name = 'icann'
-
-        config: ->
-            @log.debug "Loading #{@name} resolver"
-            @
-
-        shutdown: (cb) ->
-            @log.debug 'shutting down!'
-            cb?()
+            gFillWithRunningChecks @
 
         resolve: (path, options, cb) ->
             req = new Packet()
