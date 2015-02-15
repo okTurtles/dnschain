@@ -119,11 +119,11 @@ module.exports = (dnschain) ->
                     @log.warn gLineInfo "Already running!"
                     Promise.reject()
                 else
-                    @log.info "Starting up..."
+                    @log.debug "Starting up..."
                     (cbOrPromise.then ? cbOrPromise).bind(cbOrPromise) @startFinished.bind @
             server.shutdownCheck = (cbOrPromise) ->
                 if @running?
-                    @log.info "Shutting down..."
+                    @log.debug "Shutting down..."
                     (cbOrPromise.then ? cbOrPromise).bind(cbOrPromise) @shutdownFinished.bind @
                 else
                     @log.warn gLineInfo "Shutdown called when not running!"

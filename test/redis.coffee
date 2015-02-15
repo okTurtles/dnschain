@@ -64,8 +64,7 @@ describe 'Redis DNS cache', ->
 
     it 'should restart DNSChain successfully', ->
         server.shutdown().delay(100).then ->
-            server = new DNSChain()
-            server.start()
+            (server = new DNSChain()).start()
 
     # time how long it takes to do a bunch of DNS requests
     it 'should measure how long it takes to repeat queries with redis disabled', ->
@@ -83,8 +82,7 @@ describe 'Redis DNS cache', ->
         gConf.set 'redis:oldDNS:enabled', true
         gConf.set 'redis:blockchain:enabled', true
         server.shutdown().delay(100).then ->
-            server = new DNSChain()
-            server.start()
+            (server = new DNSChain()).start()
 
     # make the same queries now 
     it 'should warm up with redis cache now enabled', ->
