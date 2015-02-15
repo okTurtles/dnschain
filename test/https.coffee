@@ -70,18 +70,16 @@ describe 'https', ->
 
     # TODO: don't skip this once we've async-ified all the classes  
     it.skip 'should autogenerate missing certificate/key files', ->
-        nodeVersion = process.versions.node.split('.').map (x) -> parseInt x
-        if nodeVersion[0] is 0 and nodeVersion[1] <= 10
-            console.warn "Need nodejs 0.12+ to run this test. Skipping!".bold.yellow
-        else
-            overrides.http.tlsCert = __dirname + "/support/_tmpCert.pem"
-            overrides.http.tlsKey  = __dirname + "/support/_tmpKey.pem"
-            nconf.overrides overrides
-            gConf.get('http:tlsCert').should.equal overrides.http.tlsCert
+        overrides.http.tlsCert = __dirname + "/support/_tmpCert.pem"
+        overrides.http.tlsKey  = __dirname + "/support/_tmpKey.pem"
+        nconf.overrides overrides
+        gConf.get('http:tlsCert').should.equal overrides.http.tlsCert
 
-            {dnschain} = require './support/env'
-            (require '../src/lib/https')(dnschain)
+        {dnschain} = require './support/env'
+        EncryptedServer = require ('../src/lib/https')(dnschain)
+        tlsServer = new EncryptedServer(server)
 
+        tlsServer.start().then ->
             keyMaterial = _(overrides.http).pick(['tlsKey', 'tlsCert']).transform((o, v, k)->
                 o[k] = { key:k, path:v, exists: fs.existsSync(v) }
             ).value()
@@ -96,15 +94,16 @@ describe 'https', ->
             overrides.http = httpSettings
             nconf.overrides overrides
 
+            tlsServer.stop()
+
     # TODO: skip or remove this when the one above works.
     it 'should generate certificate/key files', ->
         keyMaterial =
             tlsCert: __dirname + "/support/_tmpCert.pem"
             tlsKey : __dirname + "/support/_tmpKey.pem"
         {dnschain} = require './support/env'
-        genKeyCertPairAsync = Promise.promisify require('../src/lib/pem')(dnschain).genKeyCertPair
-
-        genKeyCertPairAsync(keyMaterial.tlsKey, keyMaterial.tlsCert).then ->
+        pem = require('../src/lib/pem')(dnschain)
+        pem.genKeyCertPair(keyMaterial.tlsKey, keyMaterial.tlsCert).then ->
             keyMaterial = _(keyMaterial).transform((o, v, k)->
                 o[k] = { key:k, path:v, exists: fs.existsSync(v) }
             ).value()

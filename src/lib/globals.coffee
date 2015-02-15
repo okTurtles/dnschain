@@ -191,7 +191,7 @@ module.exports = (dnschain) ->
         gLogger.warn "Specifying 'oldDNSMethod' as a number is DEPRECATED!".bold.red
         gLogger.warn "Please specify the string value instead:".bold.red, "#{method}".bold
     else
-        if (method_num = gConsts.oldDNS[method])?
+        if _.isNumber (method_num = gConsts.oldDNS[method])
             # kinda hackish... but makes for easy and quick comparisons
             gConf.set 'dns:oldDNSMethod', method_num
         else
