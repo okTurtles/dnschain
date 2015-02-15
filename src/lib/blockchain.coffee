@@ -86,24 +86,16 @@ module.exports = (dnschain) ->
         # Connect to your blockchain. Return a Promise
         ### (): Promise ###
         start: ->
-            # Example where you actually connect to something:
-            # @startCheck (success) =>
-            #   server.connect (err) =>
-            #       if err then Promise.reject(err) else success()
-
             # Replace this with something useful.
-            @startCheck (success) => success()
+            # 'cb' is of the form (err, args...) ->
+            @startCheck (cb) => cb null
 
         # Close connection to your blockchain and do any other cleanup. Return a Promise.
         ### (): Promise ###
         shutdown: ->
-            # Example where you actually shut down the connection:
-            # @shutdownCheck (success) =>
-            #   server.shutdown (err) =>
-            #       if err then Promise.reject(err) else success()
-
             # Replace this with something useful.
-            @shutdownCheck (success) => success()
+            # 'cb' is of the form (err, args...) ->
+            @shutdownCheck (cb) => cb null
 
         # TODO: make this use Promises. For now just use this signature.
         ### (path: string, options: object, cb: function): any ###

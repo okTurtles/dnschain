@@ -33,7 +33,7 @@ module.exports = (dnschain) ->
         start: ->
             @startCheck (cb) =>
                 @server.listen gConf.get('http:port'), gConf.get('http:host'), =>
-                    cb gConf.get 'http'
+                    cb null, gConf.get 'http'
 
         shutdown: ->
             @shutdownCheck (cb) =>

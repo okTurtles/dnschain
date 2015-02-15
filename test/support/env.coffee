@@ -5,7 +5,10 @@ Bottleneck = require 'bottleneck'
 rpc = require 'json-rpc2'
 require 'winston' # for strong coloring
 
-process.env.TEST_DNSCHAIN = 1
+process.env.TEST_DNSCHAIN = "1"
+
+if process.env.TEST_DNSCHAIN != "1"
+    throw new Error "couldn't set process.env.TEST_DNSCHAIN!"
 
 # We can test Redis with a real redis instance or with 'fakeredis':
 # https://github.com/hdachev/fakeredis
@@ -16,7 +19,7 @@ process.env.TEST_DNSCHAIN = 1
 if process.env.TRAVIS and process.env.CI
     console.info "Detected Travic CI!".bold
     # travis has support for redis
-    process.env.TEST_REAL_REDIS = 1
+    process.env.TEST_REAL_REDIS = "1"
 
 console.info "Setting up test environment...".bold
 

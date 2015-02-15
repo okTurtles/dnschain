@@ -114,30 +114,37 @@ module.exports = (dnschain) ->
             throw e
 
         gFillWithRunningChecks: (server) ->
-            server.startCheck = (cbOrPromise) ->
-                if @running?
+            gLineInfo = dnschain.globals.gLineInfo
+            server.startCheck = (cb) ->
+                if @running
                     @log.warn gLineInfo "Already running!"
                     Promise.reject()
                 else
                     @log.debug "Starting up..."
-                    (cbOrPromise.then ? cbOrPromise).bind(cbOrPromise) @startFinished.bind @
-            server.shutdownCheck = (cbOrPromise) ->
-                if @running?
+                    new Promise (resolve, reject) =>
+                        cb (err, args...) =>
+                            if err
+                                @log.error gLineInfo("failed to start"), err
+                                reject err
+                            else
+                                @log.info "Server started.", args
+                                @running = true
+                                resolve args
+            server.shutdownCheck = (cb) ->
+                if @running
                     @log.debug "Shutting down..."
-                    (cbOrPromise.then ? cbOrPromise).bind(cbOrPromise) @shutdownFinished.bind @
+                    new Promise (resolve, reject) =>
+                        cb (err, args...) =>
+                            if err
+                                @log.error gLineInfo("failed to shutdown"), err
+                                reject err
+                            else
+                                @log.info "Server shutdown successfully.", args
+                                @running = false
+                                resolve args
                 else
                     @log.warn gLineInfo "Shutdown called when not running!"
                     Promise.reject()
-            server.startFinished = (args...) ->
-                args[0] = '' if args.length is 1 and !args[0]?
-                @log.info "Server started.", args...
-                @running = true
-                Promise.resolve()
-            server.shutdownFinished = (args...) ->
-                args[0] = '' if args.length is 1 and typeof args[0] != 'string'
-                @log.info "Server shutdown successfully.", args...
-                @running = false
-                Promise.resolve()
             server # as a convenience, return the server instance
 
         gThrottle: (key, makeLimiter) -> limiters[key] ? (limiters[key] = makeLimiter())

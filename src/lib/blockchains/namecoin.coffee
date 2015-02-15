@@ -64,13 +64,13 @@ module.exports = (dnschain) ->
             @
 
         start: ->
-            @startCheck (success) =>
+            @startCheck (cb) =>
                 params = _.at @params, ["port", "connect", "user", "password"]
                 # TODO: $create doesn't actually connect. you need to open a raw socket
                 #       or an http socket and see if that works before declaring it works
                 @peer = rpc.Client.$create(params...) or gErr "rpc create"
                 @log.info "rpc to namecoind on: %s:%d", @params.connect, @params.port
-                success()
+                cb null
 
         resolve: (path, options, cb) ->
             result = @resultTemplate()

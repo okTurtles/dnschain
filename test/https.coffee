@@ -27,7 +27,6 @@ describe 'https', ->
         console.info "Using #{blockchain.name} for testing HTTPS.".bold
 
     it 'should fetch profile over HTTPS via IP', ->
-        this.timeout = 5 * 1000
         cmd = "curl -i -k -H \"Host: namecoin.dns\" https://127.0.0.1:#{port}/d/okturtles"
         console.info "Executing: #{cmd}".bold
         execAsync(cmd).spread (stdout) ->
@@ -35,6 +34,7 @@ describe 'https', ->
             stdout.should.match testData
 
     it 'should fetch profile over HTTPS via SNI', ->
+        this.slow 5 * 1000
         cmd = "curl -i -k -H \"Host: namecoin.dns\" --resolve namecoin.dns:#{port}:127.0.0.1 https://namecoin.dns/d/okturtles"
         console.info "Executing: #{cmd}".bold
         execAsync(cmd).spread (stdout) ->
@@ -42,7 +42,7 @@ describe 'https', ->
             stdout.should.match testData
 
     it 'should fetch fingerprint over HTTP', ->
-        console.warn "TODO: fetch fingerprint via API".bold.red
+        console.warn "TODO: fetch fingerprint via API".yellow.red
 
     it 'should shutdown successfully', ->
         server.shutdown() # returns a promise. Mocha should handle that properly
@@ -69,35 +69,34 @@ describe 'https', ->
                 throw e
 
     # TODO: don't skip this once we've async-ified all the classes  
-    it.skip 'should autogenerate missing certificate/key files', ->
-        overrides.http.tlsCert = __dirname + "/support/_tmpCert.pem"
-        overrides.http.tlsKey  = __dirname + "/support/_tmpKey.pem"
+    it 'should autogenerate missing certificate/key files', ->
+        keyMaterial =
+            tlsCert: __dirname + "/support/_tmpCert.pem"
+            tlsKey : __dirname + "/support/_tmpKey.pem"
+        _.merge overrides.http, keyMaterial
         nconf.overrides overrides
         gConf.get('http:tlsCert').should.equal overrides.http.tlsCert
 
         {dnschain} = require './support/env'
-        EncryptedServer = require ('../src/lib/https')(dnschain)
-        tlsServer = new EncryptedServer(server)
-
+        EncryptedServer = (require '../src/lib/https')(dnschain)
+        tlsServer = new EncryptedServer server
         tlsServer.start().then ->
-            keyMaterial = _(overrides.http).pick(['tlsKey', 'tlsCert']).transform((o, v, k)->
+            keyMaterial = _(keyMaterial).transform((o, v, k)->
                 o[k] = { key:k, path:v, exists: fs.existsSync(v) }
             ).value()
-
-            for f in _.where(keyMaterial, exists:true)
-                console.info "Deleting temp file: #{f.path}".bold
+            _.where(keyMaterial, exists:true).map (f)->
+                console.info "Deleting temp #{f.key}: #{f.path}".bold
                 fs.unlinkSync f.path
-
             _.where(keyMaterial, exists:false).should.be.empty
 
             # reset
             overrides.http = httpSettings
             nconf.overrides overrides
 
-            tlsServer.stop()
+            tlsServer.shutdown()
 
     # TODO: skip or remove this when the one above works.
-    it 'should generate certificate/key files', ->
+    it.skip 'should generate certificate/key files', ->
         keyMaterial =
             tlsCert: __dirname + "/support/_tmpCert.pem"
             tlsKey : __dirname + "/support/_tmpKey.pem"
