@@ -45,8 +45,7 @@ exports.DNSChain = class DNSChain
             not chain
         )
         @chainsTLDs = _.indexBy _.compact(_.map(@chains, (chain) ->
-            return chain if chain.tld?
-            return null
+            chain if chain.tld?
         )), 'tld'
         gConf.localhosts = localhosts.call @
         @dns = new DNSServer @
@@ -71,4 +70,4 @@ exports.DNSChain = class DNSChain
     shutdown: ->
         @shutdownCheck Promise.settle @servers.map (s, idx) =>
             @log.debug "Shutting down server at idx:#{idx}: #{s?.name}"
-            s.shutdown()
+            s?.shutdown()

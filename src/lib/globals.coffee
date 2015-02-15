@@ -134,7 +134,7 @@ module.exports = (dnschain) ->
                 @running = true
                 Promise.resolve()
             server.shutdownFinished = (args...) ->
-                args[0] = '' if args.length is 1 and !args[0]?
+                args[0] = '' if args.length is 1 and typeof args[0] != 'string'
                 @log.info "Server shutdown successfully.", args...
                 @running = false
                 Promise.resolve()
