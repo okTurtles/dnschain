@@ -17,6 +17,8 @@ These connections can be naked HTTPS or wrapped inside of TLS
 ###
 
 ###
+NOTE: There can be any number of EncryptedServers. A good example of that is when running the tests.
+The TLSServers are shared between EncryptedServers.
             __________________________        ________________________
 443 traffic |                        |   *--->|      TLSServer       |     ______________
 ----------->|     EncryptedServer    |--*     | (Dumb decrypter)     |---->| HTTPServer |----> Multiple destinations
@@ -51,14 +53,14 @@ module.exports = (dnschain) ->
         tlsLog.warn "https://github.com/okTurtles/dnschain/blob/master/docs/How-do-I-run-my-own.md#getting-started".bold
 
         # In the case where one file exists but the other does not
-        # we do not auto-generate them for the user (so as to not overwrite anything)      
+        # we do not auto-generate them for the user (so as to not overwrite anything)
         if exists = _.find(keyMaterial, exists:true)
             tlsLog.error "\nhttp:#{exists.key} exists at:\n\t".bold.yellow, exists.path.bold, "\nbut http:#{missing.key} does not exist at:\n\t".bold.red, missing.path.bold
             gErr "Missing file for http:#{missing.key}"
 
         # TODO: make async generation work with running TLSServer asynchronously
         tlsLog.warn "\nAuto-generating private key and certificate for you...".bold.yellow
-        
+
         {tlsKey, tlsCert} = gConf.chains.dnschain.stores.defaults.get('http')
         unless httpSettings.tlsKey is tlsKey and httpSettings.tlsCert is tlsCert
             gErr "Can't autogen keys for you because you've customized their paths"
@@ -71,12 +73,14 @@ module.exports = (dnschain) ->
         key: fs.readFileSync httpSettings.tlsKey
         cert: fs.readFileSync httpSettings.tlsCert
 
-    # Fetch the public key fingerprint of the cert we're using and log to console 
+    # Fetch the public key fingerprint of the cert we're using and log to console
     fingerprint = ""
     pem.certFingerprint httpSettings.tlsCert, (err, f) ->
         throw err if err
         tlsLog.info "Your certificate fingerprint is:", (fingerprint = f).bold
 
+    # This is 'static', in Java vocabulary.
+    # It's shared across instances of the EncryptedServer class.
     TLSServer = tls.createServer tlsOptions, (c) ->
         libHTTPS.getStream "127.0.0.1", httpSettings.port, (err, stream) ->
             if err?
@@ -108,7 +112,7 @@ module.exports = (dnschain) ->
 
         shutdown: ->
             @shutdownCheck (cb) =>
-                TLSServer.close() # node docs don't indicate this takes a callback
+                TLSServer.close() # sync
                 @server.close cb
 
         callback: (c, cb) ->
