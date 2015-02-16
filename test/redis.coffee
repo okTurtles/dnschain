@@ -5,37 +5,12 @@ should = require 'should'
 Promise = require 'bluebird'
 _ = require 'lodash'
 fs = require 'fs'
-dns = require 'native-dns'
 nconf = require 'nconf'
-{Question, Request, consts} = dns
-execAsync = Promise.promisify require('child_process').exec
 {dnschain: {DNSChain, globals: {gConf}}} = require './support/env'
-{TimeoutError} = Promise
+{lookup} = require './support/functions'
 
 domains = fs.readFileSync __dirname+'/support/domains.txt', encoding:'utf8'
 domains = domains.split '\n'
-
-lookup = (domain) ->
-    timeout = 2000
-    new Promise (resolve, reject) ->
-        req = Request
-            question: dns.A {name:domain}
-            server: {address:'127.0.0.1', port:gConf.get('dns:port'), type:'udp'}
-            timeout: timeout
-        req.on 'timeout', ->
-            console.warn "#{domain} req timed out!".bold.yellow
-            reject new Promise.TimeoutError()
-        req.on 'error', (err) -> reject err
-        req.on 'message', (err, ans) -> resolve ans
-        console.info "Querying: #{domain}...".bold.blue
-        req.send()
-    .then (res) ->
-        answer = res.answer[0]?.address || res.answer[0].data
-        console.info "Success: #{domain}: #{answer}".bold
-        res
-    .catch (e) ->
-        console.error "Fail: #{domain}: #{e.message}".bold.red
-        throw e
 
 testQueries = (idx, times) ->
     times.splice idx, 0, {start: Date.now()}

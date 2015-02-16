@@ -1,5 +1,7 @@
 # DNSChain
 
+![NPM version](https://badge.fury.io/js/dnschain.svg) [![Build Status](https://travis-ci.org/okTurtles/dnschain.svg?branch=mocha)](https://travis-ci.org/okTurtles/dnschain) [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/okTurtles/dnschain)
+
 There is a problem with how the Internet works today:
 
 - HTTPS [is not secure](http://okturtles.com/#not-secure). Like most "secure" communications protocols,
@@ -25,7 +27,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 | __DNS-based [censorship circumvention][cens]__                         | :white_check_mark: | :x:                                                      |
 | __Prevents [domain theft][] ("seizures")__                             | :white_check_mark: | :x:                                                      |
 | __Access blockchain-based [domains like `.bit`, `.p2p`, `.eth`][use]__ | :white_check_mark: | :x:                                                      |
-| __RESTful API to blockchain via [.dns metaTLD][meta]__                 | :white_check_mark: | :x:                                                      |
+| __RESTful [API to blockchain][api]__                                   | :white_check_mark: | :x:                                                      |
 
 [ct]: https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/
 [mitm]: docs/What-is-it.md#MITMProof
@@ -36,7 +38,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 [cens]: docs/What-is-it.md#Censorship
 [domain theft]: https://www.techdirt.com/articles/20141006/02561228743/5000-domains-seized-based-sealed-court-filing-confused-domain-owners-have-no-idea-why.shtml
 [use]: docs/How-do-I-use-it.md
-[meta]: docs/What-is-it.md#metaTLD
+[api]: docs/What-is-it.md#restful-api
 
 <a name="Documentation"></a>
 ## Documentation

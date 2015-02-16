@@ -26,14 +26,14 @@ describe 'https', ->
         blockchain = server.chains.namecoin
         console.info "Using #{blockchain.name} for testing HTTPS.".bold
 
-    it 'should fetch profile over HTTPS via IP', ->
+    it 'should fetch profile over HTTPS via IP & HOST: namecoin.dns', ->
         cmd = "curl -i -k -H \"Host: namecoin.dns\" https://127.0.0.1:#{port}/d/okturtles"
         console.info "Executing: #{cmd}".bold
         execAsync(cmd).spread (stdout) ->
             console.info "Result: #{stdout}".bold
             stdout.should.match testData
 
-    it 'should fetch profile over HTTPS via SNI', ->
+    it 'should fetch profile over HTTPS via SNI via namecoin metaTLD', ->
         this.slow 5 * 1000
         cmd = "curl -i -k -H \"Host: namecoin.dns\" --resolve namecoin.dns:#{port}:127.0.0.1 https://namecoin.dns/d/okturtles"
         console.info "Executing: #{cmd}".bold
@@ -41,8 +41,8 @@ describe 'https', ->
             console.info "Result: #{stdout}".bold
             stdout.should.match testData
 
-    it 'should fetch fingerprint over HTTP', ->
-        console.warn "TODO: fetch fingerprint via API".yellow.red
+    it.skip 'should fetch fingerprint over HTTP', ->
+        console.warn "TODO: fetch fingerprint via API".bold.yellow
 
     it 'should shutdown successfully', ->
         server.shutdown() # returns a promise. Mocha should handle that properly
