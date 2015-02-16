@@ -131,12 +131,12 @@ module.exports = (dnschain) ->
 
     # load our config
     nconf.argv().env()
-    dnscConf = _.find [
-        "#{process.env.HOME}/.dnschain.conf",
+    dnscConfLocs = [
+        "#{process.env.HOME}/.dnschain.conf", # the default
         "#{process.env.HOME}/.dnschain/dnschain.conf",
         "/etc/dnschain/dnschain.conf"
     ]
-    , (x) -> fs.existsSync x
+    dnscConf = _.find dnscConfLocs, (x) -> fs.existsSync x
 
     if process.env.HOME and not fs.existsSync "#{process.env.HOME}/.dnschain"
         # create this folder on UNIX based systems so that https.coffee
@@ -149,7 +149,8 @@ module.exports = (dnschain) ->
         console.info "[INFO] Loading DNSChain config from: #{dnscConf}"
         nconf.file 'user', {file: dnscConf, format: props}
     else
-        console.warn "[WARN] No DNSChain configuration file found. Using defaults!".yellow
+        console.warn "[WARN] No DNSChain configuration file found. Using defaults!".bold.yellow
+        nconf.file 'user', {file: dnscConfLocs[0], format: props}
 
     config =
         get: (key, store="dnschain") -> config.chains[store].get key

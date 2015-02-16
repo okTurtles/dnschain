@@ -81,4 +81,4 @@ module.exports =
     dnschain: require '../../src/lib/dnschain'
     overrides: overrides # passing this this makes it
                          # possible to override the overrides
-                         # later one (see test/https.coffee for example)
+                         # later on (see test/https.coffee for example)

@@ -71,7 +71,7 @@ module.exports = (dnschain) ->
         # If you return `this`, this chain will be included in the parent
         # DNSChain instance's `@servers` list, and will have its `start:`
         # method called.
-        ### (): ?(BlockchainResolver | boolean) ###
+        ### : ?(BlockchainResolver | boolean) ###
         config: ->
             @log.debug "Loading resolver config"
             @
@@ -84,14 +84,14 @@ module.exports = (dnschain) ->
             #     return false
 
         # Connect to your blockchain. Return a Promise
-        ### (): Promise ###
+        ### : Promise ###
         start: ->
             # Replace this with something useful.
             # 'cb' is of the form (err, args...) ->
             @startCheck (cb) => cb null
 
         # Close connection to your blockchain and do any other cleanup. Return a Promise.
-        ### (): Promise ###
+        ### : Promise ###
         shutdown: ->
             # Replace this with something useful.
             # 'cb' is of the form (err, args...) ->
@@ -117,7 +117,7 @@ module.exports = (dnschain) ->
         # You should not modify the result template itself,
         # instead set its .value property accordingly in `resolve:` above.
         # See how other blockchains do it.
-        ### (): object ###
+        ### : object ###
         resultTemplate: ->
             version: '0.0.1'
             header:

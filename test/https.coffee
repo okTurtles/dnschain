@@ -68,7 +68,6 @@ describe 'https', ->
                 nconf.overrides overrides
                 throw e
 
-    # TODO: don't skip this once we've async-ified all the classes  
     it 'should autogenerate missing certificate/key files', ->
         keyMaterial =
             tlsCert: __dirname + "/support/_tmpCert.pem"
@@ -95,8 +94,9 @@ describe 'https', ->
 
             tlsServer.shutdown()
 
-    # TODO: skip or remove this when the one above works.
-    it.skip 'should generate certificate/key files', ->
+    ###
+    # Test below is skipped because the one above is superior and now works
+    it 'should generate certificate/key files', ->
         keyMaterial =
             tlsCert: __dirname + "/support/_tmpCert.pem"
             tlsKey : __dirname + "/support/_tmpKey.pem"
@@ -110,3 +110,4 @@ describe 'https', ->
                 console.info "Deleting temp #{f.key}: #{f.path}".bold
                 fs.unlinkSync f.path
             _.where(keyMaterial, exists:false).should.be.empty
+    ###
