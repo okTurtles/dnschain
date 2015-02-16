@@ -30,7 +30,7 @@ lookup = (domain) ->
         console.info "Querying: #{domain}...".bold.blue
         req.send()
     .then (res) ->
-        answer = res.answer[0].address || res.answer[0].data
+        answer = res.answer[0]?.address || res.answer[0].data
         console.info "Success: #{domain}: #{answer}".bold
         res
     .catch (e) ->
@@ -73,7 +73,7 @@ describe 'Redis DNS cache', ->
         Promise.delay(500).then ->
             testQueries 1, testTimes
         .then ->
-            testTimes[1].time.should.be.approximately testTimes[0].time, 500
+            testTimes[1].time.should.be.lessThan testTimes[0].time + 400
 
     it 'should restart DNSChain successfully', ->
         this.slow 1500
@@ -101,7 +101,9 @@ describe 'Redis DNS cache', ->
         .then ->
             # compare against "warmed up" redis-disabled time
             # we even add 10 milliseconds to "prove" it's faster
-            (testTimes[3].time+10).should.be.lessThan testTimes[1].time
+            testTimes[3].time.should.be.lessThan testTimes[0].time
+            testTimes[3].time.should.be.lessThan testTimes[1].time
+            testTimes[3].time.should.be.lessThan testTimes[2].time
 
     it 'should shutdown successfully', ->
         server.shutdown() # returns a promise. Mocha should handle that properly

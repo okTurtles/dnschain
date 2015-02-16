@@ -46,7 +46,7 @@ describe 'rate limiting', ->
         console.log "START: default settings".bold
         (server = new DNSChain()).start()
 
-    it 'should be ~200ms apart', (done) ->
+    it 'should be ~200ms apart', ->
         this.slow 600 # milliseconds
         digAsync {parallelism:2}, (err, results) ->
             results.should.have.length 2
@@ -54,20 +54,20 @@ describe 'rate limiting', ->
             diff = Math.abs _(results).map('time').reduce (sum,n) -> sum - n
             console.log "Space between requests: #{diff}ms".bold
             diff.should.be.within(100, 400)
-            done()
 
-    it 'should drop all requests except for one', (done) ->
+    it 'should drop all requests except for one', ->
         this.slow 5000 # milliseconds
         # we're using 'ssl-google-analytics.l.google.com' in order to also test
         # our currently (somewhat crappy) subdomain iteration mitigation
         # (since this domain has >3 parts to it).
         # See: https://github.com/okTurtles/dnschain/issues/107
-        digAsync {parallelism:5, domain:'ssl-google-analytics.l.google.com'}, (err, results) ->
-            results.should.have.length(5)
-            errors = _(results).where(err:'TimeoutError').map('err').value()
-            errors.should.matchEach 'TimeoutError'
-            errors.should.have.length(4)
-            done()
+        domain = 'ssl-google-analytics.l.google.com'
+        Promise.delay(500).then ->
+            digAsync {parallelism:5, domain:domain}, (err, results) ->
+                results.should.have.length(5)
+                errors = _(results).where(err:'TimeoutError').map('err').value()
+                errors.should.matchEach 'TimeoutError'
+                errors.should.have.length(4)
 
     it 'should succeed on all requests', (done) ->
         this.slow 3000 # milliseconds
