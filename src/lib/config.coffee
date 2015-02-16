@@ -159,7 +159,11 @@ module.exports = (dnschain) ->
             dnschain: nconf.defaults defaults
         add: (name, paths, type) ->
             log = dnschain.globals.gLogger
-            return if config.chains[name]?
+            gLineInfo = dnschain.globals.gLineInfo
+            if config.chains[name]?
+                log.warn gLineInfo "Not overwriting existing #{name} configuration"
+                return config.chains[name]
+
             paths = [paths] unless Array.isArray(paths)
             type = confTypes[type] || confTypes['JSON']
 

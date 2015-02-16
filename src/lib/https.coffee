@@ -122,6 +122,12 @@ module.exports = (dnschain) ->
         shutdown: ->
             @shutdownCheck (cb) =>
                 httpsVars.tls.close() # node docs don't indicate this takes a callback
+                httpsVars.tls = Promise.resolve() # TODO: Simon, this hack is necessary
+                                                  #       because without it test/https.coffee
+                                                  #       breaks if it is not run first.
+                                                  #       This happens because of the
+                                                  #       `if httpsVars.tls.then` above
+                                                  #       in `start:`.
                 @server.close cb
 
         callback: (c, cb) ->
