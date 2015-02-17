@@ -17,6 +17,9 @@ These connections can be naked HTTPS or wrapped inside of TLS
 ###
 
 ###
+NOTE: There can be any number of EncryptedServers. A good example of that is when running the tests.
+The TLSServers are shared between EncryptedServers.
+
             __________________________        ________________________
 443 traffic |                        |   *--->|      TLSServer       |     ______________
 ----------->|     EncryptedServer    |--*     | (Dumb decrypter)     |---->| HTTPServer |----> Multiple destinations
