@@ -74,4 +74,4 @@ module.exports = (dnschain) ->
                     result.value = {}
                 cb null, result
 
-        dnsHandler: require('./namecoin').prototype.dnsHandler
+        dnsHandler: require('./namecoin')(dnschain).prototype.dnsHandler
