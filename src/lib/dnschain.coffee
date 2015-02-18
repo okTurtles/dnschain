@@ -73,7 +73,8 @@ exports.DNSChain = class DNSChain
     shutdown: ->
         @shutdownCheck (cb) =>
             Promise.settle @servers.map (s, idx) =>
-                @log.debug "Shutting down server at idx:#{idx}: #{s?.name}"
+                name = s?.name || s?.log?.transports.console?.label
+                @log.debug "Shutting down server at idx:#{idx}: #{name}"
                 s?.shutdown()
             .then -> cb null
             .catch (e) -> cb e

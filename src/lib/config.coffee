@@ -130,7 +130,7 @@ module.exports = (dnschain) ->
         JSON: JSON
 
     # load our config
-    nconf.argv().env()
+    nconf.argv().env('__')
     dnscConfLocs = [
         "#{process.env.HOME}/.dnschain.conf", # the default
         "#{process.env.HOME}/.dnschain/dnschain.conf",

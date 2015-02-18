@@ -16,15 +16,14 @@ module.exports = (dnschain) ->
     # 1. global dependencies
     # 
     # IMPORTANT: *ALL* DNSChain globals *MUST* be prefixed with a 'g'
-    #            *EXCEPT* the global module dependencies below.
+    #            *EXCEPT* some of the commonly used global module dependencies below.
 
     dnschain.globals =
         rpc        : 'json-rpc2'
         _          : 'lodash'
         S          : 'string'
         dns2       : 'native-dns'
-        es         : 'event-stream'
-        sa         : 'stream-array'
+        gES        : 'event-stream'
         Bottleneck : 'bottleneck'
         Promise    : 'bluebird'
 

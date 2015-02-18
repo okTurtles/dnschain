@@ -156,7 +156,7 @@ module.exports = (dnschain) ->
                                 question: q
                                 server: address: nsIP
 
-                    nsIPs = es.merge(sa(nsIPs), sa(nsCNAMEs).pipe(nsCNAME2IP))
+                    nsIPs = gES.merge(gES.readArray(nsIPs), gES.readArray(nsCNAMEs).pipe(nsCNAME2IP))
 
                     stopRequests = (code) =>
                         if code

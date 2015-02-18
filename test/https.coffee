@@ -53,6 +53,14 @@ describe 'https', ->
     it.skip 'should fetch fingerprint over HTTP', ->
         console.warn "TODO: fetch fingerprint via API".bold.yellow
 
+    it 'should fetch icann.dns data', ->
+        cmd = "curl -i -k -H \"Host: icann.dns\" https://127.0.0.1:#{port}/okturtles.org"
+        console.info "Executing: #{cmd}".bold
+        data = "\"address\":\"192.184.93.146\""
+        execAsync(cmd).spread (stdout) ->
+            console.info "Result: #{stdout}".bold
+            stdout.should.containEql data
+
     it 'should shutdown successfully', ->
         server.shutdown() # returns a promise. Mocha should handle that properly
 
