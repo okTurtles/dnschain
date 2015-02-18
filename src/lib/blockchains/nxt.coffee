@@ -30,7 +30,8 @@ module.exports = (dnschain) ->
     # - https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Importing_and_delegation
     # - https://wiki.namecoin.info/index.php?title=Category:NEP
     # - https://wiki.namecoin.info/index.php?title=Namecoin_Specification
-    VALID_NXT_DOMAINS = /^[a-zA-Z0-9]+\/.+/
+    # TODO: NXT isn't currently following the d/ spec, so we don't use this
+    # VALID_NXT_DOMAINS = /^[a-zA-Z0-9]+\/.+/
 
     class NxtResolver extends BlockchainResolver
         constructor: (@dnschain) ->
@@ -80,6 +81,7 @@ module.exports = (dnschain) ->
             req.on 'error', (e) ->
                 cb e
 
-        validRequest: (path) -> VALID_NXT_DOMAINS.test path
+        # just return true for everything for now
+        # validRequest: (path) -> VALID_NXT_DOMAINS.test path
 
-        dnsHandler: require('./namecoin').prototype.dnsHandler
+        dnsHandler: require('./namecoin')(dnschain).prototype.dnsHandler

@@ -74,7 +74,7 @@ module.exports = (dnschain) ->
 
         resolve: (path, options, cb) ->
             result = @resultTemplate()
-            if S(path).endsWith(".#{@tld}") # naimcoinize Domain
+            if S(path).endsWith(".#{@tld}") # namecoinize Domain
                 path = S(path).chompRight(".#{@tld}").s
                 if (dotIdx = path.lastIndexOf('.')) != -1
                     path = path.slice(dotIdx+1) #rm subdomain
