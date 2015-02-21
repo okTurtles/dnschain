@@ -48,6 +48,7 @@ The problem with these mechanisms is:
 
 - They break websites when the public key needs to legitimately change.
 - In the case of TACK, the TACK public key needs to change very frequently ([at least every 30 days](https://lwn.net/Articles/499134/)). This defeats the purpose of pinning, as a MITM does not need to wait long before they can present a fraudulent key that the user has no way to know is legitimate.
+- These mechanisms assume that client software has its current time set properly, and they break when that's not true.
 
 While DNSChain does use public key pinning, it doesn't have these problems because there is only one pin that is ever required: the pin to DNSChain itself, which is easily verified once only at setup.
 
