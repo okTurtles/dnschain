@@ -75,9 +75,9 @@ module.exports = (dnschain) ->
                     try
                         response = JSON.parse data
                         result.value = JSON.parse response.aliasURI
-                        cb null, result
                     catch e
                         cb e
+                    cb null, result
             req.on 'error', (e) ->
                 cb e
 
