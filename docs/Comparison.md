@@ -46,6 +46,7 @@ These mechanisms are similar to how SSH uses a `known_hosts` file to store the f
 
 The problem with these mechanisms is:
 
+- They don't protect on first visit.
 - They break websites when the public key needs to legitimately change.
 - In the case of TACK, the TACK public key needs to change very frequently ([at least every 30 days](https://lwn.net/Articles/499134/)). This defeats the purpose of pinning, as a MITM does not need to wait long before they can present a fraudulent key that the user has no way to know is legitimate.
 - These mechanisms assume that client software has its current time set properly, and they break when that's not true.
