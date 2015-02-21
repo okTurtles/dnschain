@@ -37,20 +37,20 @@
     "url": "git://github.com/okTurtles/dnschain.git"
   },
   "dependencies": {
-    "bluebird": "^2.9.9",
+    "bluebird": "2.9.9",
     "bottleneck": "1.5.x",
-    "event-stream": "^3.2.2",
-    "grunt-contrib-watch": "^0.6.1",
-    "hiredis": "^0.2.0",
-    "json-rpc2": "^0.8.1",
-    "lodash": "^3.1.0",
+    "event-stream": "3.2.2",
+    "grunt-contrib-watch": "0.6.1",
+    "hiredis": "0.2.0",
+    "json-rpc2": "0.8.1",
+    "lodash": "3.1.0",
     "native-dns": "git+https://github.com/okTurtles/node-dns.git#08433ec98f517eed3c6d5e47bdf62603539cd402",
-    "native-dns-packet": "^0.1.1",
-    "nconf": "^0.7.1",
-    "properties": "^1.2.1",
+    "native-dns-packet": "0.1.1",
+    "nconf": "0.7.1",
+    "properties": "1.2.1",
     "redis": "0.12.x",
-    "string": "^2.0.1",
-    "winston": "^0.8.0"
+    "string": "2.0.1",
+    "winston": "0.8.0"
   },
   "devDependencies": {
     "coffee-script": "^1.8.0",

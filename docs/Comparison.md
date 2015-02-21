@@ -1,5 +1,12 @@
 # DNSChain versus...
 
+- [Certificate Transparency](<#certificate-transparency>)
+- [DNSSEC](<#dnssec>)
+- [Convergence](<#convergence>)
+- [Perspectives](<#perspectives>)
+- [TACK / HPKP](<#tack--hpkp>)
+- [Bitmessage](<#bitmessage>)
+
 ## Certificate Transparency
 
 Google's Certificate Transparency proposal wants certificate authorities (CAs) to "make a note" all of the certificates that they issue into a log. [It does not protect against NSA spying and MITM attacks](http://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/). Website owners are then asked to monitor these logs to see if their clients were hacked. Everyone must continue to pay the Certificate Authorities money for insecurity.
@@ -30,6 +37,19 @@ In our words: Convergence is similar to having a `known_hosts` ssh key file for 
 ## Perspectives
 
 [Perspectives](http://perspectives-project.org/) is very similar to Convergence and suffers from the same problems. It allows "no reply" from notaries, making it useless in a MITM attack.
+
+## TACK / HPKP
+
+Both [TACK](https://lwn.net/Articles/499134/) and [HPKP](https://developer.mozilla.org/en-US/docs/Web/Security/Public_Key_Pinning) are mechanisms for doing [public key pinning](https://en.wikipedia.org/wiki/Transport_Layer_Security#Certificate_pinning) for individual websites.
+
+These mechanisms are similar to how SSH uses a `known_hosts` file to store the fingerprints of public keys it encounters on a "Trust-On-First-Use" ("TOFU") basis.
+
+The problem with these mechanisms is:
+
+- They break websites when the public key needs to legitimately change.
+- In the case of TACK, the TACK public key needs to change very frequently ([at least every 30 days](https://lwn.net/Articles/499134/)). This defeats the purpose of pinning, as a MITM does not need to wait long before they can present a fraudulent key that the user have no way to know is legitimate.
+
+While DNSChain does use public key pinning, it doesn't have these problems because there is only one pin that is ever required: the pin to DNSChain itself, which is easily verified once only at setup.
 
 ## Bitmessage
 
