@@ -93,11 +93,11 @@ module.exports = (dnschain) ->
         validRequest: (path) -> VALID_NMC_DOMAINS.test path
 
         resources:
-            key: (property, operation, fmt, query, cb) ->
+            key: (property, operation, fmt, args, cb) ->
                 if not operation?
-                    @resolve property, query, cb
+                    @resolve property, args, cb
                 else
-                    cb {message: "Not Implemented"}
+                    cb new Error "Not Implemented"
 
         dnsHandler:
             # TODO: handle all the types specified in the specification!

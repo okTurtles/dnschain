@@ -130,7 +130,7 @@ module.exports = (dnschain) ->
 
         # Any valid resource for a blockchain should be set here.
         # All keys of this object must be functions of this form:
-        #   (property: string, operation: string, fmt: string, query: object, cb: function(err: object, result: object)) ->
+        #   (property: string, operation: string, fmt: string, args: object, cb: function(err: object, result: object)) ->
         #
         # For more information, see:
         #   https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md

@@ -24,9 +24,8 @@ module.exports = (dnschain) ->
             @log.debug "Loading HTTPServer..."
             @rateLimiting = gConf.get 'rateLimiting:http'
             app = express()
-            router = express.Router()
 
-            router.route(/\/v1\/(\w+)\/(\w+)(\/([^\/]+)(\/(\w+)(\.(\w+))?)?)?/)
+            (opennameRoute = express.Router()).route(/\/(\w+)\/(\w+)(\/([^\/]+)(\/(\w+)(\.(\w+))?)?)?/)
             .get (req, res) =>
                 [chain, resource, _, property, _, operation, _, fmt] = req.params
                 @log.debug gLineInfo('GET v1 API'),
@@ -36,13 +35,13 @@ module.exports = (dnschain) ->
                     res.end()
                 else
                     return @notFound(res,400,'No Blockchain Found',chain,->) if not (resolver=@dnschain.chains[chain])
-                    return @notFound(res,400,'No Resource Found',resource,->) if not (resolveResource=resolver.resources[resource])
-                    resolveResource.call resolver, property, operation, fmt, req.query, @postResolveCallback(res, property,->)
+                    return @notFound(res,400,'No Resource Found',resource,->) if not resolver.resources[resource]?
+                    @dnschain.cache.resolveResource resolver, resource, property, operation, fmt, req.query, @postResolveCallback(res, property,->)
 
-            # support old api
-            router.get '/*', @callback.bind(@)
+            (oldRoute = express.Router()).get '*', @callback.bind(@)
 
-            app.use(router)
+            app.use "/v1", opennameRoute
+            app.use "/", oldRoute
             @server = http.createServer((req, res) =>
                 key = "http-#{req.connection?.remoteAddress}"
                 limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
