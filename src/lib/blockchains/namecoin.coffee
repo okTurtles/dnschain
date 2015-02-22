@@ -93,7 +93,7 @@ module.exports = (dnschain) ->
         validRequest: (path) -> VALID_NMC_DOMAINS.test path
 
         resources:
-            key: (property, operation, fmt, query, cb) =>
+            key: (property, operation, fmt, query, cb) ->
                 if not operation?
                     @resolve property, query, cb
                 else

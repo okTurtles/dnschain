@@ -33,11 +33,11 @@ module.exports = (dnschain) ->
                     {chain:chain, resource:resource, property:property, operation:operation, fmt:fmt}
                 if chain is 'resolver'
                     # TODO do resolver stuff
+                    res.end()
                 else
-                    return @noChain(res) if not (resolver=@dnschain.chains[chain])
-                    return @noResource(res) if not (resolveResource=resolver.resources[resource])
-                    resolveResource property, operation, fmt, req.query
-                res.end()
+                    return @notFound(res,400,'No Blockchain Found',chain,->) if not (resolver=@dnschain.chains[chain])
+                    return @notFound(res,400,'No Resource Found',resource,->) if not (resolveResource=resolver.resources[resource])
+                    resolveResource.call resolver, property, operation, fmt, req.query, @postResolveCallback(res, property,->)
 
             # support old api
             router.get '/*', @callback.bind(@)
@@ -66,12 +66,6 @@ module.exports = (dnschain) ->
             options = url.parse(req.originalUrl, true).query
             @log.debug gLineInfo('request'), {path:path, options:options, url:req.originalUrl}
 
-            notFound = =>
-                res.writeHead 404,  'Content-Type': 'text/plain'
-                res.write "Not Found: #{path}"
-                res.end()
-                cb()
-
             [...,resolverName] =
                 if S(header = req.headers.blockchain || req.headers.host).endsWith('.dns')
                     S(header).chompRight('.dns').s.split('.')
@@ -80,23 +74,28 @@ module.exports = (dnschain) ->
 
             if not (resolver = @dnschain.chains[resolverName])
                 @log.warn gLineInfo('unknown blockchain'), {host: req.headers.host, blockchainHeader: req.headers.blockchain, remoteAddress: req.connection.remoteAddress}
-                res.writeHead 400, 'Content-Type': 'text/plain'
-                res.write "No Blockchain Found: #{resolverName}"
-                res.end()
-                cb()
-                return
+                return @notFound res, 400, 'No Blockchain Found', resolverName, cb
 
             if not resolver.validRequest path
                 @log.debug gLineInfo("invalid request: #{path}")
-                return notFound()
+                return @notFound(res, 400, 'Not Found', path, cb)
 
-            @dnschain.cache.resolveBlockchain resolver, path, options, (err,result) =>
+            @dnschain.cache.resolveBlockchain resolver, path, options, @postResolveCallback(res, path, cb)
+
+        notFound: (res, code, comment, item, cb) =>
+            res.writeHead code,  'Content-Type': 'text/plain'
+            res.write(comment + ": #{item}")
+            res.end()
+            cb()
+
+        postResolveCallback: (res, item, cb) =>
+            return (err,result) =>
                 if err
                     @log.debug gLineInfo('resolver failed'), {err:err.message}
-                    return notFound()
+                    return @notFound res, 404, 'Not Found', item, cb
                 else
                     res.writeHead 200, 'Content-Type': 'application/json'
-                    @log.debug gLineInfo('cb|resolve'), {path:path, result:result}
+                    @log.debug gLineInfo('cb|resolve'), {path:item, result:result}
                     res.write JSON.stringify result
                     res.end()
                     cb()

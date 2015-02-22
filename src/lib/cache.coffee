@@ -66,6 +66,18 @@ module.exports = (dnschain) ->
                     @cache.setex(key, ttl, JSON.stringify value) if not err2
                     valueDoer err, key, value
 
+        resolveResource: (resolver, resource, property, operation, fmt, query, cb) ->
+            if @blockchainEnabled and resolver.cacheTTL?
+                retriever = (key, callback) =>
+                    f = (err, result) =>
+                        callback err, resolver.cacheTTL, result
+                    resolver.resources[resource] property operation, fmt, query, f
+                doer = (err, key, result) =>
+                    cb err, result
+                @get "#{resolver.name}:#{resource}:#{property}:#{operation}:#{fmt}:#{JSON.stringify(query)}", retriever, doer
+            else
+                resolver.resources[resource] property operation, fmt, query, cb
+
         resolveBlockchain: (resolver, path, options, cb) ->
             if @blockchainEnabled and resolver.cacheTTL?
                 retriever = (key, callback) =>
