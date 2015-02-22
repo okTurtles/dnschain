@@ -1,3 +1,28 @@
+###### 0.5.0 - February 22, 2015
+
+- __New Features:__
+    + Built-in HTTPS server that can route multiple services over the same IP and port thanks to @SGrondin
+    + Redis caching for *both* DNS and HTTP requests thanks to @wemeetagain
+    + Traffic throttling for *both* DNS and HTTP requests thanks to @wemeetagain
+    + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by @wemeetagain
+    + NXT blockchain support thanks to @toenu23 (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
+    + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by @wemeetagain)
+    + Ability to specify configuration file path for any supported blockchain via the dnschain configuration (@wemeetagain, again!)
+- __Improvements:__
+    + Complete overhaul, refactoring, and improvement of the entire code base
+    + Replaced a lot of callback code with Promises (still more to be done!)
+    + All DNSChain components/servers are started and shutdown asynchronously (using Promise based API)
+    + Precisely specified dependency versions to spare sysadmins any annoying surprises
+    + Comprehensive testing suite with over 80% code coverage on average for all critical files (remaining is mostly error handlers)
+    + Travic CI support
+    + Added badges for NPM version, Travis build status, and Gitter to top of README
+- __Documentation:__
+    + This release includes the brand new documentation by @mdw and @taoeffect
+    + Added TACK and HPKP to Comparisons.md
+    + Updated Contributors list in README
+- __Fixes:__
+    + Closed #111: `TypeError` on startup on CentOS machines
+    + Closed #90 and #87: Exception on access to unknown metaTLD
 
 ###### 0.2.5 - July 10, 2014
 

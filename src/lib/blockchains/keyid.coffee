@@ -20,7 +20,7 @@ module.exports = (dnschain) ->
 
     class KeyidResolver extends BlockchainResolver
         constructor: (@dnschain) ->
-            @log = gNewLogger 'BDNS'
+            @log = gNewLogger 'KeyID'
             @tld = 'p2p'
             @name = 'keyid'
             gFillWithRunningChecks @
