@@ -20,7 +20,7 @@ module.exports = (dnschain) ->
 
     class KeyidResolver extends BlockchainResolver
         constructor: (@dnschain) ->
-            @log = gNewLogger 'BDNS'
+            @log = gNewLogger 'KeyID'
             @tld = 'p2p'
             @name = 'keyid'
             gFillWithRunningChecks @
@@ -74,4 +74,4 @@ module.exports = (dnschain) ->
                     result.value = {}
                 cb null, result
 
-        dnsHandler: require('./namecoin').prototype.dnsHandler
+        dnsHandler: require('./namecoin')(dnschain).prototype.dnsHandler

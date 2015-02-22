@@ -18,7 +18,7 @@ testQueries = (idx, times) ->
         # Only one domain in `domains.txt` is an invalid domain
         _(results).invoke('isRejected').countBy().value()['true'].should.equal 1
         times[idx].time = Date.now() - times[idx].start
-        console.info "Test #{idx+1} took: #{times[idx].time} ms"
+        console.info "Test #{idx+1} took: #{times[idx].time} ms".bold
 
 describe 'Redis DNS cache', ->
     this.timeout 6 * 1000
