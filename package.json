@@ -40,6 +40,7 @@
     "bluebird": "2.9.9",
     "bottleneck": "1.5.x",
     "event-stream": "3.2.2",
+    "express": "4.11.2",
     "grunt-contrib-watch": "0.6.1",
     "hiredis": "0.2.0",
     "json-rpc2": "0.8.1",

@@ -19,8 +19,8 @@ INSTRUCTIONS:
        The name you choose will also be your metaTLD (e.g. namecoin.coffee => namecoin.dns)
     2. Rename the class (following the same naming convention as shown in
        `blockchains/namecoin.coffee`) and `extend BlockchainResolver`
-    3. Uncomment and edit the code as appropriate. 
-       Look at how the other blockchains do it (especially namecoin.coffee) 
+    3. Uncomment and edit the code as appropriate.
+       Look at how the other blockchains do it (especially namecoin.coffee)
 
     REMEMBER: When in doubt, look at `blockchains/namecoin.coffee` !
 
@@ -64,7 +64,7 @@ module.exports = (dnschain) ->
             gFillWithRunningChecks @
 
         # This is the default TTL value for all blockchains.
-        # Override it above in the constructor for your blockchain. 
+        # Override it above in the constructor for your blockchain.
         cacheTTL: gConf.get 'redis:blockchain:ttl'
 
         # Return `this` upon successful load, falsy otherwise
@@ -76,8 +76,8 @@ module.exports = (dnschain) ->
             @log.debug "Loading resolver config"
             @
             # Fill this in with code to load your config.
-            # We recommend copying and editing the stuff from namecoin.coffee 
-            # 
+            # We recommend copying and editing the stuff from namecoin.coffee
+            #
             # if "loaded successfully"
             #     return this
             # else
@@ -105,7 +105,7 @@ module.exports = (dnschain) ->
 
             # Example of what this function should do.
             # Uncomment and edit:
-            
+
             # myBlockchain.resolve path, (err, answer) =>
             #     if err
             #         cb err
@@ -128,6 +128,15 @@ module.exports = (dnschain) ->
         ### (path: string): boolean ###
         validRequest: (path) -> true
 
+        # Any valid resource for a blockchain should be set here.
+        # All keys of this object must be functions of this form:
+        #   (property: string, operation: string, fmt: string, query: object, cb: function(err: object, result: object)) ->
+        #
+        # For more information, see:
+        #   https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md
+        ### : object ###
+        resources: {}
+
         # Should be a dictionary of functions corresponding to traditional DNS
-        # record types. See namecoin.coffee for an example. 
+        # record types. See namecoin.coffee for an example.
         dnsHandler: {}

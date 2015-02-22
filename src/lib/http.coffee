@@ -11,6 +11,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 
+express = require 'express'
+
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
@@ -21,11 +23,30 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
             @rateLimiting = gConf.get 'rateLimiting:http'
+            app = express()
+            router = express.Router()
 
+            router.route(/\/v1\/(\w+)\/(\w+)(\/([^\/]+)(\/(\w+)(\.(\w+))?)?)?/)
+            .get (req, res) =>
+                [chain, resource, _, property, _, operation, _, fmt] = req.params
+                @log.debug gLineInfo('GET v1 API'),
+                    {chain:chain, resource:resource, property:property, operation:operation, fmt:fmt}
+                if chain is 'resolver'
+                    # TODO do resolver stuff
+                else
+                    return @noChain(res) if not (resolver=@dnschain.chains[chain])
+                    return @noResource(res) if not (resolveResource=resolver.resources[resource])
+                    resolveResource property, operation, fmt, req.query
+                res.end()
+
+            # support old api
+            router.get '/*', @callback.bind(@)
+
+            app.use(router)
             @server = http.createServer((req, res) =>
                 key = "http-#{req.connection?.remoteAddress}"
                 limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
-                limiter.submit (@callback.bind @), req, res, null
+                limiter.submit (app), req, res, null
             ) or gErr "http create"
             @server.on 'error', (err) -> gErr err
             gFillWithRunningChecks @
@@ -41,9 +62,9 @@ module.exports = (dnschain) ->
                 @server.close cb
 
         callback: (req, res, cb) ->
-            path = S(url.parse(req.url).pathname).chompLeft('/').s
-            options = url.parse(req.url, true).query
-            @log.debug gLineInfo('request'), {path:path, options:options, url:req.url}
+            path = S(url.parse(req.originalUrl).pathname).chompLeft('/').s
+            options = url.parse(req.originalUrl, true).query
+            @log.debug gLineInfo('request'), {path:path, options:options, url:req.originalUrl}
 
             notFound = =>
                 res.writeHead 404,  'Content-Type': 'text/plain'

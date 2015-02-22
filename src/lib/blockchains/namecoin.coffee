@@ -92,6 +92,13 @@ module.exports = (dnschain) ->
 
         validRequest: (path) -> VALID_NMC_DOMAINS.test path
 
+        resources:
+            key: (property, operation, fmt, query, cb) =>
+                if not operation?
+                    @resolve property, query, cb
+                else
+                    cb {message: "Not Implemented"}
+
         dnsHandler:
             # TODO: handle all the types specified in the specification!
             #       https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Value_field
