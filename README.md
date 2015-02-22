@@ -40,10 +40,8 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 [use]: docs/How-do-I-use-it.md
 [api]: docs/What-is-it.md#restful-api
 
-<a name="Documentation"></a>
 ## Documentation
 
-<a name="What"></a>
 ### [:book: What is it?](docs/What-is-it.md)
 
 - DNSChain replaces X.509 PKI with the blockchain
@@ -54,7 +52,6 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - Certificate revocation that actually works
 - DNS-based censorship circumvention
 
-<a name="Use"></a>
 ### [:book: Using DNSChain](docs/How-do-I-use-it.md)
 
 - Free public DNSChain servers
@@ -64,7 +61,6 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - Unblock censored websites *(coming soon!)*
 - And more!
 
-<a name="Run"></a>
 ### [:book: Running your own DNSChain server](docs/How-do-I-run-my-own.md)
 
 - Requirements
@@ -73,21 +69,18 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - Guide: Setting up a DNSChain server with Namecoin and PowerDNS
 - *Coming Soon: securing HTTPS websites with DNSChain.*
 
-<a name="Developers"></a>
 ### [:book: Developers](docs/Developers.md)
 
 - Securing Your Apps With DNSChain
 - Contributing to DNSChain development
 - Running Tests
 
-<a name="Community"></a>
 ## Community
 
 - [Forums](https://forums.okturtles.com)
 - [@DNSChain](https://twitter.com/dnschain) + [@okTurtles](https://twitter.com/okTurtles)
 - [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/okTurtles/dnschain)
 
-<a name="Resources"></a>
 ## Other Resources
 
 __:tv: Watch__
@@ -114,7 +107,6 @@ __:page_facing_up: Read__
 
 _Have a link? [Let us know](https://twitter.com/dnschain)!_
 
-<a name="Contributors"></a>
 ## Contributors
 
 _Approximate chronological order._
@@ -133,19 +125,18 @@ _Approximate chronological order._
 - [Anton Wilhelm](https://github.com/toenu23) (Support for [Nxt](http://nxt.org) cryptocurrency)
 - *Your name & link of choice here!*
 
-<a name="Release"></a>
 ## Release History
 
 ###### 0.5.0 - February 22, 2015
 
 - __New Features:__
-    + Built-in HTTPS server that can route multiple services over the same IP and port thanks to @SGrondin
-    + Redis caching for *both* DNS and HTTP requests thanks to @wemeetagain
-    + Traffic throttling for *both* DNS and HTTP requests thanks to @wemeetagain
-    + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by @wemeetagain
-    + NXT blockchain support thanks to @toenu23 (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
-    + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by @wemeetagain)
-    + Ability to specify configuration file path for any supported blockchain via the dnschain configuration (@wemeetagain, again!)
+    + Built-in HTTPS server that can route multiple services over the same IP and port thanks to [@SGrondin](https://github.com/SGrondin)
+    + Redis caching for *both* DNS and HTTP requests thanks to [@WeMeetAgain](https://github.com/WeMeetAgain)
+    + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
+    + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by [@WeMeetAgain](https://github.com/WeMeetAgain)
+    + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
+    + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
+    + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
 - __Improvements:__
     + Complete overhaul, refactoring, and improvement of the entire code base
     + Replaced a lot of callback code with Promises (still more to be done!)
@@ -155,7 +146,7 @@ _Approximate chronological order._
     + Travic CI support
     + Added badges for NPM version, Travis build status, and Gitter to top of README
 - __Documentation:__
-    + This release includes the brand new documentation by @mdw and @taoeffect
+    + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
     + Added TACK and HPKP to Comparisons.md
     + Updated Contributors list in README
 - __Fixes:__

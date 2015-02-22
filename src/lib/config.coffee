@@ -132,8 +132,8 @@ module.exports = (dnschain) ->
     # load our config
     nconf.argv().env('__')
     dnscConfLocs = [
-        "#{process.env.HOME}/.dnschain.conf", # the default
-        "#{process.env.HOME}/.dnschain/dnschain.conf",
+        "#{process.env.HOME}/.dnschain/dnschain.conf",  # the default
+        "#{process.env.HOME}/.dnschain.conf",
         "/etc/dnschain/dnschain.conf"
     ]
     dnscConf = _.find dnscConfLocs, (x) -> fs.existsSync x

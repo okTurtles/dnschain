@@ -104,6 +104,7 @@ When a DNSChain server sees a request to a `.dns` domain, it handles the request
 
 **:page_facing_up: [Introducing the dotDNS metaTLD](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/)**
 
+<a name="API"></a>
 ##### RESTful API
 
 Openname and okTurtles are partnering to develop a RESTful API with DNSChain being the reference resolver that supporting it. This API is currently in development. You can watch its progress here:

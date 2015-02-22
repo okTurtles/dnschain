@@ -8,7 +8,7 @@ Developers of secure communications applications looking to improve the usabilit
 
 - [How to use DNSChain](How-do-I-use-it.md)
 - [How to run a DNSChain server](How-do-I-run-my-own.md)
-- [RESTful API specification](What-is-it.md#metaTLD)
+- [RESTful API specification](What-is-it.md#API)
 
 Developer-friendly libraries in various languages for interacting with DNSChain in a MITM-proof manner are coming:
 
@@ -29,11 +29,6 @@ When forking DNSChain: work on feature branches, not `master`, then submit a PR.
 
 ## Running Tests
 
-Setup:
-
-    npm install -g mocha
-    npm install
-
-Running all tests:
+From within the DNSChain repo, make sure you've run `npm install`, and then:
 
     npm test
