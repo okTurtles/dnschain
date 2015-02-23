@@ -65,10 +65,7 @@ module.exports = (dnschain) ->
                 if not resolver.resources[resource]
                     return @sendErr req, res, 400, "Unsupported resource: #{resource}"
 
-                if true
-                    @dnschain.cache.resolveResource resolver, resource, propOrAction, action, fmt, req.query, @postResolveCallback(req, res, propOrAction)
-                else
-                    res.json {params: req.params}
+                @dnschain.cache.resolveResource resolver, resource, propOrAction, action, fmt, req.query, @postResolveCallback(req, res, propOrAction)
             
             opennameRoute.use (req, res) =>
                 @sendErr req, res, 400, "Bad v1 request"
