@@ -45,15 +45,15 @@ module.exports = (dnschain) ->
 
             # Datastore API
             opennameRoute.route(/// ^
-                \/(\w+)     # the datastore name
-                \/(\w+)     # the corresponding resource
+                \/(\w+)               # the datastore name
+                \/(\w+)               # the corresponding resource
                 (?:
                     \/  ([^\/\.]+)    # optional property (or action on resource) 
                     (?:
                         \/ ([^\/\.]+) # optional action on property
                     )?
                 )?
-                (?:\.([a-z]+))?     # optional response format
+                (?:\.([a-z]+))?       # optional response format
                 $ ///
             ).get (req, res) =>
                 @log.debug gLineInfo("get v1"), {params: req.params}
