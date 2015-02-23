@@ -25,28 +25,82 @@ module.exports = (dnschain) ->
             @rateLimiting = gConf.get 'rateLimiting:http'
             app = express()
 
-            (opennameRoute = express.Router()).route(/\/(\w+)\/(\w+)(\/([^\/]+)(\/(\w+)(\.(\w+))?)?)?/)
-            .get (req, res) =>
-                [chain, resource, _, property, _, operation, _, fmt] = req.params
-                @log.debug gLineInfo('GET v1 API'),
-                    {chain:chain, resource:resource, property:property, operation:operation, fmt:fmt}
-                if chain is 'resolver'
-                    # TODO do resolver stuff
-                    res.end()
+            # Openname spec defined here:
+            # - https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md
+            # - https://github.com/openname/openname-specifications/blob/master/resolvers.md
+            
+            opennameRoute = express.Router()
+            
+            # Resolver specific API
+            opennameRoute.get /\/(?:resolver|dnschain)\/([^\/\.]+)(?:\.([a-z]+))?/, (req, res) =>
+                @log.debug gLineInfo("resolver API called"), {params: req.params}
+                [resource, format] = req.params
+                if resource == "fingerprint"
+                    if !format or format is 'json'
+                        res.json {fingerprint: @dnschain.encryptedserver.getFingerprint()}
+                    else
+                        @sendErr req, res, 400, "Unsupported format: #{format}"
                 else
-                    return @notFound(res,400,'No Blockchain Found',chain,->) if not (resolver=@dnschain.chains[chain])
-                    return @notFound(res,400,'No Resource Found',resource,->) if not resolver.resources[resource]?
-                    @dnschain.cache.resolveResource resolver, resource, property, operation, fmt, req.query, @postResolveCallback(res, property,->)
+                    @sendErr req, res, 400, "Bad resource: #{resource}"
 
-            (oldRoute = express.Router()).get '*', @callback.bind(@)
+            # Datastore API
+            opennameRoute.route(/// ^
+                \/(\w+)               # the datastore name
+                \/(\w+)               # the corresponding resource
+                (?:
+                    \/  ([^\/\.]+)    # optional property (or action on resource) 
+                    (?:
+                        \/ ([^\/\.]+) # optional action on property
+                    )?
+                )?
+                (?:\.([a-z]+))?       # optional response format
+                $ ///
+            ).get (req, res) =>
+                @log.debug gLineInfo("get v1"), {params: req.params}
+                [datastore, resource, propOrAction, action, fmt] = req.params
+
+                if not (resolver = @dnschain.chains[datastore])
+                    return @sendErr req, res, 400, "Unsupported datastore: #{datastore}"
+
+                if not resolver.resources[resource]
+                    return @sendErr req, res, 400, "Unsupported resource: #{resource}"
+
+                @dnschain.cache.resolveResource resolver, resource, propOrAction, action, fmt, req.query, @postResolveCallback(req, res, propOrAction)
+            
+            opennameRoute.use (req, res) =>
+                @sendErr req, res, 400, "Bad v1 request"
 
             app.use "/v1", opennameRoute
-            app.use "/", oldRoute
-            @server = http.createServer((req, res) =>
+            app.get "*", @callback.bind(@) # Old, deprecated API usage.
+
+            app.use (err, req, res, next) =>
+                @log.warn gLineInfo('error handler triggered'),
+                    errMessage: err?.message
+                    stack: err?.stack
+                    req: _.at(req, ['originalUrl','ip','ips','protocol','hostname','headers'])
+                res.status(500).send "Internal Error: #{err?.message}"
+
+            @server = http.createServer (req, res) =>
                 key = "http-#{req.connection?.remoteAddress}"
-                limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
-                limiter.submit (app), req, res, null
-            ) or gErr "http create"
+                @log.debug gLineInfo("creating bottleneck on: #{key}")
+                limiter = gThrottle key, => new Bottleneck _.at(@rateLimiting, ['maxConcurrent','minTime','highWater','strategy'])...
+
+                # Since Express doesn't take a callback function
+                # we capture the callback that Bottleneck requires
+                # in `bottleCB` and call it by hooking into `res.end`
+                savedEnd = res.end.bind(res)
+                bottleCB = null
+                res.end = (args...) =>
+                    savedEnd args...
+                    bottleCB()
+
+                limiter.submit (cb) ->
+                    bottleCB = cb
+                    app req, res
+                , null
+            
+            gErr("http create") unless @server
+                
             @server.on 'error', (err) -> gErr err
             gFillWithRunningChecks @
 
@@ -60,7 +114,8 @@ module.exports = (dnschain) ->
                 @log.debug 'shutting down!'
                 @server.close cb
 
-        callback: (req, res, cb) ->
+        # TODO: move/rename this function + indicate it's deprecated usage
+        callback: (req, res) ->
             path = S(url.parse(req.originalUrl).pathname).chompLeft('/').s
             options = url.parse(req.originalUrl, true).query
             @log.debug gLineInfo('request'), {path:path, options:options, url:req.originalUrl}
@@ -73,28 +128,26 @@ module.exports = (dnschain) ->
 
             if not (resolver = @dnschain.chains[resolverName])
                 @log.warn gLineInfo('unknown blockchain'), {host: req.headers.host, blockchainHeader: req.headers.blockchain, remoteAddress: req.connection.remoteAddress}
-                return @notFound res, 400, 'No Blockchain Found', resolverName, cb
+                return @sendErr req, res, 400, "Unsupported blockchain: #{resolverName}"
 
             if not resolver.validRequest path
                 @log.debug gLineInfo("invalid request: #{path}")
-                return @notFound(res, 400, 'Not Found', path, cb)
+                return @sendErr req, res, 400, "Bad request: #{path}"
 
-            @dnschain.cache.resolveBlockchain resolver, path, options, @postResolveCallback(res, path, cb)
+            @dnschain.cache.resolveBlockchain resolver, path, options, @postResolveCallback(req, res, path)
 
-        notFound: (res, code, comment, item, cb) =>
-            res.writeHead code,  'Content-Type': 'text/plain'
-            res.write(comment + ": #{item}")
-            res.end()
-            cb()
+        sendErr: (req, res, code=404, comment="Not Found") =>
+            @log.warn gLineInfo('notFound'),
+                comment: comment
+                code: code
+                req: _.at(req, ['originalUrl','protocol','hostname'])
+            res.status(code).send comment
 
-        postResolveCallback: (res, item, cb) =>
-            return (err,result) =>
+        postResolveCallback: (req, res, item) =>
+            (err,result) =>
                 if err
                     @log.debug gLineInfo('resolver failed'), {err:err.message}
-                    return @notFound res, 404, 'Not Found', item, cb
+                    @sendErr req, res, 404, "Not Found: #{item}"
                 else
-                    res.writeHead 200, 'Content-Type': 'application/json'
-                    @log.debug gLineInfo('cb|resolve'), {path:item, result:result}
-                    res.write JSON.stringify result
-                    res.end()
-                    cb()
+                    @log.debug gLineInfo('postResolve'), {path:item, result:result}
+                    res.json result
