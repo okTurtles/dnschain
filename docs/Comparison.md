@@ -6,6 +6,7 @@
 - [Perspectives](<#perspectives>)
 - [TACK / HPKP](<#tack--hpkp>)
 - [Bitmessage](<#bitmessage>)
+- ["Thin" or "Light" Clients](<#thin-clients--light-clients>)
 
 ## Certificate Transparency
 
@@ -63,3 +64,26 @@ _Bitmessage is more appropriately compared against the unreleased [okTurtles bro
 - To quote [the paper](http://okturtles.com/other/bitmessage.pdf): _"The difficulty of the proof‐of‐work should be proportional to the size of the message and should be set such that an average computer must expend an average of four minutes of work in order to send a typical message."_
 - It requires constantly running a program in the background (and one that isn't feasible on most mobile devices).
 - Messages take a long time to get to their destination because: _"Just like Bitcoin transactions and blocks, all users would receive all messages. They would be responsible for attempting to decode each message with each of their private keys to see whether the message is bound for them."_
+
+## Thin Clients / Light Clients
+
+[Thin Clients](https://en.bitcoin.it/wiki/Thin_Client_Security) are actually really great! They offer a way to access blockchain data in an extremely efficient and lightweight manner while maintaining a level of security that is almost as good as that provided by a full node (and in the case of "SPV+" or "UTXO" type clients, possibly equivalent, depending on how it's implemented).
+
+Some concerns with Thin Clients include:
+
+- Their non-existence. As soon as thin clients that can be used to do arbitrary key/value lookups come about, DNSChain plans to support them!
+- Over-reliance on SPV(+) clients can lead to a centralization of the entire network as fewer full nodes are being operated. Ultimately, the network is only as healthy as the number of full nodes there are, and full nodes can only reasonably be run on a server. *(DNSChain helps make the security of full nodes accessible today at the cost of having to trust the DNSChain servers you're talking to. If that's a concern, clients can increase the number of DNSChain servers they talk to.)*
+- Some platforms do not support Thin Clients well. Examples include:
+    * Apple's iOS does not allow you to download and run a thin client (or any server) in the background that other apps can talk to. Therefore any app that wanted to talk to the blockchain would need to bundle its own thin client.
+    * Thin clients that perform DNS could result in a poor user experience on mobile devices if they've been offline for a prolonged period of time. They would need to wait until the thin client synced up with the network before it could be used reliably.
+- As mentioned previously, there are different kinds of thin clients, some of which provide a better user experience and security than others. It will be a while before we see high quality ones that can be used for DNS in the wild.
+
+That all said, you should support thin client development as they are a very powerful and useful tool for effectively improving online security.
+
+When they *do* start popping up, they can choose whether to directly implement the [Openname Resolver Specification](https://github.com/openname/openname-specifications/blob/master/resolvers.md) or use DNSChain as "middleware" so that apps have a simple and standard interface for communicating with the blockchain.
+
+Useful resources on thin clients:
+
+- :page_facing_up: __[Bitcoin wiki: Thin Client Security](https://en.bitcoin.it/wiki/Thin_Client_Security)__
+- :page_facing_up: __[Various types of thin clients Namecoin is exploring](https://github.com/hlandau/ncdocs/blob/master/stateofnamecoin.md)__
+- :page_facing_up: __[Namecoin blog: Lightweight Resolvers](http://blog.namecoin.org/post/109811339625/lightweight-resolvers)__

@@ -8,11 +8,12 @@ want to connect to, *without anyone secretly listening in on your conversations 
 - [DNSChain replaces X.509 PKI with the blockchain](#DNSChain)
 - [MITM-proof'ed Internet connections](#MITMProof)
 - [Simple and secure GPG key distribution](#GPG)
+- [Secure, MITM-proof RESTful API to blockchains](#API)
 - [Free SSL certificates become possible](#Free)
 - [Prevents DDoS attacks](#DDoS)
 - [Certificate revocation that actually works](#Revocation)
 - [DNS-based censorship circumvention](#Censorship)
-- [RESTful API via `.dns` metaTLD](#metaTLD)
+- [`.dns` metaTLD for convenience](#metaTLD)
 
 <a name="DNSChain"></a>
 ### DNSChain replaces X.509 PKI with the blockchain
@@ -52,6 +53,22 @@ provides easy access to it via [a blockchain agnostic API](https://github.com/op
 ![Easily share your GPG key!](https://www.taoeffect.com/includes/images/twitter-gpg-s.jpg)
 
 Any DNSChain server can be used to retrieve the same information. Storing information in the blockchain is a bit more difficult, but with time, this too will become simple.
+
+<a name="API"></a>
+##### RESTful API
+
+okTurtles is working with Onename to develop a spec for RESTful access to blockchains. Here's what it looks like:
+
+    https://api.example.com/v1/namecoin/key/id%2Fbob
+    https://api.example.com/v1/bitcoin/addr/MywyjpyBbFTsHkevcoYnSaifShG2Et8R3S
+    https://api.example.com/v1/namecoin/key/id%2Fclinton/transfer?to_addr=ea3df...
+    http://api.example.com/v1/resolver/fingerprint
+
+The URL follows this pattern:
+
+    /{version}/{chain|resolver}/{resource}/{property}/{operation}{resp_format}?{args}
+
+**:page_facing_up: See complete details: [Openname Resolver Specification](https://github.com/openname/openname-specifications/blob/master/resolvers.md)**
 
 <a name="Free"></a>
 ### Free SSL certificates become possible
@@ -96,17 +113,8 @@ For now, Deep Packet Inspection techniques used in Pakistan and China can still 
 <a name="metaTLD"></a>
 ### The `.dns` metaTLD
 
-__`.dns`__ is [a meta-TLD](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/) because unlike traditional TLDs, it is not meant to globally resolve to a specific IP. Rather, it is meant to resolve to a DNSChain server that *_you personally own and run_*.
+metaTLDs are useful when you need to talk to the DNS server you're connected to, but do not have access to DNS information. This makes them very useful whenever browser extensions, or other software environments where access to DNS is not simple.
 
-It bears emphasizing that *you cannot register a meta-TLD because you already own them!*
-
-When a DNSChain server sees a request to a `.dns` domain, it handles the request itself, looking it up in a blockchain stored on that same server. At the moment, DNSChain uses the Namecoin blockchain, but it can easily be configured to use any blockchain.
+Note that metaTLDs cannot be "registered" because they resolve to the DNS server that the user is connected to, if that server supports metaTLDs.
 
 **:page_facing_up: [Introducing the dotDNS metaTLD](http://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/)**
-
-<a name="API"></a>
-##### RESTful API
-
-Openname and okTurtles are partnering to develop a RESTful API with DNSChain being the reference resolver that supporting it. This API is currently in development. You can watch its progress here:
-
-**:page_facing_up: [Openname Resolver Specification](https://github.com/openname/openname-specifications/blob/master/resolvers.md)**

@@ -14,20 +14,20 @@ These problems arise out of two core Internet protocols:
 
 DNSChain offers a free and secure decentralized alternative while remaining backwards compatible
 with traditional DNS.
+
 It compares favorably to [the alternatives](docs/Comparison.md), and provides the following features:
 ︎
-
-|                                                                        |      DNSChain      | X.509 PKI [with or without Certificate Transparency][ct] |
-|------------------------------------------------------------------------|--------------------|----------------------------------------------------------|
-| __MITM-proof'ed [Internet connections][mitm]__                         | :white_check_mark: | :x:                                                      |
-| __Secure and simple [GPG key distribution][gpg]__                      | :white_check_mark: | :x:                                                      |
-| __Free and [actually-secure][free] SSL certificates__                  | :white_check_mark: | :x:                                                      |
-| __Stops many [denial-of-service attacks][dos]__                        | :white_check_mark: | :x:                                                      |
-| __Certificate revocation [that actually works][rev]__                  | :white_check_mark: | :x:                                                      |
-| __DNS-based [censorship circumvention][cens]__                         | :white_check_mark: | :x:                                                      |
-| __Prevents [domain theft][] ("seizures")__                             | :white_check_mark: | :x:                                                      |
-| __Access blockchain-based [domains like `.bit`, `.p2p`, `.eth`][use]__ | :white_check_mark: | :x:                                                      |
-| __RESTful [API to blockchain][api]__                                   | :white_check_mark: | :x:                                                      |
+|                                                                  |      DNSChain      | X.509 PKI [with or without Certificate Transparency][ct] |
+|------------------------------------------------------------------|--------------------|----------------------------------------------------------|
+| __MITM-proof'ed [Internet connections][mitm]__                   | :white_check_mark: | :x:                                                      |
+| __Secure and simple [GPG key distribution][gpg]__                | :white_check_mark: | :x:                                                      |
+| __Secure, MITM-proof RESTful [API to blockchain][api]__          | :white_check_mark: | :x:                                                      |
+| __Free and [actually-secure][free] SSL certificates__            | :white_check_mark: | :x:                                                      |
+| __Stops many [denial-of-service attacks][dos]__                  | :white_check_mark: | :x:                                                      |
+| __Certificate revocation [that actually works][rev]__            | :white_check_mark: | :x:                                                      |
+| __DNS-based [censorship circumvention][cens]__                   | :white_check_mark: | :x:                                                      |
+| __Prevents [domain theft][theft] ("seizures")__                  | :white_check_mark: | :x:                                                      |
+| __Access blockchain [domains like `.bit`, `.p2p`, `.eth`][use]__ | :white_check_mark: | :x:                                                      |
 
 [ct]: https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/
 [mitm]: docs/What-is-it.md#MITMProof
@@ -36,9 +36,11 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 [dos]: docs/What-is-it.md#DDoS
 [rev]: docs/What-is-it.md#Revocation
 [cens]: docs/What-is-it.md#Censorship
-[domain theft]: https://www.techdirt.com/articles/20141006/02561228743/5000-domains-seized-based-sealed-court-filing-confused-domain-owners-have-no-idea-why.shtml
+[theft]: https://www.techdirt.com/articles/20141006/02561228743/5000-domains-seized-based-sealed-court-filing-confused-domain-owners-have-no-idea-why.shtml
 [use]: docs/How-do-I-use-it.md
-[api]: docs/What-is-it.md#restful-api
+[api]: docs/What-is-it.md#API
+
+**:star: See Also: [How DNSChain Compares To Other Approaches](docs/Comparison.md)**
 
 ## Documentation
 
@@ -137,6 +139,7 @@ _Approximate chronological order._
     + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
     + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
     + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
+    + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__
     + Complete overhaul, refactoring, and improvement of the entire code base
     + Replaced a lot of callback code with Promises (still more to be done!)
