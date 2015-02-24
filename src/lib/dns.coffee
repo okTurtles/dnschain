@@ -143,7 +143,7 @@ module.exports = (dnschain) ->
             if (resolver = @dnschain.chainsTLDs[q.name.split('.').pop()])
                 @log.debug gLineInfo("resolving via #{resolver.name}..."), {domain:q.name, q:q}
 
-                @dnschain.cache.resolveBlockchain resolver, q.name, {}, (err, result) =>
+                @dnschain.cache.resolveResource resolver, resolver.resolve, "#{resolver.name}:#{q.name}:{}",[q.name, {}], (err, result) =>
                     if err? or !result
                         @log.error gLineInfo("#{resolver.name} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res, null, cb

@@ -78,18 +78,6 @@ module.exports = (dnschain) ->
             else
                 resourceFn.call resolver, args..., cb
 
-        resolveBlockchain: (resolver, path, options, cb) ->
-            if @blockchainEnabled and resolver.cacheTTL?
-                retriever = (key, callback) =>
-                    f = (err, result) =>
-                        callback err, resolver.cacheTTL, result
-                    resolver.resolve path, options, f
-                doer = (err, key, result) =>
-                    cb err, result
-                @get "#{resolver.name}:#{path}:#{JSON.stringify(options)}", retriever, doer
-            else
-                resolver.resolve path, options, cb
-
         resolveOldDNS: (req, cb) ->
             if @oldDNSEnabled
                 q = req.question[0]
