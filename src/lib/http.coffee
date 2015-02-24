@@ -24,13 +24,14 @@ module.exports = (dnschain) ->
             @log.debug "Loading HTTPServer..."
             @rateLimiting = gConf.get 'rateLimiting:http'
             app = express()
+            ld = _ # stored for use after overwriting _
 
             # Openname spec defined here:
             # - https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md
             # - https://github.com/openname/openname-specifications/blob/master/resolvers.md
-            
+
             opennameRoute = express.Router()
-            
+
             # Resolver specific API
             opennameRoute.get /\/(?:resolver|dnschain)\/([^\/\.]+)(?:\.([a-z]+))?/, (req, res) =>
                 @log.debug gLineInfo("resolver API called"), {params: req.params}
@@ -45,33 +46,42 @@ module.exports = (dnschain) ->
 
             # Datastore API
             opennameRoute.route(/// ^
-                \/(\w+)               # the datastore name
-                \/(\w+)               # the corresponding resource
-                (?:
-                    \/  ([^\/\.]+)    # optional property (or action on resource) 
-                    (?:
-                        \/ ([^\/\.]+) # optional action on property
-                    )?
-                )?
-                (?:\.([a-z]+))?       # optional response format
+                \/(\w+)             # the datastore name
+                \/(\w+)             # the corresponding resource
+                (?:\/([^\/\.]+))?   # optional property (or action on resource)
+                (?:\/([^\/\.]+))?   # optional action on property
+                (?:\.([a-z]+))?     # optional response format
                 $ ///
             ).get (req, res) =>
                 @log.debug gLineInfo("get v1"), {params: req.params}
-                [datastore, resource, propOrAction, action, fmt] = req.params
+                [datastore, resource, propOrAction, _, _] = req.params
+                # this logic is here because the exact mechanism for retrieving
+                # the function to get resolver resources is not consistent across
+                # api versions, nor is the reason for failure to do so
+                resourceFnGetter = (resolver) ->
+                    [resolver.resources[resource], "Unsupported resource: #{resource}"]
 
-                if not (resolver = @dnschain.chains[datastore])
-                    return @sendErr req, res, 400, "Unsupported datastore: #{datastore}"
+                @callback datastore, resourceFnGetter, ld.values(req.params).join(':')+":#{JSON.stringify(req.query)}", ld.values(req.params)[2..].concat(req.query), @postResolveCallback(req, res, propOrAction)
 
-                if not resolver.resources[resource]
-                    return @sendErr req, res, 400, "Unsupported resource: #{resource}"
-
-                @dnschain.cache.resolveResource resolver, resource, propOrAction, action, fmt, req.query, @postResolveCallback(req, res, propOrAction)
-            
             opennameRoute.use (req, res) =>
                 @sendErr req, res, 400, "Bad v1 request"
 
             app.use "/v1", opennameRoute
-            app.get "*", @callback.bind(@) # Old, deprecated API usage.
+            app.get "*", (req, res) => # Old, deprecated API usage.
+                path = S(url.parse(req.originalUrl).pathname).chompLeft('/').s
+                options = url.parse(req.originalUrl, true).query
+                @log.debug gLineInfo('deprecated request'), {path:path, options:options, url:req.originalUrl}
+
+                [...,resolverName] =
+                    if S(header = req.headers.blockchain || req.headers.host).endsWith('.dns')
+                        S(header).chompRight('.dns').s.split('.')
+                    else
+                        ['none']
+
+                resourceFnGetter = (resolver) =>
+                    return [null, "Bad request: #{path}"] if not resolver.validRequest path
+                    [resolver.resolve, null]
+                @callback resolverName, resourceFnGetter, "#{resolverName}:#{path}:#{JSON.stringify(options)}", [path, options], @postResolveCallback(req, res, path)
 
             app.use (err, req, res, next) =>
                 @log.warn gLineInfo('error handler triggered'),
@@ -98,9 +108,9 @@ module.exports = (dnschain) ->
                     bottleCB = cb
                     app req, res
                 , null
-            
+
             gErr("http create") unless @server
-                
+
             @server.on 'error', (err) -> gErr err
             gFillWithRunningChecks @
 
@@ -114,27 +124,14 @@ module.exports = (dnschain) ->
                 @log.debug 'shutting down!'
                 @server.close cb
 
-        # TODO: move/rename this function + indicate it's deprecated usage
-        callback: (req, res) ->
-            path = S(url.parse(req.originalUrl).pathname).chompLeft('/').s
-            options = url.parse(req.originalUrl, true).query
-            @log.debug gLineInfo('request'), {path:path, options:options, url:req.originalUrl}
-
-            [...,resolverName] =
-                if S(header = req.headers.blockchain || req.headers.host).endsWith('.dns')
-                    S(header).chompRight('.dns').s.split('.')
-                else
-                    ['none']
-
+        callback: (resolverName, resourceFnGetter, serialization, args, cb) ->
             if not (resolver = @dnschain.chains[resolverName])
-                @log.warn gLineInfo('unknown blockchain'), {host: req.headers.host, blockchainHeader: req.headers.blockchain, remoteAddress: req.connection.remoteAddress}
-                return @sendErr req, res, 400, "Unsupported blockchain: #{resolverName}"
+                return @sendErr req, res, 400, "Unsupported datastore: #{resolverName}"
+            [resolverFn, error] = resourceFnGetter resolver
+            if not resolverFn?
+                return @sendErr req, res, 400, error
 
-            if not resolver.validRequest path
-                @log.debug gLineInfo("invalid request: #{path}")
-                return @sendErr req, res, 400, "Bad request: #{path}"
-
-            @dnschain.cache.resolveBlockchain resolver, path, options, @postResolveCallback(req, res, path)
+            @dnschain.cache.resolveResource resolver, resolverFn, serialization, args, cb
 
         sendErr: (req, res, code=404, comment="Not Found") =>
             @log.warn gLineInfo('notFound'),
