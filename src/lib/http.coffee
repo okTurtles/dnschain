@@ -24,7 +24,6 @@ module.exports = (dnschain) ->
             @log.debug "Loading HTTPServer..."
             @rateLimiting = gConf.get 'rateLimiting:http'
             app = express()
-            ld = _ # stored for use after overwriting _
 
             # Openname spec defined here:
             # - https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md
@@ -61,7 +60,7 @@ module.exports = (dnschain) ->
                 resourceFnGetter = (resolver) ->
                     [resolver.resources[resource], "Unsupported resource: #{resource}"]
 
-                @callback datastore, resourceFnGetter, ld.values(req.params).join(':')+":#{JSON.stringify(req.query)}", ld.values(req.params)[2..].concat(req.query), @postResolveCallback(req, res, propOrAction)
+                @callback datastore, resourceFnGetter, __.values(req.params).join(':')+":#{JSON.stringify(req.query)}", __.values(req.params)[2..].concat(req.query), @postResolveCallback(req, res, propOrAction)
 
             opennameRoute.use (req, res) =>
                 @sendErr req, res, 400, "Bad v1 request"
