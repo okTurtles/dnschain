@@ -57,29 +57,30 @@ module.exports = (dnschain) ->
             @log.info "Nxt API on:", @params
             @
 
-        resolve: (path, options, cb) ->
-            result = @resultTemplate()
+        resources:
+            key: (property, operation, fmt, args, cb) ->
+                result = @resultTemplate()
 
-            if S(path).endsWith(".#{@tld}")
-                path = S(path).chompRight(".#{@tld}").s
-                if (dotIdx = path.lastIndexOf('.')) != -1
-                    path = path.slice(dotIdx+1) #rm subdomain
+                if S(property).endsWith(".#{@tld}")
+                    property = S(property).chompRight(".#{@tld}").s
+                    if (dotIdx = property.lastIndexOf('.')) != -1
+                        property = property.slice(dotIdx+1) #rm subdomain
 
-            @log.debug gLineInfo("#{@name} resolve"), {path:path}
-            
-            req = http.get @peer + encodeURIComponent(path), (res) ->
-                data = ''
-                res.on 'data', (chunk) ->
-                    data += chunk.toString()
-                res.on 'end', () ->
-                    try
-                        response = JSON.parse data
-                        result.value = JSON.parse response.aliasURI
-                        cb null, result
-                    catch e
-                        cb e
-            req.on 'error', (e) ->
-                cb e
+                @log.debug gLineInfo("#{@name} resolve"), {property:property}
+
+                req = http.get @peer + encodeURIComponent(property), (res) ->
+                    data = ''
+                    res.on 'data', (chunk) ->
+                        data += chunk.toString()
+                    res.on 'end', () ->
+                        try
+                            response = JSON.parse data
+                            result.value = JSON.parse response.aliasURI
+                            cb null, result
+                        catch e
+                            cb e
+                req.on 'error', (e) ->
+                    cb e
 
         # just return true for everything for now
         # validRequest: (path) -> VALID_NXT_DOMAINS.test path
