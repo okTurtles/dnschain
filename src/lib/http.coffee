@@ -52,15 +52,8 @@ module.exports = (dnschain) ->
                 (?:\.([a-z]+))?     # optional response format
                 $ ///
             ).get (req, res) =>
-                @log.debug gLineInfo("get v1"), {params: req.params}
-                [datastore, resource, propOrAction, _, _] = req.params
-                # this logic is here because the exact mechanism for retrieving
-                # the function to get resolver resources is not consistent across
-                # api versions, nor is the reason for failure to do so
-                resourceFnGetter = (resolver) ->
-                    [resolver.resources[resource], "Unsupported resource: #{resource}"]
-
-                @callback datastore, resourceFnGetter, __.values(req.params).join(':')+":#{JSON.stringify(req.query)}", __.values(req.params)[2..].concat(req.query), @postResolveCallback(req, res, propOrAction)
+                @log.debug gLineInfo("get v1"), {params: req.params, queryArgs: req.query}
+                @callback  req, res, [_.values(req.params)..., req.query]
 
             opennameRoute.use (req, res) =>
                 @sendErr req, res, 400, "Bad v1 request"
@@ -71,16 +64,13 @@ module.exports = (dnschain) ->
                 options = url.parse(req.originalUrl, true).query
                 @log.debug gLineInfo('deprecated request'), {path:path, options:options, url:req.originalUrl}
 
-                [...,resolverName] =
+                [...,datastoreName] =
                     if S(header = req.headers.blockchain || req.headers.host).endsWith('.dns')
                         S(header).chompRight('.dns').s.split('.')
                     else
                         ['none']
 
-                resourceFnGetter = (resolver) =>
-                    return [null, "Bad request: #{path}"] if not resolver.validRequest path
-                    [resolver.resolve, null]
-                @callback resolverName, resourceFnGetter, "#{resolverName}:#{path}:#{JSON.stringify(options)}", [path, options], @postResolveCallback(req, res, path)
+                @callback req, res, [datastoreName, "key", path, null, null, options]
 
             app.use (err, req, res, next) =>
                 @log.warn gLineInfo('error handler triggered'),
@@ -123,14 +113,20 @@ module.exports = (dnschain) ->
                 @log.debug 'shutting down!'
                 @server.close cb
 
-        callback: (resolverName, resourceFnGetter, serialization, args, cb) ->
-            if not (resolver = @dnschain.chains[resolverName])
-                return @sendErr req, res, 400, "Unsupported datastore: #{resolverName}"
-            [resolverFn, error] = resourceFnGetter resolver
-            if not resolverFn?
-                return @sendErr req, res, 400, error
-
-            @dnschain.cache.resolveResource resolver, resolverFn, serialization, args, cb
+        callback: (req, res, args) ->
+            [datastoreName, resourceName, propOrAction] = args
+            if not (datastore = @dnschain.chains[datastoreName])
+                return @sendErr req, res, 400, "Unsupported datastore: #{datastoreName}"
+            if not (resource = datastore.resources[resourceName])
+                return @sendErr req, res, 400,"Unsupported resource: #{resourceName}"
+            # TODO: deal with datastore.validRequest
+            @dnschain.cache.resolveResource datastore, resource, JSON.stringify(args), args[2..], (err,result) =>
+                if err
+                    @log.debug gLineInfo('resolver failed'), {err:err.message}
+                    @sendErr req, res, 404, "Not Found: #{propOrAction}"
+                else
+                    @log.debug gLineInfo('postResolve'), {path:propOrAction, result:result}
+                    res.json result
 
         sendErr: (req, res, code=404, comment="Not Found") =>
             @log.warn gLineInfo('notFound'),
@@ -138,12 +134,3 @@ module.exports = (dnschain) ->
                 code: code
                 req: _.at(req, ['originalUrl','protocol','hostname'])
             res.status(code).send comment
-
-        postResolveCallback: (req, res, item) =>
-            (err,result) =>
-                if err
-                    @log.debug gLineInfo('resolver failed'), {err:err.message}
-                    @sendErr req, res, 404, "Not Found: #{item}"
-                else
-                    @log.debug gLineInfo('postResolve'), {path:item, result:result}
-                    res.json result

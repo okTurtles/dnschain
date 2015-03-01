@@ -97,22 +97,6 @@ module.exports = (dnschain) ->
             # 'cb' is of the form (err, args...) ->
             @shutdownCheck (cb) => cb null
 
-        # TODO: make this use Promises. For now just use this signature.
-        ### (path: string, options: object, cb: function): any ###
-        resolve: (path, options, cb) ->
-            @log.debug gLineInfo("resolve"), {path:path, options:options}
-            result = @resultTemplate()
-
-            # Example of what this function should do.
-            # Uncomment and edit:
-
-            # myBlockchain.resolve path, (err, answer) =>
-            #     if err
-            #         cb err
-            #     else
-            #         result.value = JSON.parse answer
-            #         cb null, result
-
 
         # You should not modify the result template itself,
         # instead set its .value property accordingly in `resolve:` above.
@@ -135,7 +119,19 @@ module.exports = (dnschain) ->
         # For more information, see:
         #   https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md
         ### : object ###
-        resources: {}
+        resources:
+            key: (property, operation, fmt, args, cb) ->
+                cb new Error "Not Implemented"
+                # Example of what this function should do.
+                # Uncomment and edit:
+                #result = @resultTemplate()
+
+                # myBlockchain.resolve path, (err, answer) =>
+                #     if err
+                #         cb err
+                #     else
+                #         result.value = JSON.parse answer
+                #         cb null, result
 
         # Should be a dictionary of functions corresponding to traditional DNS
         # record types. See namecoin.coffee for an example.
