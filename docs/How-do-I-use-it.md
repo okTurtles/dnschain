@@ -50,6 +50,8 @@ Remember that the DNS server you use knows what websites you're visiting and can
 | KeyID      | `.p2p` | `keyid`                  |
 | NXT        | `.nxt` | `nxt`                    |
 
+_Ethereum support is planned as `.eth` and `ethereum`._
+
 __Relevant Specifications__
 
 - Namecoin: [Specifying DNS data for domains](https://wiki.namecoin.info/index.php?title=Domain_Name_Specification)
