@@ -31,7 +31,7 @@ Below you will see the available options and their defaults.
   Example:
 
     [namecoin]
-    config = /home/namecoin/.namecoin/namecoin.conf  
+    config = /home/namecoin/.namecoin/namecoin.conf
 
 See also:
 <https://github.com/okTurtles/dnschain/blob/master/docs/How-do-I-run-my-own.md#Configuration>
@@ -179,7 +179,7 @@ module.exports = (dnschain) ->
             unless confFile
                 log.warn "Couldn't find #{name} configuration:".bold.yellow, paths
                 return
-            
+
             conf = (new nconf.Provider()).argv().env()
             log.info "#{name} configuration path: #{confFile}"
             conf.file 'user', {file: confFile, format: type}

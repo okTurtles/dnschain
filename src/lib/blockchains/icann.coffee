@@ -31,14 +31,15 @@ module.exports = (dnschain) ->
             @name = 'icann'
             gFillWithRunningChecks @
 
-        resolve: (path, options, cb) ->
-            req = new Packet()
-            result = @resultTemplate()
-            @log.debug gLineInfo("#{@name} resolve"), {path:path, options:options}
-            req.question.push dns2.Question {name: path, type: options.type if options?.type? and _.has NAME_QTYPE,options.type}
-            @dnschain.dns.oldDNSLookup req, (code, packet) =>
-                if code
-                    cb {code:code, name:RCODE_NAME[code]}
-                else
-                    result.value = packet
-                    cb null, result
+        resources:
+            key: (property, operation, fmt, args, cb) ->
+                req = new Packet()
+                result = @resultTemplate()
+                @log.debug gLineInfo("#{@name} resolve"), {property:property, args:args}
+                req.question.push dns2.Question {name: property, type: args.type if args?.type? and _.has NAME_QTYPE,args.type}
+                @dnschain.dns.oldDNSLookup req, (code, packet) =>
+                    if code
+                        cb {code:code, name:RCODE_NAME[code]}
+                    else
+                        result.value = packet
+                        cb null, result

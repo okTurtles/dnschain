@@ -143,7 +143,13 @@ module.exports = (dnschain) ->
             if (resolver = @dnschain.chainsTLDs[q.name.split('.').pop()])
                 @log.debug gLineInfo("resolving via #{resolver.name}..."), {domain:q.name, q:q}
 
-                @dnschain.cache.resolveBlockchain resolver, q.name, {}, (err, result) =>
+                if not resolver.resources.key?
+                    @log.warn gLineInfo("no suitable resolver for #{resolver.name}..."), {}
+                    return @sendErr(res, NAME_RCODE.SERVFAIL, cb)
+                args = [resolver.name , "key", q.name, null, null, {}] # args conform to the datastore API
+                resourceRequest = (cb) =>
+                    resolver.resources.key.call resolver, args[2..]..., cb
+                @dnschain.cache.resolveResource resourceRequest, JSON.stringify(args), (err, result) =>
                     if err? or !result
                         @log.error gLineInfo("#{resolver.name} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res, null, cb
@@ -258,10 +264,3 @@ module.exports = (dnschain) ->
                 @log.error gLineInfo('exception sending error back!'), e.stack
             cb()
             false # helps other functions pass back an error value
-
-        resolve: (path, options, cb) ->
-            req = new Packet()
-            req.question.push dns2.Question {name: path, type: options.type if options?.type? and _.has NAME_QTYPE,options.type}
-            @oldDNSLookup req, (packet, code) ->
-                code = {code:code, name:RCODE_NAME[code]} if code
-                cb code, packet

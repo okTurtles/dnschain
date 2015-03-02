@@ -58,20 +58,21 @@ module.exports = (dnschain) ->
                 @log.info "rpc to bitshares_client on: %s:%d/rpc", @params.host, @params.port
                 success()
 
-        resolve: (path, options, cb) ->
-            result = @resultTemplate()
-            @log.debug gLineInfo("#{@name} resolve"), {path:path}
-            @peer.call 'dotp2p_show', [path], path:'/rpc', (err, ans) ->
-                return cb(err) if err
-                if _.isString ans
-                    try
-                        result.value = JSON.parse ans
-                    catch e
-                        @log.error glineInfo(e.message)
-                        return cb e
-                else if not _.isObject ans
-                    @log.warn gLineInfo('type not string or object!'), {json: ans, type: typeof(ans)}
-                    result.value = {}
-                cb null, result
+        resources:
+            key: (property, operation, fmt, args, cb) ->
+                result = @resultTemplate()
+                @log.debug gLineInfo("#{@name} resolve"), {property:property}
+                @peer.call 'dotp2p_show', [property], property:'/rpc', (err, ans) ->
+                    return cb(err) if err
+                    if _.isString ans
+                        try
+                            result.value = JSON.parse ans
+                        catch e
+                            @log.error glineInfo(e.message)
+                            return cb e
+                    else if not _.isObject ans
+                        @log.warn gLineInfo('type not string or object!'), {json: ans, type: typeof(ans)}
+                        result.value = {}
+                    cb null, result
 
         dnsHandler: require('./namecoin')(dnschain).prototype.dnsHandler

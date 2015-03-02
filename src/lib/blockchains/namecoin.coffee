@@ -72,25 +72,29 @@ module.exports = (dnschain) ->
                 @log.info "rpc to namecoind on: %s:%d", @params.connect, @params.port
                 cb null
 
-        resolve: (path, options, cb) ->
-            result = @resultTemplate()
-            if S(path).endsWith(".#{@tld}") # namecoinize Domain
-                path = S(path).chompRight(".#{@tld}").s
-                if (dotIdx = path.lastIndexOf('.')) != -1
-                    path = path.slice(dotIdx+1) #rm subdomain
-                path = 'd/' + path
-            @log.debug gLineInfo("#{@name} resolve"), {path:path}
-            @peer.call 'name_show', [path], (err, ans) =>
-                return cb(err) if err
-                try
-                    # @log.debug "got response back:", ans
-                    result.value = JSON.parse ans.value
-                    cb null, result
-                catch e
-                    @log.error gLineInfo(e.message)
-                    cb e
-
         validRequest: (path) -> VALID_NMC_DOMAINS.test path
+
+        resources:
+            key: (property, operation, fmt, args, cb) ->
+                if not operation?
+                    result = @resultTemplate()
+                    if S(property).endsWith(".#{@tld}") # namecoinize Domain
+                        property = S(property).chompRight(".#{@tld}").s
+                        if (dotIdx = property.lastIndexOf('.')) != -1
+                            property = property.slice(dotIdx+1) #rm subdomain
+                        property = 'd/' + property
+                    @log.debug gLineInfo("#{@name} resolve"), {property:property}
+                    @peer.call 'name_show', [property], (err, ans) =>
+                        return cb(err) if err
+                        try
+                            # @log.debug "got response back:", ans
+                            result.value = JSON.parse ans.value
+                            cb null, result
+                        catch e
+                            @log.error gLineInfo(e.message)
+                            cb e
+                else
+                    cb new Error "Not Implemented"
 
         dnsHandler:
             # TODO: handle all the types specified in the specification!
