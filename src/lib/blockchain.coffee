@@ -108,10 +108,6 @@ module.exports = (dnschain) ->
                 datastore: @name
             value: {}
 
-        # http.coffee uses this to test whether to call the `resolve:` method
-        ### (path: string): boolean ###
-        validRequest: (path) -> true
-
         # Any valid resource for a blockchain should be set here.
         # All keys of this object must be functions of this form:
         #   (property: string, operation: string, fmt: string, args: object, cb: function(err: object, result: object)) ->

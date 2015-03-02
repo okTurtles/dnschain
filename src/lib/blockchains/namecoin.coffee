@@ -83,6 +83,10 @@ module.exports = (dnschain) ->
                         if (dotIdx = property.lastIndexOf('.')) != -1
                             property = property.slice(dotIdx+1) #rm subdomain
                         property = 'd/' + property
+                    if not @validRequest property
+                        err = new Error "Invalid Request: #{property}"
+                        err.httpCode = 400
+                        return cb e
                     @log.debug gLineInfo("#{@name} resolve"), {property:property}
                     @peer.call 'name_show', [property], (err, ans) =>
                         return cb(err) if err

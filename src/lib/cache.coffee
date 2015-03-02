@@ -69,9 +69,8 @@ module.exports = (dnschain) ->
         resolveResource: (requestFn, serialization, cb) ->
             if @blockchainEnabled and resolver.cacheTTL?
                 retriever = (key, callback) =>
-                    f = (err, result) =>
+                    requestFn (err, result) =>
                         callback err, resolver.cacheTTL, result
-                    requestFn f
                 doer = (err, key, result) =>
                     cb err, result
                 @get serialization, retriever, doer
