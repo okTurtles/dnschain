@@ -44,7 +44,16 @@ Remember that the DNS server you use knows what websites you're visiting and can
 <a name="Blockchains"/></a>
 #### Supported blockchains
 
+| Blockchain |  TLD   | Name used in RESTful API |
+|------------|--------|--------------------------|
+| Namecoin   | `.bit` | `namecoin`               |
+| KeyID      | `.p2p` | `keyid`                  |
+| NXT        | `.nxt` | `nxt`                    |
 
+__Relevant Specifications__
+
+- Namecoin: [Specifying DNS data for domains](https://wiki.namecoin.info/index.php?title=Domain_Name_Specification)
+- Openname: [Profile and RESTful resolver specifications](https://github.com/openname/openname-specifications)
 
 <a name="Servers"/></a>
 #### Free public DNSChain servers
