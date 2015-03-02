@@ -44,12 +44,15 @@ module.exports = (dnschain) ->
                     @sendErr req, res, 400, "Bad resource: #{resource}"
 
             # Datastore API
+            # Note: JavaScript doesn't have negative lookbehind support
+            #       so we use the negative lookahead hacks mentioned here:
+            #       https://stackoverflow.com/questions/977251/regular-expressions-and-negating-a-whole-character-group
             opennameRoute.route(/// ^
-                \/(\w+)             # the datastore name
-                \/(\w+)             # the corresponding resource
-                (?:\/([^\/\.]+))?   # optional property (or action on resource)
-                (?:\/([^\/\.]+))?   # optional action on property
-                (?:\.([a-z]+))?     # optional response format
+                \/(\w+)                             # the datastore name
+                \/(\w+)                             # the corresponding resource
+                (?:\/((?:(?!\.json|\.xml)[^\/])+))? # optional property (or action on resource)
+                (?:\/((?:(?!\.json|\.xml)[^\/])+))? # optional action on property
+                (?:\.(json|xml))?                   # optional response format
                 $ ///
             ).get (req, res) =>
                 @log.debug gLineInfo("get v1"), {params: req.params, queryArgs: req.query}
