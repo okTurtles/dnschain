@@ -47,7 +47,7 @@ __:tv: Watch: [Securing online communications with the blockchain](https://www.y
 
 The blockchain is a secure, decentralized database. The information
 stored in it can be read at any location around the world, and DNSChain
-provides easy access to it via [a blockchain agnostic API](https://github.com/openname/openname-specifications/blob/master/resolvers.md).
+provides easy access to it via [a blockchain agnostic API](<#API>).
 
 ![Easily share your GPG key!](https://www.taoeffect.com/includes/images/twitter-gpg-s.jpg)
 
