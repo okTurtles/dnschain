@@ -14,20 +14,21 @@ These problems arise out of two core Internet protocols:
 
 DNSChain offers a free and secure decentralized alternative while remaining backwards compatible
 with traditional DNS.
+
 It compares favorably to [the alternatives](docs/Comparison.md), and provides the following features:
 ︎
-
-|                                                                        |      DNSChain      | X.509 PKI [with or without Certificate Transparency][ct] |
-|------------------------------------------------------------------------|--------------------|----------------------------------------------------------|
-| __MITM-proof'ed [Internet connections][mitm]__                         | :white_check_mark: | :x:                                                      |
-| __Secure and simple [GPG key distribution][gpg]__                      | :white_check_mark: | :x:                                                      |
-| __Free and [actually-secure][free] SSL certificates__                  | :white_check_mark: | :x:                                                      |
-| __Stops many [denial-of-service attacks][dos]__                        | :white_check_mark: | :x:                                                      |
-| __Certificate revocation [that actually works][rev]__                  | :white_check_mark: | :x:                                                      |
-| __DNS-based [censorship circumvention][cens]__                         | :white_check_mark: | :x:                                                      |
-| __Prevents [domain theft][] ("seizures")__                             | :white_check_mark: | :x:                                                      |
-| __Access blockchain-based [domains like `.bit`, `.p2p`, `.eth`][use]__ | :white_check_mark: | :x:                                                      |
-| __RESTful [API to blockchain][api]__                                   | :white_check_mark: | :x:                                                      |
+<!-- This extra line is necessary for table to render properly. -->
+|                                                                          |      DNSChain      | X.509 PKI [with or without Certificate Transparency][ct] |
+|--------------------------------------------------------------------------|--------------------|----------------------------------------------------------|
+| __MITM-proof'ed [Internet connections][mitm]__                           | :white_check_mark: | :x:                                                      |
+| __Secure and simple [GPG key distribution][gpg]__                        | :white_check_mark: | :x:                                                      |
+| __MITM-proof RESTful [API to blockchain][api]__                          | :white_check_mark: | :x:                                                      |
+| __Free and [actually-secure][free] SSL certificates__                    | :white_check_mark: | :x:                                                      |
+| __Stops many [denial-of-service attacks][dos]__                          | :white_check_mark: | :x:                                                      |
+| __Certificate revocation [that actually works][rev]__                    | :white_check_mark: | :x:                                                      |
+| __DNS-based [censorship circumvention][cens]__                           | :white_check_mark: | :x:                                                      |
+| __Prevents [domain theft][theft] ("seizures")__                          | :white_check_mark: | :x:                                                      |
+| __Access blockchain [domains like `.bit`, `.p2p`, `.nxt`, `.eth`][use]__ | :white_check_mark: | :x:                                                      |
 
 [ct]: https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/
 [mitm]: docs/What-is-it.md#MITMProof
@@ -36,25 +37,25 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 [dos]: docs/What-is-it.md#DDoS
 [rev]: docs/What-is-it.md#Revocation
 [cens]: docs/What-is-it.md#Censorship
-[domain theft]: https://www.techdirt.com/articles/20141006/02561228743/5000-domains-seized-based-sealed-court-filing-confused-domain-owners-have-no-idea-why.shtml
+[theft]: https://www.techdirt.com/articles/20141006/02561228743/5000-domains-seized-based-sealed-court-filing-confused-domain-owners-have-no-idea-why.shtml
 [use]: docs/How-do-I-use-it.md
-[api]: docs/What-is-it.md#restful-api
+[api]: docs/What-is-it.md#API
 
-<a name="Documentation"></a>
+**:star: See Also: [How DNSChain Compares To Other Approaches](docs/Comparison.md)**
+
 ## Documentation
 
-<a name="What"></a>
 ### [:book: What is it?](docs/What-is-it.md)
 
 - DNSChain replaces X.509 PKI with the blockchain
 - MITM-proof authentication
 - Simple and secure GPG key distribution
+- Secure, MITM-proof RESTful API to blockchains
 - Free SSL certificates become possible
 - Prevents DDoS attacks
 - Certificate revocation that actually works
 - DNS-based censorship circumvention
 
-<a name="Use"></a>
 ### [:book: Using DNSChain](docs/How-do-I-use-it.md)
 
 - Free public DNSChain servers
@@ -64,7 +65,6 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - Unblock censored websites *(coming soon!)*
 - And more!
 
-<a name="Run"></a>
 ### [:book: Running your own DNSChain server](docs/How-do-I-run-my-own.md)
 
 - Requirements
@@ -73,21 +73,19 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - Guide: Setting up a DNSChain server with Namecoin and PowerDNS
 - *Coming Soon: securing HTTPS websites with DNSChain.*
 
-<a name="Developers"></a>
 ### [:book: Developers](docs/Developers.md)
 
 - Securing Your Apps With DNSChain
 - Contributing to DNSChain development
+- Adding support for your favorite blockchain
 - Running Tests
 
-<a name="Community"></a>
 ## Community
 
 - [Forums](https://forums.okturtles.com)
 - [@DNSChain](https://twitter.com/dnschain) + [@okTurtles](https://twitter.com/okTurtles)
 - [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/okTurtles/dnschain)
 
-<a name="Resources"></a>
 ## Other Resources
 
 __:tv: Watch__
@@ -114,7 +112,6 @@ __:page_facing_up: Read__
 
 _Have a link? [Let us know](https://twitter.com/dnschain)!_
 
-<a name="Contributors"></a>
 ## Contributors
 
 _Approximate chronological order._
@@ -133,19 +130,19 @@ _Approximate chronological order._
 - [Anton Wilhelm](https://github.com/toenu23) (Support for [Nxt](http://nxt.org) cryptocurrency)
 - *Your name & link of choice here!*
 
-<a name="Release"></a>
 ## Release History
 
 ###### 0.5.0 - February 22, 2015
 
 - __New Features:__
-    + Built-in HTTPS server that can route multiple services over the same IP and port thanks to @SGrondin
-    + Redis caching for *both* DNS and HTTP requests thanks to @wemeetagain
-    + Traffic throttling for *both* DNS and HTTP requests thanks to @wemeetagain
-    + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by @wemeetagain
-    + NXT blockchain support thanks to @toenu23 (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
-    + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by @wemeetagain)
-    + Ability to specify configuration file path for any supported blockchain via the dnschain configuration (@wemeetagain, again!)
+    + Built-in HTTPS server that can route multiple services over the same IP and port thanks to [@SGrondin](https://github.com/SGrondin)
+    + Redis caching for *both* DNS and HTTP requests thanks to [@WeMeetAgain](https://github.com/WeMeetAgain)
+    + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
+    + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by [@WeMeetAgain](https://github.com/WeMeetAgain)
+    + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
+    + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
+    + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
+    + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__
     + Complete overhaul, refactoring, and improvement of the entire code base
     + Replaced a lot of callback code with Promises (still more to be done!)
@@ -155,9 +152,9 @@ _Approximate chronological order._
     + Travic CI support
     + Added badges for NPM version, Travis build status, and Gitter to top of README
 - __Documentation:__
-    + This release includes the brand new documentation by @mdw and @taoeffect
-    + Added TACK and HPKP to Comparisons.md
+    + Added Comparisons to: TACK, HPKP, and Thin Clients
     + Updated Contributors list in README
+    + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
 - __Fixes:__
     + Closed #111: `TypeError` on startup on CentOS machines
     + Closed #90 and #87: Exception on access to unknown metaTLD

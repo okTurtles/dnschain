@@ -1,13 +1,14 @@
 ###### 0.5.0 - February 22, 2015
 
 - __New Features:__
-    + Built-in HTTPS server that can route multiple services over the same IP and port thanks to @SGrondin
-    + Redis caching for *both* DNS and HTTP requests thanks to @wemeetagain
-    + Traffic throttling for *both* DNS and HTTP requests thanks to @wemeetagain
-    + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by @wemeetagain
-    + NXT blockchain support thanks to @toenu23 (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
-    + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by @wemeetagain)
-    + Ability to specify configuration file path for any supported blockchain via the dnschain configuration (@wemeetagain, again!)
+    + Built-in HTTPS server that can route multiple services over the same IP and port thanks to [@SGrondin](https://github.com/SGrondin)
+    + Redis caching for *both* DNS and HTTP requests thanks to [@WeMeetAgain](https://github.com/WeMeetAgain)
+    + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
+    + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by [@WeMeetAgain](https://github.com/WeMeetAgain)
+    + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
+    + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
+    + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
+    + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__
     + Complete overhaul, refactoring, and improvement of the entire code base
     + Replaced a lot of callback code with Promises (still more to be done!)
@@ -17,9 +18,9 @@
     + Travic CI support
     + Added badges for NPM version, Travis build status, and Gitter to top of README
 - __Documentation:__
-    + This release includes the brand new documentation by @mdw and @taoeffect
-    + Added TACK and HPKP to Comparisons.md
+    + Added Comparisons to: TACK, HPKP, and Thin Clients
     + Updated Contributors list in README
+    + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
 - __Fixes:__
     + Closed #111: `TypeError` on startup on CentOS machines
     + Closed #90 and #87: Exception on access to unknown metaTLD
