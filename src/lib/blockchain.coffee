@@ -121,7 +121,7 @@ module.exports = (dnschain) ->
         resultTemplate: ->
             version: '0.0.1'
             header:
-                blockchain: @name
+                datastore: @name
             value: {}
 
         # http.coffee uses this to test whether to call the `resolve:` method

@@ -8,6 +8,7 @@
     + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
     + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
     + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
+    + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__
     + Complete overhaul, refactoring, and improvement of the entire code base
     + Replaced a lot of callback code with Promises (still more to be done!)
@@ -17,9 +18,9 @@
     + Travic CI support
     + Added badges for NPM version, Travis build status, and Gitter to top of README
 - __Documentation:__
-    + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
-    + Added TACK and HPKP to Comparisons.md
+    + Added Comparisons to: TACK, HPKP, and Thin Clients
     + Updated Contributors list in README
+    + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
 - __Fixes:__
     + Closed #111: `TypeError` on startup on CentOS machines
     + Closed #90 and #87: Exception on access to unknown metaTLD

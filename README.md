@@ -17,11 +17,12 @@ with traditional DNS.
 
 It compares favorably to [the alternatives](docs/Comparison.md), and provides the following features:
 ︎
+<!-- This extra line is necessary for table to render properly. -->
 |                                                                  |      DNSChain      | X.509 PKI [with or without Certificate Transparency][ct] |
 |------------------------------------------------------------------|--------------------|----------------------------------------------------------|
 | __MITM-proof'ed [Internet connections][mitm]__                   | :white_check_mark: | :x:                                                      |
 | __Secure and simple [GPG key distribution][gpg]__                | :white_check_mark: | :x:                                                      |
-| __Secure, MITM-proof RESTful [API to blockchain][api]__          | :white_check_mark: | :x:                                                      |
+| __MITM-proof RESTful [API to blockchain][api]__                  | :white_check_mark: | :x:                                                      |
 | __Free and [actually-secure][free] SSL certificates__            | :white_check_mark: | :x:                                                      |
 | __Stops many [denial-of-service attacks][dos]__                  | :white_check_mark: | :x:                                                      |
 | __Certificate revocation [that actually works][rev]__            | :white_check_mark: | :x:                                                      |
@@ -49,6 +50,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - DNSChain replaces X.509 PKI with the blockchain
 - MITM-proof authentication
 - Simple and secure GPG key distribution
+- Secure, MITM-proof RESTful API to blockchains
 - Free SSL certificates become possible
 - Prevents DDoS attacks
 - Certificate revocation that actually works
@@ -75,6 +77,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 
 - Securing Your Apps With DNSChain
 - Contributing to DNSChain development
+- Adding support for your favorite blockchain
 - Running Tests
 
 ## Community
@@ -149,9 +152,9 @@ _Approximate chronological order._
     + Travic CI support
     + Added badges for NPM version, Travis build status, and Gitter to top of README
 - __Documentation:__
-    + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
-    + Added TACK and HPKP to Comparisons.md
+    + Added Comparisons to: TACK, HPKP, and Thin Clients
     + Updated Contributors list in README
+    + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
 - __Fixes:__
     + Closed #111: `TypeError` on startup on CentOS machines
     + Closed #90 and #87: Exception on access to unknown metaTLD
