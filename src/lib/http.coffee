@@ -124,7 +124,7 @@ module.exports = (dnschain) ->
                 return @sendErr req, res, 400,"Unsupported resource: #{resourceName}"
             resourceRequest = (cb) =>
                 resourceFn.call datastore, args[2..]..., cb
-            @dnschain.cache.resolveResource resourceRequest, JSON.stringify(args), (err,result) =>
+            @dnschain.cache.resolveResource datastore, resourceRequest, JSON.stringify(args), (err,result) =>
                 if err
                     err.httpCode ?= 404
                     @log.debug gLineInfo('resolver failed'), {err:err.message}

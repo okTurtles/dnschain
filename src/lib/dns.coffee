@@ -140,24 +140,24 @@ module.exports = (dnschain) ->
             ttl = Math.floor(Math.random() * 3600) + 30 # TODO: pick an appropriate TTL value!
             @log.debug "received question", q
 
-            if (resolver = @dnschain.chainsTLDs[q.name.split('.').pop()])
-                @log.debug gLineInfo("resolving via #{resolver.name}..."), {domain:q.name, q:q}
+            if (datastore = @dnschain.chainsTLDs[q.name.split('.').pop()])
+                @log.debug gLineInfo("resolving via #{datastore.name}..."), {domain:q.name, q:q}
 
-                if not resolver.resources.key?
-                    @log.warn gLineInfo("no suitable resolver for #{resolver.name}..."), {}
+                if not datastore.resources.key?
+                    @log.warn gLineInfo("no suitable datastore for #{datastore.name}..."), {}
                     return @sendErr(res, NAME_RCODE.SERVFAIL, cb)
-                args = [resolver.name , "key", q.name, null, null, {}] # args conform to the datastore API
+                args = [datastore.name , "key", q.name, null, null, {}] # args conform to the datastore API
                 resourceRequest = (cb) =>
-                    resolver.resources.key.call resolver, args[2..]..., cb
-                @dnschain.cache.resolveResource resourceRequest, JSON.stringify(args), (err, result) =>
+                    datastore.resources.key.call datastore, args[2..]..., cb
+                @dnschain.cache.resolveResource datastore, resourceRequest, JSON.stringify(args), (err, result) =>
                     if err? or !result
-                        @log.error gLineInfo("#{resolver.name} failed to resolve"), {err:err?.message, result:result, q:q}
+                        @log.error gLineInfo("#{datastore.name} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res, null, cb
                     else
-                        @log.debug gLineInfo("#{resolver.name} resolved query"), {q:q, d:q.name, result:result}
+                        @log.debug gLineInfo("#{datastore.name} resolved query"), {q:q, d:q.name, result:result}
 
-                        if not (handler = resolver.dnsHandler[QTYPE_NAME[q.type]])
-                            @log.warn gLineInfo("no such DNS handler!"), {resolver: resolver.name, q:q, type: QTYPE_NAME[q.type]}
+                        if not (handler = datastore.dnsHandler[QTYPE_NAME[q.type]])
+                            @log.warn gLineInfo("no such DNS handler!"), {datastore: datastore.name, q:q, type: QTYPE_NAME[q.type]}
                             return @sendErr res, NAME_RCODE.NOTIMP, cb
 
                         handler.call @, req, res, qIdx, result, (errCode) =>
