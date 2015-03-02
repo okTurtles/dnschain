@@ -143,9 +143,13 @@ module.exports = (dnschain) ->
             if (resolver = @dnschain.chainsTLDs[q.name.split('.').pop()])
                 @log.debug gLineInfo("resolving via #{resolver.name}..."), {domain:q.name, q:q}
 
-                return @sendErr(res, NAME_RCODE.SERVFAIL, cb) if not resolver.resources.key?
-                args = [resolver.name , "key", q.name, null, null, {}]
-                @dnschain.cache.resolveResource resolver, resolver.resources.key, JSON.stringify(args), args[2..], (err, result) =>
+                if not resolver.resources.key?
+                    @log.warn gLineInfo("no suitable resolver for #{resolver.name}..."), {}
+                    return @sendErr(res, NAME_RCODE.SERVFAIL, cb)
+                args = [resolver.name , "key", q.name, null, null, {}] # args conform to the datastore API
+                resourceRequest = (cb) =>
+                    resolver.resources.key.call resolver, args[2..]..., cb
+                @dnschain.cache.resolveResource resourceRequest, JSON.stringify(args), (err, result) =>
                     if err? or !result
                         @log.error gLineInfo("#{resolver.name} failed to resolve"), {err:err?.message, result:result, q:q}
                         @sendErr res, null, cb

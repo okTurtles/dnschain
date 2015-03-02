@@ -117,10 +117,12 @@ module.exports = (dnschain) ->
             [datastoreName, resourceName, propOrAction] = args
             if not (datastore = @dnschain.chains[datastoreName])
                 return @sendErr req, res, 400, "Unsupported datastore: #{datastoreName}"
-            if not (resource = datastore.resources[resourceName])
+            if not (resourceFn = datastore.resources[resourceName])
                 return @sendErr req, res, 400,"Unsupported resource: #{resourceName}"
             # TODO: deal with datastore.validRequest
-            @dnschain.cache.resolveResource datastore, resource, JSON.stringify(args), args[2..], (err,result) =>
+            resourceRequest = (cb) =>
+                resourceFn.call datastore, args[2..]..., cb
+            @dnschain.cache.resolveResource resourceRequest, JSON.stringify(args), (err,result) =>
                 if err
                     @log.debug gLineInfo('resolver failed'), {err:err.message}
                     @sendErr req, res, 404, "Not Found: #{propOrAction}"

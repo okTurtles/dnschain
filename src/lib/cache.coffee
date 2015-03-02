@@ -66,17 +66,17 @@ module.exports = (dnschain) ->
                     @cache.setex(key, ttl, JSON.stringify value) if not err2
                     valueDoer err, key, value
 
-        resolveResource: (resolver, resourceFn, serialization, args, cb) ->
+        resolveResource: (requestFn, serialization, cb) ->
             if @blockchainEnabled and resolver.cacheTTL?
                 retriever = (key, callback) =>
                     f = (err, result) =>
                         callback err, resolver.cacheTTL, result
-                    resourceFn.call resolver, args..., f
+                    requestFn f
                 doer = (err, key, result) =>
                     cb err, result
                 @get serialization, retriever, doer
             else
-                resourceFn.call resolver, args..., cb
+                requestFn cb
 
         resolveOldDNS: (req, cb) ->
             if @oldDNSEnabled
