@@ -7,6 +7,8 @@ _ = require 'lodash'
 nconf = require 'nconf'
 fs = require 'fs'
 os = require 'os'
+request = require 'superagent'
+getAsync = Promise.promisify request.get
 execAsync = Promise.promisify require('child_process').exec
 {dnschain: {DNSChain, globals: {gConf}}, overrides} = require './support/env'
 
@@ -50,8 +52,11 @@ describe 'https', ->
                 console.warn "Ignoring error because curl might be broken on #{os.platform()}. Error: #{e.message}".bold.yellow
                 Promise.resolve() # return a "successful" result
 
-    it.skip 'should fetch fingerprint over HTTP', ->
-        console.warn "TODO: fetch fingerprint via API".bold.yellow
+    it 'should fetch fingerprint over HTTP', ->
+        getAsync("http://localhost:#{gConf.get 'http:port'}/v1/resolver/fingerprint").then (res) ->
+            res.header['content-type'].should.containEql 'application/json'
+            res.body.fingerprint.should.equal '51:B1:DA:83:D2:97:2D:69:5B:F6:07:27:37:D6:1F:7A:BA:57:23:4C:5B:87:20:FD:4D:3B:AC:E9:1C:DB:F7:18'
+            console.info "OK: #{res.request.url}".bold
 
     it 'should fetch icann.dns data', ->
         cmd = "curl -i -k -H \"Host: icann.dns\" https://127.0.0.1:#{port}/okturtles.org"
