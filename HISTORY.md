@@ -1,6 +1,7 @@
-###### 0.5.0 - February 22, 2015
+###### 0.5.0 - March 6th, 2015
 
 - __New Features:__
+    + Basic [Openname Resolver RESTful API](docs/What-is-it.md#API) support!
     + Built-in HTTPS server that can route multiple services over the same IP and port thanks to [@SGrondin](https://github.com/SGrondin)
     + Redis caching for *both* DNS and HTTP requests thanks to [@WeMeetAgain](https://github.com/WeMeetAgain)
     + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
@@ -11,14 +12,15 @@
     + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__
     + Complete overhaul, refactoring, and improvement of the entire code base
+    + Travic CI support
+    + Comprehensive testing suite with complete code coverage for all critical files (excludes some error handlers and datasources)
     + Replaced a lot of callback code with Promises (still more to be done!)
     + All DNSChain components/servers are started and shutdown asynchronously (using Promise based API)
     + Precisely specified dependency versions to spare sysadmins any annoying surprises
-    + Comprehensive testing suite with over 80% code coverage on average for all critical files (remaining is mostly error handlers)
-    + Travic CI support
     + Added badges for NPM version, Travis build status, and Gitter to top of README
 - __Documentation:__
-    + Added Comparisons to: TACK, HPKP, and Thin Clients
+    + Comparisons to __TACK__, __HPKP__, and __Thin Clients__
+    + Numerous miscellaneous improvements to documentation
     + Updated Contributors list in README
     + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
 - __Fixes:__
