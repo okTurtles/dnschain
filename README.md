@@ -135,6 +135,7 @@ _Approximate chronological order._
 ###### 0.5.0 - February 22, 2015
 
 - __New Features:__
+    + Basic Openname Resolver API support!
     + Built-in HTTPS server that can route multiple services over the same IP and port thanks to [@SGrondin](https://github.com/SGrondin)
     + Redis caching for *both* DNS and HTTP requests thanks to [@WeMeetAgain](https://github.com/WeMeetAgain)
     + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
