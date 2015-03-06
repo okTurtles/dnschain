@@ -73,7 +73,7 @@ exports.DNSChain = class DNSChain
 
     shutdown: ->
         @shutdownCheck (cb) =>
-            # shutdown serverse in the opposite order that they were started
+            # shutdown servers in the opposite order they were started
             reversedServers = @servers[..].reverse()
             Promise.settle reversedServers.map (s, idx) =>
                 name = s?.name || s?.log?.transports.console?.label
