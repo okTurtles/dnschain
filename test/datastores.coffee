@@ -29,6 +29,10 @@ describe 'Basic datastore support', ->
     it 'should start DNSChain', ->
         (server = new DNSChain()).start()
 
+    it 'should resolve .dns metaTLD correctly', ->
+        lookup('namecoin.dns').then (res) ->
+            res.answer[0].address.should.equal gConf.get "dns:externalIP"
+
     it '[Namecoin] should support .bit resolution', ->
         Promise.join(lookup('okturtles.bit'), lookup('dot-bit.bit')).then (res) ->
             console.info "[NMC] RESULTS: %s".bold, JSON.stringify res
