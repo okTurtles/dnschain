@@ -76,7 +76,7 @@ DNSChain lets you access [traditional DNS](https://en.wikipedia.org/wiki/ICANN) 
 Still, if for some reason you need it, it's there:
 
     GET https://api.example.com/v1/icann/key/okturtles.com
-    => {"version":"0.0.1","header":{"datastore":"icann"},"value":{"edns_options":[],"answer":[{"name":"okturtles.com","type":1,"class":1,"ttl":299,"address":"192.184.93.146"}],"authority":[],"additional":[]}}
+    => {"version":"0.0.1","header":{"datastore":"icann"},"data":{"edns_options":[],"answer":[{"name":"okturtles.com","type":1,"class":1,"ttl":299,"address":"192.184.93.146"}],"authority":[],"additional":[]}}
 
 **:page_facing_up: See complete details: [Openname Resolver Specification](https://github.com/openname/openname-specifications/blob/master/resolvers.md)**
 

@@ -12,11 +12,6 @@ qq.com
 youku.com
 live.com
 linkedin.com
-sina.com.cn
-tmall.com
-weibo.com
-yahoo.co.jp
-blogspot.com
 ebay.com
 yandex.ru
 okturtles.bit
@@ -53,8 +48,3 @@ people.com.cn
 a.website.or.domain.that.doesnt.existatall
 buzzfeed.com
 cryptostorm.bit
-ebay.de
-bbc.co.uk
-cnn.com
-amazon.cn
-naver.com
