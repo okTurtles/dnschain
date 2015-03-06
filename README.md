@@ -55,6 +55,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 - Prevents DDoS attacks
 - Certificate revocation that actually works
 - DNS-based censorship circumvention
+- Other features: testing suite, rate-limiting, and caching
 
 ### [:book: Using DNSChain](docs/How-do-I-use-it.md)
 

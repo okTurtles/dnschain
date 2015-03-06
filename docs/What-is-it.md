@@ -14,6 +14,7 @@ __Table of Contents__
 - [Certificate revocation that actually works](<#Revocation>)
 - [DNS-based censorship circumvention](<#Censorship>)
 - [`.dns` metaTLD for convenience](<#metaTLD>)
+- [Other features: testing suite, rate-limiting, and caching](<#Features>)
 
 <a name="DNSChain"></a>
 #### DNSChain replaces X.509 PKI with the blockchain
@@ -117,6 +118,13 @@ The Unblock.us feature is optional and is up to the server administrator to enab
 Unblock.us works by hijacking the DNS lookups for the domains on a list defined by the server administrator. The server then accepts all HTTP and HTTPS traffic addressed to those domains and forwards it intelligently. Even though it can't decrypt SSL traffic, it can still forward it. It's as fast as a VPN (unlike Tor) and ONLY tunnels the traffic to those domains, meaning that it doesn't affect other online activites (unlike VPNs and Tor) and isn't costly in server bandwidth. Finally, there's no software to install, only DNS settings to change. It has been confirmed to work in Turkey, UK, Kuwait, UAE and many additional Middle Eastern countries.
 
 For now, Deep Packet Inspection techniques used in Pakistan and China can still beat Unblock.us, but the next version will address that issue using a technique called [Host Tunneling](http://unblock.us.org/?p=61). Short of cutting entire countries off the internet, DNSChain/Unblock.us will be able to get through.
+
+<a name="Features"></a>
+#### Other features: testing suite, rate-limiting, and caching
+
+- DNSChain's tests cover all the core functionality and [excellent code coverage](https://okturtles.com/other/coverage.html).
+- Protects against DNS amplification attacks with built-in rate-limiting features for __both__ DNS and HTTP requests that are [completely configurable](How-do-I-run-my-own.md#configuration).
+- Supports caching of both DNS and HTTP responses via Redis. Also [configurable](How-do-I-run-my-own.md#configuration) to your liking.
 
 <a name="metaTLD"></a>
 #### The `.dns` metaTLD

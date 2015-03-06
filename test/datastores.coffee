@@ -35,13 +35,12 @@ describe 'Basic datastore support', ->
             res[0].answer[0].address.should.equal '192.184.93.146'
             net.isIP(res[1].answer[0].address).should.be.ok
 
-    it '[Namecoin] should lookup d/okturtles via RESTful API', (done) ->
-        request.get("http://localhost:#{port}/v1/namecoin/key/d%2Fokturtles")
-        .end (err, res) ->
+    it '[Namecoin] should lookup d/okturtles via RESTful API', ->
+        getAsync("http://localhost:#{port}/v1/namecoin/key/d%2Fokturtles").then (res) ->
             res.header['content-type'].should.containEql 'application/json'
             res.body.header.datastore.should.equal 'namecoin'
             res.body.value.email.should.equal 'hi@okturtles.com'
-            done()
+            console.info "OK: #{res.request.url}".bold
 
     it.skip '[NXT] should support .nxt resolution', ->
         console.log "TODO: THIS!".bold.yellow
@@ -57,6 +56,13 @@ describe 'Basic datastore support', ->
             res.body.header.datastore.should.equal 'icann'
             _.find(res.body.value.answer, {address: '192.184.93.146'}).should.be.ok
             console.info "OK: #{res.request.url}".bold
+
+    it 'should fail for non-existent RESTful resources', (done) ->
+        request.get("http://localhost:#{port}/v1/namecoin/junk/d%2Fokturtles").end (err, res) ->
+            res.statusType.should.equal 4
+            res.text.should.containEql "Unsupported"
+            console.info "Should fail: #{res.request.url}".bold
+            done()
 
     it 'should stop DNSChain', ->
         server.shutdown()
