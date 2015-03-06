@@ -47,7 +47,7 @@ module.exports =
         domain ?= 'apple.com'
         genDomain = if _.isString(domain) then (-> domain) else domain
         command = ->
-            "dig @#{gConf.get 'dns:host'} -p #{gConf.get 'dns:port'} #{genDomain()}"
+            "dig @127.0.0.1 -p #{gConf.get 'dns:port'} #{genDomain()}"
 
         start = Date.now()
         Promise.map _.times(parallelism, command), (cmd, idx) ->

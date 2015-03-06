@@ -84,7 +84,7 @@ module.exports = (dnschain) ->
                     f = (err, result) =>
                         ttl =
                             if result.answer[0]?.ttl?
-                                Math.min result.answer[0]?.ttl, @oldDNSTTL
+                                Math.min result.answer[0].ttl, @oldDNSTTL
                             else
                                 @oldDNSTTL
                         callback err, ttl, result

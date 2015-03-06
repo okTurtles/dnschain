@@ -92,7 +92,8 @@ module.exports = (dnschain) ->
                         return cb(err) if err
                         try
                             # @log.debug "got response back:", ans
-                            result.value = JSON.parse ans.value
+                            ans.value = JSON.parse ans.value
+                            result.data = ans
                             cb null, result
                         catch e
                             @log.error gLineInfo(e.message)

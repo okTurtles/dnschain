@@ -15,7 +15,7 @@ describe 'rate limiting', ->
         console.log "START: default settings".bold
         (server = new DNSChain()).start()
 
-    it 'should be ~200ms apart', ->
+    it 'should be ~200ms apart', (done) ->
         this.slow 600 # milliseconds
         digAsync {parallelism:2}, (err, results) ->
             results.should.have.length 2
@@ -24,8 +24,9 @@ describe 'rate limiting', ->
             console.log "Space between requests: #{diff}ms".bold
             diff.should.be.within(90, 400) # I actually got an exception with b/c of a 94 ms diff!
                                            # TODO: @SGrondin figure out why it's so low.
+            done()
 
-    it 'should drop all requests except for one', ->
+    it 'should drop all requests except for one', (done) ->
         this.slow 5000 # milliseconds
         # we're using 'ssl-google-analytics.l.google.com' in order to also test
         # our currently (somewhat crappy) subdomain iteration mitigation
@@ -38,6 +39,7 @@ describe 'rate limiting', ->
                 errors = _(results).where(err:'TimeoutError').map('err').value()
                 errors.should.matchEach 'TimeoutError'
                 errors.should.have.length(4)
+                done()
 
     it 'should succeed on all requests', (done) ->
         this.slow 3000 # milliseconds
@@ -56,5 +58,5 @@ describe 'rate limiting', ->
 
     # it 'should limit HTTP requests', ->
 
-    it 'should shutdown successfully', ->
+    it 'rate limiting should shutdown successfully', ->
         server.shutdown() # returns a promise. Mocha should handle that properly

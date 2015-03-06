@@ -68,6 +68,7 @@ The URL follows this pattern:
 
     /{version}/{chain|resolver}/{resource}/{property}/{operation}{resp_format}?{args}
 
+<a name="icann"></a>
 ###### Secret: You can even access traditional DNS via this API!
 
 DNSChain lets you access [traditional DNS](https://en.wikipedia.org/wiki/ICANN) records over HTTP! Note that DNS, unlike blockchains, is not secure, so even though you might be accessing it over a MITM-proof channel _to DNSChain_, there's little preventing DNSChain's access to the rest of the old DNS system from being MITM'd.

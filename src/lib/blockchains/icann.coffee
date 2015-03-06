@@ -41,5 +41,5 @@ module.exports = (dnschain) ->
                     if code
                         cb {code:code, name:RCODE_NAME[code]}
                     else
-                        result.value = packet
+                        result.data = packet
                         cb null, result

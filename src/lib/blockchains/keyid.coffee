@@ -66,13 +66,13 @@ module.exports = (dnschain) ->
                     return cb(err) if err
                     if _.isString ans
                         try
-                            result.value = JSON.parse ans
+                            result.data = JSON.parse ans
                         catch e
                             @log.error glineInfo(e.message)
                             return cb e
                     else if not _.isObject ans
                         @log.warn gLineInfo('type not string or object!'), {json: ans, type: typeof(ans)}
-                        result.value = {}
+                        result.data = {}
                     cb null, result
 
         dnsHandler: require('./namecoin')(dnschain).prototype.dnsHandler

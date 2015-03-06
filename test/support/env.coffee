@@ -33,7 +33,7 @@ overrides =
     dns:
         port: 5333
         oldDNS:
-            address: '192.184.93.146'
+            address: '208.67.222.222' # OpenDNS
     http:
         port: 8088
         tlsKey: __dirname + "/key.pem"
@@ -78,6 +78,12 @@ unless process.env.TEST_REAL_NAMECOIN
                 txid: 'e3575debda4f4742f0a08b02c10f6d65b8f6607c9d821e75166bd9d223a5bfbe'
                 address: 'N7ttEhc799upuaKBk8XvrVK66HvRSox6bi'
                 expires_in: 25054
+            'd/cryptostorm':
+                name: 'd/cryptostorm'
+                value: '{"ip": "79.134.255.38", "map": {"*": {"ip": "79.134.255.38"}}}'
+                txid: 'b5afdd5df2617c16bc277b0e839ea8e21126dbaa1ee737a09793659eadbff15d'
+                address: 'NGkCada98r7Ad5Yy62XYpUfm7fsgMR9AiQ'
+                expires_in: 27935
             'd/dot-bit':
                 name: 'd/dot-bit'
                 value: '{"info":{"description":"Dot-BIT Project - Official Website","registrar":"http://register.dot-bit.org"},"fingerprint":["30:B0:60:94:32:08:EC:F5:BE:DF:F4:BB:EE:52:90:2C:5D:47:62:46"],"ns":["ns0.web-sweet-web.net","ns1.web-sweet-web.net"],"map":{"":{"ns":["ns0.web-sweet-web.net","ns1.web-sweet-web.net"]}},"email":"register@dot-bit.org"}'

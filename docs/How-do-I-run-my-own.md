@@ -29,6 +29,7 @@ By default, it will start listening for DNS requests on port `53` if you run it 
 
 **:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Debian Wheezy](setting-up-dnschain-namecoin-powerdns-server.md)**
 
+<a name="autogen"></a>
 ##### Verify the SSL/TLS key and certificate fingerprint
 
 By default, DNSChain will automatically use the `openssl` command to generate a random public/private keypair for you.

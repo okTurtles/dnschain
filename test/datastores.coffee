@@ -39,7 +39,7 @@ describe 'Basic datastore support', ->
         getAsync("http://localhost:#{port}/v1/namecoin/key/d%2Fokturtles").then (res) ->
             res.header['content-type'].should.containEql 'application/json'
             res.body.header.datastore.should.equal 'namecoin'
-            res.body.value.email.should.equal 'hi@okturtles.com'
+            res.body.data.value.email.should.equal 'hi@okturtles.com'
             console.info "OK: #{res.request.url}".bold
 
     it.skip '[NXT] should support .nxt resolution', ->
@@ -54,7 +54,7 @@ describe 'Basic datastore support', ->
         Promise.all([a1,a2]).each (res) ->
             res.header['content-type'].should.containEql 'application/json'
             res.body.header.datastore.should.equal 'icann'
-            _.find(res.body.value.answer, {address: '192.184.93.146'}).should.be.ok
+            _.find(res.body.data.answer, {address: '192.184.93.146'}).should.be.ok
             console.info "OK: #{res.request.url}".bold
 
     it 'should fail for non-existent RESTful resources', (done) ->

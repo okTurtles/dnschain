@@ -3,11 +3,12 @@
 - __New Features:__
     + Basic [Openname Resolver RESTful API](docs/What-is-it.md#API) support!
     + Built-in HTTPS server that can route multiple services over the same IP and port thanks to [@SGrondin](https://github.com/SGrondin)
+    + Automatically generates [4096-bit HTTPS key/certificate pair for you](docs/How-do-I-run-my-own.md#autogen)
     + Redis caching for *both* DNS and HTTP requests thanks to [@WeMeetAgain](https://github.com/WeMeetAgain)
     + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
     + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by [@WeMeetAgain](https://github.com/WeMeetAgain)
     + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
-    + New `icann.dns` metaTLD means you can now retrieve DNS records over HTTP! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
+    + Query DNS records over HTTPS using either [new Openname API](docs/What-is-it.md#icann) or `icann.dns` metaTLD! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
     + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
     + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__
@@ -18,10 +19,12 @@
     + All DNSChain components/servers are started and shutdown asynchronously (using Promise based API)
     + Precisely specified dependency versions to spare sysadmins any annoying surprises
     + Added badges for NPM version, Travis build status, and Gitter to top of README
+    + All Namecoin data is now returned for HTTP(S) queries (`txid`, `expires_in`, etc.)
 - __Documentation:__
-    + Comparisons to __TACK__, __HPKP__, and __Thin Clients__
+    + [Comparisons](docs/Comparison.md) to __TACK__, __HPKP__, and __Thin Clients__
     + Numerous miscellaneous improvements to documentation
     + Updated Contributors list in README
+    + Added badges for NPM version, Travis build status, and Gitter chat to top of README
     + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
 - __Fixes:__
     + Closed #111: `TypeError` on startup on CentOS machines

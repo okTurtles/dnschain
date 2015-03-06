@@ -98,15 +98,14 @@ module.exports = (dnschain) ->
             @shutdownCheck (cb) => cb null
 
 
-        # You should not modify the result template itself,
-        # instead set its .value property accordingly in `resolve:` above.
-        # See how other blockchains do it.
+        # Do not modify the result template itself. Instead, set its .data property
+        # in your resources.key function.See how other blockchains do it.
         ### : object ###
         resultTemplate: ->
             version: '0.0.1'
             header:
                 datastore: @name
-            value: {}
+            data: {} # <== Your 'resources.key' function *must* set this properly!
 
         # Any valid resource for a blockchain should be set here.
         # All keys of this object must be functions of this form:
@@ -126,7 +125,7 @@ module.exports = (dnschain) ->
                 #     if err
                 #         cb err
                 #     else
-                #         result.value = JSON.parse answer
+                #         result.data = JSON.parse answer
                 #         cb null, result
 
         # Should be a dictionary of functions corresponding to traditional DNS

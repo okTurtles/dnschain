@@ -52,7 +52,8 @@ exports.DNSChain = class DNSChain
         @http = new HTTPServer @
         @encryptedserver = new EncryptedServer @
         @cache = new ResolverCache @
-        @servers = [@dns, @http, @encryptedserver, @cache].concat _.values @chains
+        # ordered this way to start all external facing servers last
+        @servers = _.values(@chains).concat [@cache, @http, @encryptedserver, @dns]
         gFillWithRunningChecks @
 
     start: ->
@@ -72,7 +73,9 @@ exports.DNSChain = class DNSChain
 
     shutdown: ->
         @shutdownCheck (cb) =>
-            Promise.settle @servers.map (s, idx) =>
+            # shutdown serverse in the opposite order that they were started
+            reversedServers = @servers[..].reverse()
+            Promise.settle reversedServers.map (s, idx) =>
                 name = s?.name || s?.log?.transports.console?.label
                 @log.debug "Shutting down server at idx:#{idx}: #{name}"
                 s?.shutdown()
