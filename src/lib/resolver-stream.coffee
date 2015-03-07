@@ -92,9 +92,14 @@ module.exports = (dnschain) ->
                 else
                     @log.debug gLineInfo("req-#{req.rsReqID} message"), {resolved_q:q, to:answer.answer}
                     if answer.answer.length > 0
-                        success = true
-                        answers.push answer.answer...
-                        answer.answer.forEach (a) => @push @answerFilter a
+                        try
+                            answers.push answer.answer...
+                            answer.answer.forEach (a) => @push @answerFilter a
+                            success = true
+                        catch e
+                            # See: https://github.com/okTurtles/dnschain/issues/43
+                            @log.warn gLineInfo("couldn't push answer"), {error: e.message, q:q, cname:cname, answer:answer}
+                            reqErrFn NAME_RCODE.SERVFAIL, "push after EOF for '%j'?: %j", cname, e.message
                     else
                         reqErrFn NAME_RCODE.NOTFOUND, "cname not found: %j", cname
 

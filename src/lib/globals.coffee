@@ -16,18 +16,31 @@ module.exports = (dnschain) ->
     # 1. global dependencies
     # 
     # IMPORTANT: *ALL* DNSChain globals *MUST* be prefixed with a 'g'
-    #            *EXCEPT* the global module dependencies below.
+    #            *EXCEPT* some of the commonly used global module dependencies below.
 
     dnschain.globals =
-        rpc    : 'json-rpc2'
-        _      : 'lodash-contrib'
-        S      : 'string'
-        dns2   : 'native-dns'
-        es     : 'event-stream'
-        sa     : 'stream-array'
+        rpc        : 'json-rpc2'
+        _          : 'lodash'
+        S          : 'string'
+        dns2       : 'native-dns'
+        gES        : 'event-stream'
+        Bottleneck : 'bottleneck'
+        Promise    : 'bluebird'
+
+    # Initialize the global rate limiter pool, only an interface will be visible from the outside
+    limiters = {}
+    # Garbage collect the unused limiters every minute.
+    #This is necessary or else the server will run out of RAM after a few days
+    setInterval ->
+        time = Date.now()
+        for key,limiter of limiters
+            # Unused in the last 5 minutes
+            if (limiter._nextRequest+(60*1000*5)) < time
+                delete limiters[key]
+    , 60*1000 # Every minute
 
     # no renaming done for these
-    for d in ['net', 'dns', 'http', 'url', 'util', 'os', 'path', 'winston']
+    for d in ['dns', 'fs', 'http','net', 'os', 'path', 'tls', 'url', 'util', 'winston']
         dnschain.globals[d] = d
 
     # replace all the string values in dnschain.globals with the module they represent
@@ -74,7 +87,12 @@ module.exports = (dnschain) ->
                     else
                         unless ips = (faces = os.networkInterfaces())[iface]
                             throw new Error util.format("No such interface '%s'. Available: %j", iface, faces)
-                        _.find(ips, {family:fam, internal:internal}).address
+                        if (address = _.find(ips, {family:fam, internal:internal})?.address)
+                            address
+                        else
+                            console.warn "Couldn't find 'address' in:".bold.red, ips
+                            console.warn "Couldn't figure out external IPv4 IP! Make SURE to manually set it in your configuration!".bold.red
+                            "NOT AN IP! SEE: https://github.com/okTurtles/dnschain/issues/111#issuecomment-71958236"
         
         gNewLogger: (name) ->
             new winston.Logger
@@ -93,6 +111,42 @@ module.exports = (dnschain) ->
             e = new Error util.format args...
             gLogger.error e.stack
             throw e
+
+        gFillWithRunningChecks: (server) ->
+            gLineInfo = dnschain.globals.gLineInfo
+            server.startCheck = (cb) ->
+                if @running
+                    @log.warn gLineInfo "Already running!"
+                    Promise.reject()
+                else
+                    @log.debug "Starting up..."
+                    new Promise (resolve, reject) =>
+                        cb (err, args...) =>
+                            if err
+                                @log.error gLineInfo("failed to start"), err
+                                reject err
+                            else
+                                @log.info "Server started.", args
+                                @running = true
+                                resolve args
+            server.shutdownCheck = (cb) ->
+                if @running
+                    @log.debug "Shutting down..."
+                    new Promise (resolve, reject) =>
+                        cb (err, args...) =>
+                            if err
+                                @log.error gLineInfo("failed to shutdown"), err
+                                reject err
+                            else
+                                @log.info "Server shutdown successfully.", args
+                                @running = false
+                                resolve args
+                else
+                    @log.warn gLineInfo "Shutdown called when not running!"
+                    Promise.reject()
+            server # as a convenience, return the server instance
+
+        gThrottle: (key, makeLimiter) -> limiters[key] ? (limiters[key] = makeLimiter())
 
         # TODO: this function should take one parameter: an IP string
         #       and return either 'A' or 'AAAA'
@@ -143,7 +197,7 @@ module.exports = (dnschain) ->
         gLogger.warn "Specifying 'oldDNSMethod' as a number is DEPRECATED!".bold.red
         gLogger.warn "Please specify the string value instead:".bold.red, "#{method}".bold
     else
-        if (method_num = gConsts.oldDNS[method])?
+        if _.isNumber (method_num = gConsts.oldDNS[method])
             # kinda hackish... but makes for easy and quick comparisons
             gConf.set 'dns:oldDNSMethod', method_num
         else

@@ -5,23 +5,22 @@
 - [Convergence](<#convergence>)
 - [Perspectives](<#perspectives>)
 - [TACK / HPKP](<#tack--hpkp>)
-- [Bitmessage](<#bitmessage>)
 - ["Thin" or "Light" Clients](<#thin-clients--light-clients>)
 
-## Certificate Transparency
+### Certificate Transparency
 
 Google's Certificate Transparency proposal wants certificate authorities (CAs) to "make a note" all of the certificates that they issue into a log. [It does not protect against NSA spying and MITM attacks](http://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/). Website owners are then asked to monitor these logs to see if their clients were hacked. Everyone must continue to pay the Certificate Authorities money for insecurity.
 
 - __*Best case* scenario: mis-issuance detected _after_ damage has been done. The CA blames hackers.__
 
-## DNSSEC
+### DNSSEC
 
 [DNSSEC](http://www.icann.org/en/about/learning/factsheets/dnssec-qaa-09oct08-en.htm) suggests a complicated mechanism to essentially re-create many of the same problems with X509 and CAs in DNS itself, by providing a chain of trust to untrustworthy entities. Its intended goal is to secure DNS and thereby assure clients that when they ask for apple.com, they are actually visiting apple.com. This proposal [does not protect against MITM attacks](http://www.thoughtcrime.org/blog/ssl-and-the-future-of-authenticity/). It suffers from extreme and unnecessary complexity, a systemic fault that's antithetical to secure systems.
 
 - :page_facing_up: __[DNSSEC Outages](http://ianix.com/pub/dnssec-outages.html)__ (Scroll down to __"Miscellaneous"__ section)
 - :page_facing_up: __[Against DNSSEC](http://sockpuppet.org/blog/2015/01/15/against-dnssec/)__
 
-## Convergence
+### Convergence
 
 In [their words](http://convergence.io/details.html), Convergence:
 
@@ -35,11 +34,11 @@ In our words: Convergence is similar to having a `known_hosts` ssh key file for 
 - Waiting for group consensus means all connections have higher latency (slower page loads).
 - Both Convergence and Perspectives (see below) results in you sharing every website you visit with random third-parties (terrible for privacy).
 
-## Perspectives
+### Perspectives
 
 [Perspectives](http://perspectives-project.org/) is very similar to Convergence and suffers from the same problems. It allows "no reply" from notaries, making it useless in a MITM attack.
 
-## TACK / HPKP
+### TACK / HPKP
 
 Both [TACK](https://lwn.net/Articles/499134/) and [HPKP](https://developer.mozilla.org/en-US/docs/Web/Security/Public_Key_Pinning) are mechanisms for doing [public key pinning](https://en.wikipedia.org/wiki/Transport_Layer_Security#Certificate_pinning) for individual websites.
 
@@ -54,18 +53,7 @@ The problem with these mechanisms is:
 
 While DNSChain does use public key pinning, it doesn't have these problems because there is only one pin that is ever required: the pin to DNSChain itself, which is easily verified once only at setup.
 
-## Bitmessage
-
-_Bitmessage is more appropriately compared against the unreleased [okTurtles browser extension](http://okturtles.org), which uses DNSChain._
-
-[Bitmessage](https://bitmessage.org/wiki/Main_Page) belongs to the same family of software that okTurtles and DNSChain belong to, however it is also very different from them. Bitmessage focuses on providing anonymity to its users first and foremost. For reasons unknown to this author it was not designed to use the Namecoin blockchain, and instead uses its own (though there is nothing preventing integration between the two, and indeed work [has been done](https://bitmessage.org/forum/index.php?topic=2563.0) in this area). Bitmessage, however, has a few problems that software using DNSChain does not have:
-
-- It does not work over existing websites or protocols (like email) and was not designed with this intention.
-- To quote [the paper](http://okturtles.com/other/bitmessage.pdf): _"The difficulty of the proof‐of‐work should be proportional to the size of the message and should be set such that an average computer must expend an average of four minutes of work in order to send a typical message."_
-- It requires constantly running a program in the background (and one that isn't feasible on most mobile devices).
-- Messages take a long time to get to their destination because: _"Just like Bitcoin transactions and blocks, all users would receive all messages. They would be responsible for attempting to decode each message with each of their private keys to see whether the message is bound for them."_
-
-## Thin Clients / Light Clients
+### Thin Clients / Light Clients
 
 [Thin Clients](https://en.bitcoin.it/wiki/Thin_Client_Security) are actually really great! They offer a way to access blockchain data in an extremely efficient and lightweight manner while maintaining a level of security that is almost as good as that provided by a full node (and in the case of "SPV+" or "UTXO" type clients, possibly equivalent, depending on how it's implemented).
 
@@ -74,8 +62,8 @@ Some concerns with Thin Clients include:
 - Their non-existence. As soon as thin clients that can be used to do arbitrary key/value lookups come about, DNSChain plans to support them!
 - Over-reliance on SPV(+) clients can lead to a centralization of the entire network as fewer full nodes are being operated. Ultimately, the network is only as healthy as the number of full nodes there are, and full nodes can only reasonably be run on a server. *(DNSChain helps make the security of full nodes accessible today at the cost of having to trust the DNSChain servers you're talking to. If that's a concern, clients can increase the number of DNSChain servers they talk to.)*
 - Some platforms do not support Thin Clients well. Examples include:
-    * Apple's iOS does not allow you to download and run a thin client (or any server) in the background that other apps can talk to. Therefore any app that wanted to talk to the blockchain would need to bundle its own thin client.
-    * Thin clients that perform DNS could result in a poor user experience on mobile devices if they've been offline for a prolonged period of time. They would need to wait until the thin client synced up with the network before it could be used reliably.
+    * Apple's iOS does not allow you to download and run a thin client (or any server) in the background that other apps can talk to. Therefore any app that wanted to talk to the blockchain would need to bundle its own thin client. On mobile devices, it is far more practical for apps to talk to DNSChain.
+    * Thin clients that perform DNS could result in a poor user experience on mobile devices if they've been offline for a prolonged period of time. They would need to wait until the thin client synced up with the network before it could be used reliably. DNSChain, on the other hand, provides instant access to the blockchain.
 - As mentioned previously, there are different kinds of thin clients, some of which provide a better user experience and security than others. It will be a while before we see high quality ones that can be used for DNS in the wild.
 
 That all said, you should support thin client development as they are a very powerful and useful tool for effectively improving online security.

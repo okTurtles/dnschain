@@ -1,7 +1,7 @@
 #!/usr/bin/env coffee
 
 deps =
-    _   : 'lodash-contrib'
+    _   : 'lodash'
     S   : 'string'
     prop: 'properties'
     log : 'winston'
