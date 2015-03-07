@@ -1,4 +1,4 @@
-###### 0.5.0 - March 6th, 2015
+###### 0.5.0 - March 7th, 2015
 
 - __New Features:__
     + Basic [Openname Resolver RESTful API](docs/What-is-it.md#API) support!
@@ -8,7 +8,7 @@
     + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
     + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by [@WeMeetAgain](https://github.com/WeMeetAgain)
     + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
-    + Query DNS records over HTTPS using either [new Openname API](docs/What-is-it.md#icann) or `icann.dns` metaTLD! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
+    + Query DNS records over HTTPS using either [the new Openname API](docs/What-is-it.md#icann) or `icann.dns` metaTLD! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
     + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
     + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__

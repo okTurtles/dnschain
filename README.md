@@ -92,7 +92,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 __:tv: Watch__
 
 - [okTurtles + DNSChain Demo at SOUPS 2014 EFF CUP](https://www.youtube.com/watch?v=7QLaKW8ABy4)
-- [Blockchain University lecture on DNSChain](https://www.youtube.com/watch?v=GJd5uECEkSs) (2h+)
+- [Blockchain University lecture on DNSChain](https://www.youtube.com/watch?v=GJd5uECEkSs) (2h+, but you will [know kung-fu](https://www.youtube.com/watch?v=6vMO3XmNXe4) afterward!)
 - [SF Bitcoin Meetup: Securing online communications with the blockchain](https://www.youtube.com/watch?v=Qy1x3Ud8LCI)
 - [SF Bitcoin Developers Meetup: Deep Dive into Namecoin and DNSChain](https://www.youtube.com/watch?v=wUiMIy9urTA)
 
@@ -134,7 +134,9 @@ _Approximate chronological order._
 
 ## Release History
 
-###### 0.5.0 - March 6th, 2015
+###### 0.5.0 - March 7th, 2015
+
+__[Blog post for this release.](https://blog.okturtles.com/2015/03/dnschain-0-5-lands-with-many-new-features-and-openname-resolver-api)__
 
 - __New Features:__
     + Basic [Openname Resolver RESTful API](docs/What-is-it.md#API) support!
@@ -144,7 +146,7 @@ _Approximate chronological order._
     + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
     + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by [@WeMeetAgain](https://github.com/WeMeetAgain)
     + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
-    + Query DNS records over HTTPS using either [new Openname API](docs/What-is-it.md#icann) or `icann.dns` metaTLD! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
+    + Query DNS records over HTTPS using either [the new Openname API](docs/What-is-it.md#icann) or `icann.dns` metaTLD! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
     + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
     + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__
