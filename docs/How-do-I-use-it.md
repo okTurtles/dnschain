@@ -20,15 +20,15 @@ You can query it using [a RESTful API](What-is-it.md#API):
 
 Query: _What's the SSL fingerprint for server at api.dnschain.net?_
 
-- [http://api.dnschain.net/v1/dnschain/fingerprint](http://api.dnschain.net/v1/namecoin/fingerprint) ([HTTPS link](https://api.dnschain.net/v1/dnschain/fingerprint))
+- [http://api.dnschain.net/v1/dnschain/fingerprint](http://api.dnschain.net/v1/namecoin/fingerprint)
 
 Query: _What is the GPG key for `id/greg` in Namecoin?_
 
-- [http://api.dnschain.net/v1/namecoin/key/id%2Fgreg](http://api.dnschain.net/v1/namecoin/key/id%2Fgreg) ([HTTPS link](https://api.dnschain.net/v1/namecoin/key/id%2Fgreg))
+- [https://api.dnschain.net/v1/namecoin/key/id%2Fgreg](https://api.dnschain.net/v1/namecoin/key/id%2Fgreg)
 
 Query: _What is the IP address of `okturtles.bit`?_
 
-- [http://api.dnschain.net/v1/namecoin/key/d%2Fokturtles](http://api.dnschain.net/v1/namecoin/key/id%2Fgreg) ([HTTPS link](https://api.dnschain.net/v1/namecoin/key/d%2Fokturtles))
+- [https://api.dnschain.net/v1/namecoin/key/d%2Fokturtles](https://api.dnschain.net/v1/namecoin/key/id%2Fgreg)
 
 This means you can immediately begin [writing apps](Developers.md#securing-your-apps-with-dnschain) that query the blockchain over a MITM-proof channel.
 
@@ -77,9 +77,9 @@ Here are some public servers. You can [set your computer's DNS settings](https:/
 
 |                          IP or DNSCrypt provider                           |        [DNSCrypt](http://dnscrypt.org/) Supported?         | Logs |    Location    |                          Owner                          |     Notes      |
 |----------------------------------------------------------------------------|------------------------------------------------------------|------|----------------|---------------------------------------------------------|----------------|
-| 192.184.93.146 (aka [d/okturtles](http://api.dnschain.net/d/okturtles))    | N/A                                                        | No   | Atlanta, GA    | [id/greg](http://api.dnschain.net/id/greg)              |                |
-| 54.85.5.167 (aka [name.thwg.org](name.thwg.org))                           | N/A                                                        | No   | USA            | [id/wozz](http://api.dnschain.net/id/wozz)              |                |
-| [2.dnscrypt-cert.okturtles.com](https://gist.github.com/taoeffect/8855230) | [Required Info](https://gist.github.com/taoeffect/8855230) | No   | Atlanta, GA    | [id/greg](http://api.dnschain.net/id/greg)              |                |
+| 192.184.93.146 (aka [d/okturtles](https://api.dnschain.net/d/okturtles))    | N/A                                                        | No   | Atlanta, GA    | [id/greg](https://api.dnschain.net/id/greg)              |                |
+| 54.85.5.167 (aka [name.thwg.org](name.thwg.org))                           | N/A                                                        | No   | USA            | [id/wozz](https://api.dnschain.net/id/wozz)              |                |
+| [2.dnscrypt-cert.okturtles.com](https://gist.github.com/taoeffect/8855230) | [Required Info](https://gist.github.com/taoeffect/8855230) | No   | Atlanta, GA    | [id/greg](https://api.dnschain.net/id/greg)              |                |
 | [2.dnscrypt-cert.soltysiak.com](http://dc1.soltysiak.com)                  | [Required Info](http://dc1.soltysiak.com)                  | No   | Poznan, Poland | [@maciejsoltysiak](https://twitter.com/maciejsoltysiak) | IPv6 available |
 
 Tell us about yours by opening an issue (or any other means) and we'll list it here!

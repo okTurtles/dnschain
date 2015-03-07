@@ -99,6 +99,7 @@ __:tv: Watch__
 __:speaker: Listen__
 
 - [P2P Connects Us Podcast on DNSChain](http://letstalkbitcoin.com/blog/post/p2p-connects-us-episode-four)
+- [Frontier Podcast on DNSChain, DNSCrypt, MITM attacks, & more](http://reelsense.tv/frontier/101)
 - [Beyond Bitcoin Hangouts with Bitshares crew on DNSChain](https://soundcloud.com/beyond-bitcoin-hangouts/beyond-bitcoin-hangout-greg-slepak-dnschain-2014-10-24)
 - [Katherine Albrecht's privacy-focused radio show](http://www.katherinealbrecht.com/show-archives/2014/06/19/)
 
@@ -136,7 +137,7 @@ _Approximate chronological order._
 
 ###### 0.5.0 - March 7th, 2015
 
-__[Blog post for this release.](https://blog.okturtles.com/2015/03/dnschain-0-5-lands-with-many-new-features-and-openname-resolver-api)__
+__[Blog post for this release.](https://blog.okturtles.com/2015/03/dnschain-0-5-released-https-openname-resolver-api-more/)__
 
 - __New Features:__
     + Basic [Openname Resolver RESTful API](docs/What-is-it.md#API) support!
