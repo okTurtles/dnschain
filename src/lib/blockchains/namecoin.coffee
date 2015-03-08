@@ -86,7 +86,7 @@ module.exports = (dnschain) ->
                     if not @validRequest property
                         err = new Error "Invalid Request: #{property}"
                         err.httpCode = 400
-                        return cb e
+                        return cb(err)
                     @log.debug gLineInfo("#{@name} resolve"), {property:property}
                     @peer.call 'name_show', [property], (err, ans) =>
                         return cb(err) if err

@@ -135,6 +135,10 @@ _Approximate chronological order._
 
 ## Release History
 
+###### 0.5.1 - March 8th, 2015
+
+- Bugfix: Exception `ReferenceError` on invalid Namecoin query (Closes #137)
+
 ###### 0.5.0 - March 7th, 2015
 
 __[Blog post for this release.](https://blog.okturtles.com/2015/03/dnschain-0-5-released-https-openname-resolver-api-more/)__
