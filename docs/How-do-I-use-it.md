@@ -4,8 +4,8 @@ __Table of Contents__
 
 - [Using DNSChain](<#Using>)
 - [Supported blockchains](<#Blockchains>)
-- [Free public DNSChain servers](<#MITMProof>)
-- [Registering blockchain domains and identities](<#GPG>)
+- [Free public DNSChain servers](<#Servers>)
+- [Registering blockchain domains and identities](<#Registering>)
 
 <a name="Using"></a>
 #### Using DNSChain
