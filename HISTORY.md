@@ -8,6 +8,7 @@
     + Improved `Comparisons.md` documentation
     + Misc. code and logging improvements
 - __Fixes:__
+    + #138: Nxt resolver not working
     + #140: Prevent non-json values in Namecoin from returning "Not found"
     + #141: Allow arbitrary namecoin keys, but enforce ICANN domain rules for for `d/`
     + #142 + #120: Make it less likely Travis will fail
