@@ -46,11 +46,22 @@ describe 'Basic datastore support', ->
             res.body.data.value.email.should.equal 'hi@okturtles.com'
             console.info "OK: #{res.request.url}".bold
 
-    it.skip '[NXT] should support .nxt resolution', ->
-        console.log "TODO: THIS!".bold.yellow
+    it '[Namecoin] should handle bad JSON via RESTful API', ->
+        getAsync("http://localhost:#{port}/v1/namecoin/key/d%2Fgoogle").then (res) ->
+            res.header['content-type'].should.containEql 'application/json'
+            res.body.header.datastore.should.equal 'namecoin'
+            res.body.data.value.should.be.a.String
+            console.info "OK: #{res.request.url}".bold
 
-    it.skip '[NXT] should lookup ?? via RESTful API', ->
-        console.log "TODO: THIS!".bold.yellow
+    it '[NXT] should support .nxt resolution', ->
+        lookup('test4.nxt').then (res) ->
+            res.answer[0].address.should.equal '54.77.53.42'
+
+    it '[NXT] should lookup test4 via RESTful API', ->
+        getAsync("http://localhost:#{port}/v1/nxt/key/test4").then (res) ->
+            res.body.header.datastore.should.equal 'nxt'
+            res.body.data.aliasURI.ip.should.equal '54.77.53.42'
+            console.info "OK: #{res.request.url}".bold
 
     it '[ICANN] should lookup okturtles.com via RESTful API', ->
         a1 = getAsync "http://localhost:#{port}/v1/icann/key/okturtles.com"

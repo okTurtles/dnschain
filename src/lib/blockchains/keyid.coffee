@@ -74,5 +74,3 @@ module.exports = (dnschain) ->
                         @log.warn gLineInfo('type not string or object!'), {json: ans, type: typeof(ans)}
                         result.data = {}
                     cb null, result
-
-        dnsHandler: require('./namecoin')(dnschain).prototype.dnsHandler

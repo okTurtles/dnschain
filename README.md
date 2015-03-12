@@ -135,43 +135,21 @@ _Approximate chronological order._
 
 ## Release History
 
-###### 0.5.1 - March 8th, 2015
+__[Blog post for 0.5 release.](https://blog.okturtles.com/2015/03/dnschain-0-5-released-https-openname-resolver-api-more/)__
 
-- Bugfix: Exception `ReferenceError` on invalid Namecoin query (Closes #137)
+###### 0.5.2 - March 11, 2015
 
-###### 0.5.0 - March 7th, 2015
-
-__[Blog post for this release.](https://blog.okturtles.com/2015/03/dnschain-0-5-released-https-openname-resolver-api-more/)__
-
-- __New Features:__
-    + Basic [Openname Resolver RESTful API](docs/What-is-it.md#API) support!
-    + Built-in HTTPS server that can route multiple services over the same IP and port thanks to [@SGrondin](https://github.com/SGrondin)
-    + Automatically generates [4096-bit HTTPS key/certificate pair for you](docs/How-do-I-run-my-own.md#autogen)
-    + Redis caching for *both* DNS and HTTP requests thanks to [@WeMeetAgain](https://github.com/WeMeetAgain)
-    + Traffic throttling for *both* DNS and HTTP requests thanks to [@SGrondin](https://github.com/SGrondin)
-    + **Super simple** to add any new blockchain to DNSChain thanks to major refactoring work by [@WeMeetAgain](https://github.com/WeMeetAgain)
-    + NXT blockchain support thanks to [@toenu23](https://github.com/toenu23) (this means a `nxt.dns` metaTLD and `.nxt` TLD resolution)
-    + Query DNS records over HTTPS using either [the new Openname API](docs/What-is-it.md#icann) or `icann.dns` metaTLD! (by [@WeMeetAgain](https://github.com/WeMeetAgain))
-    + Ability to specify configuration file path for any supported blockchain via the dnschain configuration ([@WeMeetAgain](https://github.com/WeMeetAgain), again!)
-    + RESTful API to fetch server fingerprint (Closes #44).
 - __Improvements:__
-    + Complete overhaul, refactoring, and improvement of the entire code base
-    + Travic CI support
-    + Comprehensive testing suite with complete code coverage for all critical files (excludes some error handlers and datasources)
-    + Replaced a lot of callback code with Promises (still more to be done!)
-    + All DNSChain components/servers are started and shutdown asynchronously (using Promise based API)
-    + Precisely specified dependency versions to spare sysadmins any annoying surprises
-    + Added badges for NPM version, Travis build status, and Gitter to top of README
-    + All Namecoin data is now returned for HTTP(S) queries (`txid`, `expires_in`, etc.)
-- __Documentation:__
-    + [Comparisons](docs/Comparison.md) to __TACK__, __HPKP__, and __Thin Clients__
-    + Numerous miscellaneous improvements to documentation
-    + Updated Contributors list in README
-    + Added badges for NPM version, Travis build status, and Gitter chat to top of README
-    + This release includes the brand new documentation by [@mdw](https://twitter.com/mdw) and [@taoeffect](https://twitter.com/taoeffect)
+    + Includes tests for verifying NXT support
+    + Added [`superagent`](https://github.com/visionmedia/superagent) for simpler HTTP requests
+    + Moved `dnsHandler` into `blockchain.coffee` template class
+    + Prevent `favicon.ico` requests from filling logs
+    + Improved `Comparisons.md` documentation
+    + Misc. code and logging improvements
 - __Fixes:__
-    + Closed #111: `TypeError` on startup on CentOS machines
-    + Closed #90 and #87: Exception on access to unknown metaTLD
+    + #140: Prevent non-json values in Namecoin from returning "Not found"
+    + #141: Allow arbitrary namecoin keys, but enforce ICANN domain rules for for `d/`
+    + #142 + #120: Make it less likely Travis will fail
 
 ###### [:book: Older version notes](HISTORY.md)
 

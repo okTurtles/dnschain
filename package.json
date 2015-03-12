@@ -1,6 +1,6 @@
 {
   "name": "dnschain",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A blockchain-based DNS + HTTPS server that fixes HTTPS security, and more!",
   "homepage": "https://github.com/okTurtles/dnschain",
   "bugs": "https://github.com/okTurtles/dnschain/issues",
@@ -50,7 +50,8 @@
     "properties": "1.2.1",
     "redis": "0.12.x",
     "string": "2.0.1",
-    "winston": "0.8.0"
+    "winston": "0.8.0",
+    "superagent": "0.21.0"
   },
   "devDependencies": {
     "coffee-script": "^1.8.0",
@@ -61,8 +62,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "matchdep": "~0.1.2",
     "mocha": "^2.1.0",
-    "should": "^5.0.0",
-    "superagent": "^0.21.0"
+    "should": "^5.0.0"
   },
   "engines": {
     "node": ">=0.10.x"

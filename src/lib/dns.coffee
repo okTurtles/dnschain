@@ -148,7 +148,7 @@ module.exports = (dnschain) ->
                 @log.debug gLineInfo("resolving via #{datastore.name}..."), {domain:q.name, q:q}
 
                 if not datastore.resources.key?
-                    @log.warn gLineInfo("no suitable datastore for #{datastore.name}..."), {}
+                    @log.error gLineInfo "#{datastore.name} does not implement `key` resource!".bold
                     return @sendErr(res, NAME_RCODE.SERVFAIL, cb)
                 args = [datastore.name , "key", q.name, null, null, {}] # args conform to the datastore API
                 resourceRequest = (cb) =>
@@ -164,7 +164,7 @@ module.exports = (dnschain) ->
                             @log.warn gLineInfo("no such DNS handler!"), {datastore: datastore.name, q:q, type: QTYPE_NAME[q.type]}
                             return @sendErr res, NAME_RCODE.NOTIMP, cb
 
-                        handler.call @, req, res, qIdx, result.data, (errCode) =>
+                        handler.call datastore, req, res, qIdx, result.data, (errCode) =>
                             try
                                 if errCode
                                     @sendErr res, errCode, cb
@@ -180,7 +180,7 @@ module.exports = (dnschain) ->
                 @log.debug gLineInfo('cb|.dns'), {q:q, answer:res.answer}
                 @sendRes res, cb
             else
-                @log.debug gLineInfo("deferring request"), {q:q}
+                @log.debug gLineInfo("resolving #{q.name} via oldDNS"), {q:q}
                 @dnschain.cache.resolveOldDNS req, (code, packet) =>
                     _.assign res, packet
                     if code

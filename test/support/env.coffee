@@ -3,13 +3,18 @@
 ###
 To get code coverage report via coffee coverage:
 
-TEST_REAL_NAMECOIN=1 log__level=warn mocha --require coffee-coverage/register --compilers coffee:coffee-script/register -R html-cov --bail test/ > coverage.html 
+Namecoin only:
+    TEST_REAL_NAMECOIN=1 log__level=warn mocha --require coffee-coverage/register --compilers coffee:coffee-script/register -R html-cov --bail test/ > coverage.html 
+
+Namecoin + NXT:
+    TEST_REAL_NAMECOIN=1 TEST_REAL_NXT=1 log__level=warn nxt__connect=69.163.40.132 nxt__port=7876 mocha --require coffee-coverage/register --compilers coffee:coffee-script/register -R html-cov --bail test/ > coverage.html
 ###
 
 nconf = require 'nconf'
 Bottleneck = require 'bottleneck'
 rpc = require 'json-rpc2'
 require 'winston' # for strong coloring
+express = require 'express'
 
 process.env.TEST_DNSCHAIN = "1"
 
@@ -90,9 +95,42 @@ unless process.env.TEST_REAL_NAMECOIN
                 txid: 'dd3db7a13fa577f3274617f043e818102cd994f086bc6b54e701c8c548a8d793'
                 address: 'N8ohh8puHRUqa3hYxUcqhFcRyrbad8iYue'
                 expires_in: 3388
+            'd/google':
+                name: "d/google",
+                value: "-",
+                txid: "0b0e0aaa206fb5c83af8fd70c2fdd5be56807405bcb27294782e89e113381a9f",
+                address: "MwJDg719YLBsQFrTVcVTAkW6ptFAZPedDN",
+                expires_in: 22090
         cb null, (data[args[0]] || "404: Not Found")
     # listen on the port that's defined in support/namecoin.conf
     rpcMockServer.listen 8337, 'localhost'
+
+unless process.env.TEST_REAL_NXT
+    console.info "NOT testing real NXT resolution. Using mock response instead!".bold.yellow
+    overrides.nxt = {connect:'localhost', port: 7876}
+    mockNxtServer = express()
+    mockNxtServer.get '/nxt', (req, res) ->
+        console.info "mockNxtServer path: #{req.query.aliasName}".bold
+        if req.query.requestType != 'getAlias'
+            res.status(400).send "Bad requestType: #{req.query.requestType}"
+        else if !req.query.aliasName?
+            res.status(400).send "No aliasName!"
+        else
+            data =
+                test4:
+                    timestamp: 21622234
+                    aliasName: "test4"
+                    requestProcessingTime: 0
+                    alias: "13756357153940073144"
+                    aliasURI: '{"ip":"54.77.53.42","map":{"www":{"alias":""}}}'
+                    accountRS: "NXT-AR77-SW4Y-M3VA-DUSTY"
+                    account: "13792021825945099429"
+            result = data[req.query.aliasName]
+            if result
+                res.json result
+            else
+                res.status(404).send "Not Found: #{req.query.aliasName}"
+    mockNxtServer.listen overrides.nxt.port
 
 nconf.overrides overrides
 

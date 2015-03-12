@@ -11,6 +11,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
 
+request = require 'superagent'
+
 module.exports = (dnschain) ->
     # expose these into our namespace
     for k of dnschain.globals
@@ -19,25 +21,20 @@ module.exports = (dnschain) ->
     BlockchainResolver = require('../blockchain.coffee')(dnschain)
     ResolverStream  = require('../resolver-stream')(dnschain)
 
+    getAsync = Promise.promisify request.get
+
     QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
     NAME_QTYPE = dns2.consts.NAME_TO_QTYPE
     NAME_RCODE = dns2.consts.NAME_TO_RCODE
     RCODE_NAME = dns2.consts.RCODE_TO_NAME
     BLOCKS2SEC = 60
 
-    # Specifications listed here:
-    # - https://wiki.namecoin.info/index.php?title=Welcome
-    # - https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Importing_and_delegation
-    # - https://wiki.namecoin.info/index.php?title=Category:NEP
-    # - https://wiki.namecoin.info/index.php?title=Namecoin_Specification
-    # TODO: NXT isn't currently following the d/ spec, so we don't use this
-    # VALID_NXT_DOMAINS = /^[a-zA-Z0-9]+\/.+/
-
     class NxtResolver extends BlockchainResolver
         constructor: (@dnschain) ->
             @log = gNewLogger 'NXT'
             @name = 'nxt'
             @tld = 'nxt'
+            @standardizers.dnsInfo = (data) -> data.aliasURI
             gFillWithRunningChecks @
 
         config: ->
@@ -68,21 +65,17 @@ module.exports = (dnschain) ->
 
                 @log.debug gLineInfo("#{@name} resolve"), {property:property}
 
-                req = http.get @peer + encodeURIComponent(property), (res) ->
-                    data = ''
-                    res.on 'data', (chunk) ->
-                        data += chunk.toString()
-                    res.on 'end', () ->
-                        try
-                            response = JSON.parse data
-                            result.data = JSON.parse response.aliasURI
-                            cb null, result
-                        catch e
-                            cb e
-                req.on 'error', (e) ->
+                getAsync(@peer + encodeURIComponent(property)).then (res) =>
+                    try
+                        json = JSON.parse res.text
+                        if json.aliasURI?
+                            try json.aliasURI = JSON.parse json.aliasURI
+                        result.data = json
+                        @log.debug gLineInfo('resolved OK!'), {result:result}
+                        cb null, result
+                    catch e
+                        @log.warn gLineInfo('server did not respond with valid json!'), {err:e.message, url:res.request.url, response:res.text}
+                        cb e
+                .catch (e) =>
+                    @log.error gLineInfo('error contacting NXT server!'), {err:e.message}
                     cb e
-
-        # just return true for everything for now
-        # validRequest: (path) -> VALID_NXT_DOMAINS.test path
-
-        dnsHandler: require('./namecoin')(dnschain).prototype.dnsHandler

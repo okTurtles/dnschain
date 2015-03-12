@@ -9,7 +9,7 @@
 
 ### Certificate Transparency
 
-Google's Certificate Transparency proposal wants certificate authorities (CAs) to "make a note" all of the certificates that they issue into a log. [It does not protect against NSA spying and MITM attacks](http://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/). Website owners are then asked to monitor these logs to see if their clients were hacked. Everyone must continue to pay the Certificate Authorities money for insecurity.
+Google's Certificate Transparency proposal wants certificate authorities (CAs) to "make a note" all of the certificates that they issue into a log. [It does not protect against NSA spying and MITM attacks](http://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/). Website owners are then asked to monitor these logs to see if their clients were hacked. Everyone online still forced to trust the bad apple (the least trustworthy CA).
 
 - __*Best case* scenario: mis-issuance detected _after_ damage has been done. The CA blames hackers.__
 
@@ -28,15 +28,15 @@ In [their words](http://convergence.io/details.html), Convergence:
 
 In our words: Convergence is similar to having a `known_hosts` ssh key file for your browser, and comparing it against your friend’s file. It's not a terrible idea, however:
 
-- It is not user friendly in the slightest. Users are asked to manage a list of notaries. This list of notaries is stored locally on the computer, or even the browser. Managing this list is not feasible for most users.
-- It depends on group consensus, but this group of servers can be man-in-the-middle'd by a global adversary. What happens then? The blockchain does not have this problem because once a transaction makes its way into a block, that's that (the data cannot be tampered with).
+- It is not very user friendly. Users are asked to manage a list of notaries. This list of notaries is stored locally on the computer, or even the browser. Managing this list is not feasible for most users.
+- It's not clear how well it protects (or can protect) if some notaries haven't yet cached the latest SSL certificate for a particular website.
 - It does not provide MITM protection on first-visit.
 - Waiting for group consensus means all connections have higher latency (slower page loads).
-- Both Convergence and Perspectives (see below) results in you sharing every website you visit with random third-parties (terrible for privacy).
+- Both Convergence and Perspectives (see below) results in you sharing every website you visit with random third-parties. With DNSChain, if privacy is a concern, you can run your own server and only rely on it: it will provide both better performance and superior security.
 
 ### Perspectives
 
-[Perspectives](http://perspectives-project.org/) is very similar to Convergence and suffers from the same problems. It allows "no reply" from notaries, making it useless in a MITM attack.
+[Perspectives](http://perspectives-project.org/) is very similar to Convergence and suffers from the same problems. It allows "no reply" from notaries, making it not useful in a MITM attack.
 
 ### TACK / HPKP
 

@@ -1,3 +1,17 @@
+###### 0.5.2 - March 11, 2015
+
+- __Improvements:__
+    + Includes tests for verifying NXT support
+    + Added [`superagent`](https://github.com/visionmedia/superagent) for simpler HTTP requests
+    + Moved `dnsHandler` into `blockchain.coffee` template class
+    + Prevent `favicon.ico` requests from filling logs
+    + Improved `Comparisons.md` documentation
+    + Misc. code and logging improvements
+- __Fixes:__
+    + #140: Prevent non-json values in Namecoin from returning "Not found"
+    + #141: Allow arbitrary namecoin keys, but enforce ICANN domain rules for for `d/`
+    + #142 + #120: Make it less likely Travis will fail
+
 ###### 0.5.1 - March 8th, 2015
 
 - Bugfix: Exception `ReferenceError` on invalid Namecoin query (Closes #137)

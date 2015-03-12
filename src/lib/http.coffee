@@ -121,7 +121,7 @@ module.exports = (dnschain) ->
             if not (datastore = @dnschain.chains[datastoreName])
                 return @sendErr req, res, 400, "Unsupported datastore: #{datastoreName}"
             if not (resourceFn = datastore.resources[resourceName])
-                return @sendErr req, res, 400,"Unsupported resource: #{resourceName}"
+                return @sendErr req, res, 400, "Unsupported resource: #{resourceName}"
             resourceRequest = (cb) =>
                 resourceFn.call datastore, args[2..]..., cb
             @dnschain.cache.resolveResource datastore, resourceRequest, JSON.stringify(args), (err,result) =>
@@ -133,9 +133,10 @@ module.exports = (dnschain) ->
                     @log.debug gLineInfo('postResolve'), {path:propOrAction, result:result}
                     res.json result
 
-        sendErr: (req, res, code=404, comment="Not Found") =>
-            @log.warn gLineInfo('notFound'),
-                comment: comment
-                code: code
-                req: _.at(req, ['originalUrl','protocol','hostname'])
+        sendErr: (req, res, code=404, comment="Not Found") ->
+            if req.originalUrl != '/favicon.ico' # avoid logging these
+                @log.warn gLineInfo('sendErr'),
+                    comment: comment
+                    code: code
+                    req: _.at(req, ['originalUrl','protocol','hostname'])
             res.status(code).send comment
