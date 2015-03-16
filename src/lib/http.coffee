@@ -23,6 +23,7 @@ module.exports = (dnschain) ->
             @log = gNewLogger 'HTTP'
             @log.debug "Loading HTTPServer..."
             @rateLimiting = gConf.get 'rateLimiting:http'
+            @cluster = new Bottleneck.Cluster _.at(@rateLimiting, ['maxConcurrent', 'minTime', 'highWater', 'strategy'])...
             app = express()
 
             # Openname spec defined here:
@@ -83,9 +84,7 @@ module.exports = (dnschain) ->
                 res.status(500).send "Internal Error: #{err?.message}"
 
             @server = http.createServer (req, res) =>
-                key = "http-#{req.connection?.remoteAddress}"
-                @log.debug gLineInfo("creating bottleneck on: #{key}")
-                limiter = gThrottle key, => new Bottleneck _.at(@rateLimiting, ['maxConcurrent','minTime','highWater','strategy'])...
+                key = "#{req.connection?.remoteAddress}"
 
                 # Since Express doesn't take a callback function
                 # we capture the callback that Bottleneck requires
@@ -96,7 +95,7 @@ module.exports = (dnschain) ->
                     savedEnd args...
                     bottleCB()
 
-                limiter.submit (cb) ->
+                @cluster.key(key).submit (cb) ->
                     bottleCB = cb
                     app req, res
                 , null

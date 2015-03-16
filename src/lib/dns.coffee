@@ -31,6 +31,7 @@ module.exports = (dnschain) ->
             @log.debug "Loading DNSServer..."
             @method = gConf.get 'dns:oldDNSMethod'
             @rateLimiting = gConf.get 'rateLimiting:dns'
+            @cluster = new Bottleneck.Cluster _.at(@rateLimiting, ['maxConcurrent', 'minTime', 'highWater', 'strategy'])...
 
             # this is just for development testing of NODE_DNS method
             # dns.setServers ['8.8.8.8']
@@ -71,10 +72,8 @@ module.exports = (dnschain) ->
                         else
                             domain = domain[-3..].join '.'
 
-                        key = "dns-#{req.address.address}-#{domain}"
-                        @log.debug gLineInfo("creating bottleneck on: #{key}")
-                        limiter = gThrottle key, => new Bottleneck _.at(@rateLimiting, ['maxConcurrent', 'minTime', 'highWater', 'strategy'])...
-                        limiter.changePenalty(@rateLimiting.penalty).submit (@callback.bind @), req, res, null
+                        key = "#{req.address.address}-#{domain}"
+                        @cluster.key(key).changePenalty(@rateLimiting.penalty).submit (@callback.bind @), req, res, null
                     else
                         @log.warn gLineInfo('received empty request!'), {req:req}
                 # // end on 'request'

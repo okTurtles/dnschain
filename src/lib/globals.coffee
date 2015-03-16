@@ -27,18 +27,6 @@ module.exports = (dnschain) ->
         Bottleneck : 'bottleneck'
         Promise    : 'bluebird'
 
-    # Initialize the global rate limiter pool, only an interface will be visible from the outside
-    limiters = {}
-    # Garbage collect the unused limiters every minute.
-    #This is necessary or else the server will run out of RAM after a few days
-    setInterval ->
-        time = Date.now()
-        for key,limiter of limiters
-            # Unused in the last 5 minutes
-            if (limiter._nextRequest+(60*1000*5)) < time
-                delete limiters[key]
-    , 60*1000 # Every minute
-
     # no renaming done for these
     for d in ['dns', 'fs', 'http','net', 'os', 'path', 'tls', 'url', 'util', 'winston']
         dnschain.globals[d] = d
@@ -145,8 +133,6 @@ module.exports = (dnschain) ->
                     @log.warn gLineInfo "Shutdown called when not running!"
                     Promise.reject()
             server # as a convenience, return the server instance
-
-        gThrottle: (key, makeLimiter) -> limiters[key] ? (limiters[key] = makeLimiter())
 
         # TODO: this function should take one parameter: an IP string
         #       and return either 'A' or 'AAAA'

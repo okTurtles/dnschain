@@ -89,11 +89,11 @@ module.exports = (dnschain) ->
             @log = gNewLogger "HTTPS"
             @log.debug gLineInfo "Loading HTTPS..."
             @rateLimiting = gConf.get 'rateLimiting:https'
+            @cluster = new Bottleneck.Cluster _.at(@rateLimiting, ['maxConcurrent', 'minTime', 'highWater', 'strategy'])...
 
             @server = net.createServer (c) =>
-                key = "https-#{c.remoteAddress}"
-                limiter = gThrottle key, => new Bottleneck @rateLimiting.maxConcurrent, @rateLimiting.minTime, @rateLimiting.highWater, @rateLimiting.strategy
-                limiter.submit (@callback.bind @), c, null
+                key = "#{c.remoteAddress}"
+                @cluster.key(key).submit (@callback.bind @), c, null
             @server.on "error", (err) -> gErr err
             @server.on "close", => @log.info "HTTPS server received close event."
             gFillWithRunningChecks @
