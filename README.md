@@ -107,6 +107,7 @@ __:page_facing_up: Read__
 
 - Engadget: [New web service prevents spies from easily intercepting your data](http://www.engadget.com/2014/09/29/okturtles/)
 - Let's Talk Bitcoin: [Security in Decentralized Domain Name Systems](http://letstalkbitcoin.com/blog/post/security-in-decentralized-domain-name-systems)
+- ProgrammableWeb: [Can the blockchain replace ~~SSL~~ X.509?](https://www.programmableweb.com/news/can-blockchain-replace-ssl/analysis/2015/03/17)
 - [An intro to DNSChain: Low-trust access to definitive data sources](http://simondlr.com/post/94988956673/an-intro-to-dnschain-low-trust-access-to)
 - [How to setup a blockchain DNS server with DNSChain](docs/setting-up-dnschain-namecoin-powerdns-server.md)
 - [The Trouble with Certificate Transparency](https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/)
