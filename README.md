@@ -29,7 +29,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 | __DNS-based [censorship circumvention][cens]__                           | :white_check_mark: | :x:                                                      |
 | __Prevents [domain theft][theft] ("seizures")__                          | :white_check_mark: | :x:                                                      |
 | __Access blockchain [domains like `.bit`, `.p2p`, `.nxt`, `.eth`][use]__ | :white_check_mark: | :x:                                                      |
-| Certificate transparency (publicly auditable log of certs)               | :white_check_mark: | :white_check_mark: ([maybe][ct])                         |
+| __Certificate transparency (publicly auditable log of certs)__           | :white_check_mark: | :white_check_mark: ([maybe][ct])                         |
 
 [ct]: https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/
 [mitm]: docs/What-is-it.md#MITMProof
