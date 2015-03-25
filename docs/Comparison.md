@@ -9,7 +9,7 @@
 
 ### Certificate Transparency
 
-Google's Certificate Transparency proposal wants certificate authorities (CAs) to "make a note" all of the certificates that they issue into a log. [It does not protect against NSA spying and MITM attacks](http://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/). Website owners are then asked to monitor these logs to see if their clients were hacked. Everyone online still forced to trust the bad apple (the least trustworthy CA).
+Google's Certificate Transparency proposal wants certificate authorities (CAs) to publicly log all of the certificates that they issue. [It does not protect against NSA spying and MITM attacks](https://blog.okturtles.com/2015/03/certificate-transparency-on-blockchains/). Website owners are then asked to monitor these logs to see if their clients were hacked. Everyone online still forced to trust the bad apple (the least trustworthy CA).
 
 - __*Best case* scenario: mis-issuance detected _after_ damage has been done. The CA blames hackers.__
 

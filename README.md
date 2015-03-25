@@ -31,7 +31,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 | __Access blockchain [domains like `.bit`, `.p2p`, `.nxt`, `.eth`][use]__ | :white_check_mark: | :x:                                           |
 | __Certificate transparency (publicly auditable log of certs)__           | :white_check_mark: | :white_check_mark: ([maybe][ct])              |
 
-[ct]: https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/
+[ct]: https://blog.okturtles.com/2015/03/certificate-transparency-on-blockchains/
 [mitm]: docs/What-is-it.md#MITMProof
 [gpg]: docs/What-is-it.md#GPG
 [free]: docs/What-is-it.md#Free
