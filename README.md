@@ -18,18 +18,18 @@ with traditional DNS.
 It compares favorably to [the alternatives](docs/Comparison.md), and provides the following features:
 ︎
 <!-- This extra line is necessary for table to render properly. -->
-|                                                                          |      DNSChain      | X.509 PKI [with or without Certificate Transparency][ct] |
-|--------------------------------------------------------------------------|--------------------|----------------------------------------------------------|
-| __MITM-proof'ed [Internet connections][mitm]__                           | :white_check_mark: | :x:                                                      |
-| __Secure and simple [GPG key distribution][gpg]__                        | :white_check_mark: | :x:                                                      |
-| __MITM-proof RESTful [API to blockchain][api]__                          | :white_check_mark: | :x:                                                      |
-| __Free and [actually-secure][free] SSL certificates__                    | :white_check_mark: | :x:                                                      |
-| __Stops many [denial-of-service attacks][dos]__                          | :white_check_mark: | :x:                                                      |
-| __Certificate revocation [that actually works][rev]__                    | :white_check_mark: | :x:                                                      |
-| __DNS-based [censorship circumvention][cens]__                           | :white_check_mark: | :x:                                                      |
-| __Prevents [domain theft][theft] ("seizures")__                          | :white_check_mark: | :x:                                                      |
-| __Access blockchain [domains like `.bit`, `.p2p`, `.nxt`, `.eth`][use]__ | :white_check_mark: | :x:                                                      |
-| __Certificate transparency (publicly auditable log of certs)__           | :white_check_mark: | :white_check_mark: ([maybe][ct])                         |
+|                                                                          |      DNSChain      | X.509 PKI with [Certificate Transparency][ct] |
+|--------------------------------------------------------------------------|--------------------|-----------------------------------------------|
+| __MITM-proof'ed [Internet connections][mitm]__                           | :white_check_mark: | :x:                                           |
+| __Secure and simple [GPG key distribution][gpg]__                        | :white_check_mark: | :x:                                           |
+| __MITM-proof RESTful [API to blockchain][api]__                          | :white_check_mark: | :x:                                           |
+| __Free and [actually-secure][free] SSL certificates__                    | :white_check_mark: | :x:                                           |
+| __Stops many [denial-of-service attacks][dos]__                          | :white_check_mark: | :x:                                           |
+| __Certificate revocation [that actually works][rev]__                    | :white_check_mark: | :x:                                           |
+| __DNS-based [censorship circumvention][cens]__                           | :white_check_mark: | :x:                                           |
+| __Prevents [domain theft][theft] ("seizures")__                          | :white_check_mark: | :x:                                           |
+| __Access blockchain [domains like `.bit`, `.p2p`, `.nxt`, `.eth`][use]__ | :white_check_mark: | :x:                                           |
+| __Certificate transparency (publicly auditable log of certs)__           | :white_check_mark: | :white_check_mark: ([maybe][ct])              |
 
 [ct]: https://blog.okturtles.com/2014/09/the-trouble-with-certificate-transparency/
 [mitm]: docs/What-is-it.md#MITMProof
