@@ -20,7 +20,7 @@ You can query it using [a RESTful API](What-is-it.md#API):
 
 Query: _What's the SSL fingerprint for server at api.dnschain.net?_
 
-- [http://api.dnschain.net/v1/dnschain/fingerprint](http://api.dnschain.net/v1/namecoin/fingerprint)
+- [http://api.dnschain.net/v1/dnschain/fingerprint](http://api.dnschain.net/v1/dnschain/fingerprint)
 
 Query: _What is the GPG key for `id/greg` in Namecoin?_
 
