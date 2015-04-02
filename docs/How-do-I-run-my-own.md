@@ -9,11 +9,7 @@ Get yourself a Linux server (they come as cheap as $2/month), and then make sure
 
 ## Requirements
 
-1. `nodejs` (or `iojs`), and `npm` - We recommend using a package manager to install them, e.g.,
-    
-    $ sudo apt-get update
-    $ sudo apt-get install npm
-
+1. `nodejs` (or `iojs`), and `npm` - We recommend using a package manager to install them
 2. [coffee-script](https://github.com/jashkenas/coffee-script) (version 1.7.1+) - install via `npm install -g coffee-script`
 3. A supported blockchain daemon like `namecoind`
 
