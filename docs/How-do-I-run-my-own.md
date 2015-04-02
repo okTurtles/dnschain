@@ -122,4 +122,5 @@ There are settings for `http` and `dns` servers, Redis caching to improve perfor
 As a guide we have an example server setup using Debian 7 and PowerDNS, along with a Namecoin node. This setup will resolve `.bit` domain names and should serve as an example which can be used with other blockchains.
 
 **:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Debian Wheezy](setting-up-dnschain-namecoin-powerdns-server.md)**
+
 **:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Ubuntu](setting-up-dnschain-namecoin-powerdns-server_ubuntu.md)**
