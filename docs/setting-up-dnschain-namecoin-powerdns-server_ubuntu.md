@@ -1,6 +1,6 @@
-# How-to setup a DNSChain Server
+# How-to setup a DNSChain Server on Ubuntu
 
-Here's a quick *how-to* for setting up a <a href="https://github.com/okTurtles/dnschain">DNSChain</a> server running on [Ubuntu 14.04 LTS](https://www.ubuntu.org) (Wheezy). This will run <nobr>PowerDNS</nobr> recursor software, which will simply pass queries for next generation domain names to our DNSChain server. 
+Here is a quick *how-to* for setting up a <a href="https://github.com/okTurtles/dnschain">DNSChain</a> server running on [Ubuntu 14.04 LTS](https://www.ubuntu.org). This will run <nobr>PowerDNS</nobr> recursor software, which will simply pass queries for next generation domain names to our DNSChain server. 
 
 These blockchain-based domain names are resolved by simply querying the local blockchain; bypassing the conventional DNS altogether. This approach will allow you to resolve these new-fangled domain names as well, thanks to DNSChain. This same approach can be applied using any nameserver software, but to we'll be using PowerDNS in our example just to demonstrate the idea.
 
@@ -14,11 +14,6 @@ First, update apt-get and install npm (this will also install nodejs)
 
 	$ sudo apt-get update
 	$ sudo apt-get install npm
-
-then install coffee-script:
-	
-	$ sudo npm install -g coffee-script
-	
 
 ## Namecoin install
 
@@ -117,6 +112,11 @@ You should get a result similar to this, with an IP address found for okturtles.
    
 
 ## DNSChain install
+
+then install coffee-script:
+	
+	$ sudo npm install -g coffee-script
+	
 
 DNSChain is written using NodeJS and we need to install this and a few other javascript tools:
   
