@@ -82,7 +82,7 @@ local-port=53
 Notice in particular our *forward-zones* declaration. Make sure you restart PowerDNS at this point using `sudo service pdns-recursor restart`.  Then,
 confirm that PowerDNS can correctly resolve conventional domain names before we move on.
 ```
-	dig @127.0.0.1 okturtles.com
+dig @127.0.0.1 okturtles.com
 ```
 You should get a result similar to this, with an IP address found for okturtles.com.
 
