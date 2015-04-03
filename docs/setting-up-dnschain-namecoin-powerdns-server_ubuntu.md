@@ -141,9 +141,7 @@ end script
 ```
 Finally, let's test it by trying to resolve a `.bit` domain name.
 ```
-	$ dig @127.0.0.1 okturtles.bit
-	$ curl http://127.0.0.1:8000/d/okturtles
+$ dig @127.0.0.1 okturtles.bit
+$ curl http://127.0.0.1:8000/v1/namecoin/key/d%2Fokturtles
 ```
-NOTE: Last step for me fails with `Unsupported datastore: none`
-
 The first `dig` command ought to return the IP address for `okturtles.bit` and the second should return all the information associated with this domain name, including IP address, TLS fingerprint and more. If so, congratulations, everything works just fine! 
