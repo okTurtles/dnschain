@@ -1,46 +1,32 @@
-# How-to setup a DNSChain Server on Ubuntu
+# Setting up a DNSChain Server on Ubuntu
 
-Here is a quick *how-to* for setting up a <a href="https://github.com/okTurtles/dnschain">DNSChain</a> server running on [Ubuntu 14.04 LTS](https://www.ubuntu.org). This will run <nobr>PowerDNS</nobr> recursor software, which will simply pass queries for next generation domain names to our DNSChain server. 
+This is a *how-to* for setting up a [DNSChain](https://github.com/okTurtles/dnschain") server running on [Ubuntu 14.04 LTS](https://www.ubuntu.org). It will run <nobr>PowerDNS</nobr> recursor, issuing DNS queries for `.com` and `.net` domains as you would expect, but consulting the local Namecoin blockchain to resolve `.bit` domains.
 
-These blockchain-based domain names are resolved by simply querying the local blockchain; bypassing the conventional DNS altogether. This approach will allow you to resolve these new-fangled domain names as well, thanks to DNSChain. This same approach can be applied using any nameserver software, but to we'll be using PowerDNS in our example just to demonstrate the idea.
+Start with a fresh install of Ubuntu 14.04 LTS.
 
-So our recursor software will issue DNS queries for `.com` and `.net` domains as you would expect, but will consult the local Namecoin blockchain in order to resolve `.bit` domains. So results for, say, `okturtles.bit` will be returned without engaging other servers on the Internet.
+## Installing Namecoin
 
-We start with a fresh install of Ubuntu 14.04 LTS.
-
-## Getting Started
-
-First, update apt-get and install npm (this will also install nodejs)
-
-	$ sudo apt-get update
-	$ sudo apt-get install npm
-
-## Namecoin install
-
-In our example, we'll use Namecoin, DNSChain and PowerDNS. It's probably a good idea to first install the Namecoin daemon, since it requires some time to download the blockchain. You can find the latest packages for various linux distros at the [Namecoin site](https://software.opensuse.org/download.html?project=home%3Ap_conrad%3Acoins&package=namecoin).
-
-	# identify source for Namecoin packages
+The Namecoin daemon takes 4-5 hours or more to download the current blockchain. It should be installed first.
+```
 	$ sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/p_conrad:/coins/xUbuntu_14.04/ /' >> /etc/apt/sources.list.d/namecoin.list"
 	$ wget http://download.opensuse.org/repositories/home:p_conrad:coins/xUbuntu_14.04/Release.key
-sudo apt-key add - < Release.key
-	$ apt-get update
-	$ apt-get install namecoin
-
-To get started with namecoin, follow the [Quick start](https://wiki.namecoin.info/index.php?title=Install_and_Configure_Namecoin)
-
+	$ sudo apt-key add - < Release.key
+	$ sudo apt-get update
+	$ sudo apt-get install namecoin
+```
+To configure `namecoind`, follow the [Quick start](https://wiki.namecoin.info/index.php?title=Install_and_Configure_Namecoin). Rather than creating multiple users, this
+tutorial will use the current user.
+```
 	$ mkdir -p ~/.namecoin \
-&& echo "rpcuser=`whoami`" >> ~/.namecoin/namecoin.conf \
-&& echo "rpcpassword=`openssl rand -hex 30/`" >> ~/.namecoin/namecoin.conf \
-&& echo "rpcport=8336" >> ~/.namecoin/namecoin.conf
+		&& echo "rpcuser=`whoami`" >> ~/.namecoin/namecoin.conf \
+		&& echo "rpcpassword=`openssl rand -hex 30/`" >> ~/.namecoin/namecoin.conf \
+		&& echo "rpcport=8336" >> ~/.namecoin/namecoin.conf
+		&& echo "daemon=1" >> ~/.namecoin/namecoin.conf
+```
+Go ahead and run `namecoind` to get things started. Check progress in downloading the blockchain using `namecoind getinfo`.
 
-Our config file will specify a valid RPC username and password, as well as optionally specifying a port to bind to (default is 8336). There are other options, see the [Namecoin wiki](https://wiki.namecoin.info/index.php?title=Install_and_Configure_Namecoin) for more details. To run on server, we will add daemon=1
-
-	$ echo "daemon=1" >> ~/.namecoin/namecoin.conf
-
-Go ahead and run `namecoind` to get things going. It is going to take a while to do what it needs to do.	
-
-For Ubuntu, instead of systemd, we use Upstart -  write this file /etc/init/namecoind.conf 
-
+For Ubuntu, instead of `systemd`, we use Upstart -  write this file into `/etc/init/namecoind.conf`
+```
 	description "namecoind"
 	
 	start on filesystem
@@ -60,6 +46,8 @@ For Ubuntu, instead of systemd, we use Upstart -  write this file /etc/init/name
 	[[ -e $pidfile && "$(cat /proc/$(cat $pidfile)/cmdline)" != $cmd* ]] && rm $pidfile
 	exec start-stop-daemon --start -c $user --chdir $home --pidfile $pidfile --startas $cmd -b --nicelevel 10 -m
 	end script
+```
+
 	
 Then `namecoind stop` to stop the process and restart it with `sudo initctl reload-configuration`
 	
@@ -79,6 +67,9 @@ OK, so basic operations work directly from the command line, now let's check it 
 
 	$ curl --user dnsuser:dnsuser --data-binary '{"jsonrpc":"1.0","id":"curltext","method":"getinfo","params":[]}'  -H 'content-type: text/plain;' http://127.0.0.1:8336
 	$ curl -v -D - --user dnsuser:dnsuser --data-binary '{"jsonrpc":"1.0","id":"curltext","method":"name_show","params":["d/okturtles"]}' -H 'content-type: text/plain;' http://127.0.0.1:8336
+   
+   
+   
    
 ## PowerDNS install
 
@@ -113,9 +104,21 @@ You should get a result similar to this, with an IP address found for okturtles.
 
 ## DNSChain install
 
-then install coffee-script:
-	
+First, update apt-get and install some pre-requisites. Note that while `install npm` installs nodejs, `nodejs-legacy` is needed because the binary is now `nodejs` instead of `node` and the dnschain install will ask for `node`. Do not use `sudo apt-get install node` because this is unrelated to `node.js`. See this [stackoverflow discussion](http://stackoverflow.com/questions/21168141/can-not-install-packages-using-node-package-manager-in-ubuntu) for details.
+
+	$ sudo apt-get update
+	$ sudo apt-get install node git npm
+	$ sudo apt-get install nodejs-legacy
 	$ sudo npm install -g coffee-script
+	$ sudo npm install -g dnschain
+	
+Install git:
+
+	$ sudo apt-get install libc6-dev zlib1g-dev libssl-dev nodejs-dev  
+
+
+Install coffee-script:
+	
 	
 
 DNSChain is written using NodeJS and we need to install this and a few other javascript tools:
