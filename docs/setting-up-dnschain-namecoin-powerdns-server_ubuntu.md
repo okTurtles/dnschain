@@ -8,48 +8,49 @@ Start with a fresh install of Ubuntu 14.04 LTS.
 
 The Namecoin daemon takes 4-5 hours or more to download the current blockchain. It should be installed first.
 ```
-	$ sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/p_conrad:/coins/xUbuntu_14.04/ /' >> /etc/apt/sources.list.d/namecoin.list"
-	$ wget http://download.opensuse.org/repositories/home:p_conrad:coins/xUbuntu_14.04/Release.key
-	$ sudo apt-key add - < Release.key
-	$ sudo apt-get update
-	$ sudo apt-get install namecoin
+$ sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/p_conrad:/coins/xUbuntu_14.04/ /' >> /etc/apt/sources.list.d/namecoin.list"
+$ wget http://download.opensuse.org/repositories/home:p_conrad:coins/xUbuntu_14.04/Release.key
+$ sudo apt-key add - < Release.key
+$ sudo apt-get update
+$ sudo apt-get install namecoin
 ```
 To configure `namecoind`, follow the [Quick start](https://wiki.namecoin.info/index.php?title=Install_and_Configure_Namecoin). Rather than creating multiple users, this
 tutorial will use the current user.
 ```
-	$ mkdir -p ~/.namecoin \
-		&& echo "rpcuser=`whoami`" >> ~/.namecoin/namecoin.conf \
-		&& echo "rpcpassword=`openssl rand -hex 30/`" >> ~/.namecoin/namecoin.conf \
-		&& echo "rpcport=8336" >> ~/.namecoin/namecoin.conf
-		&& echo "daemon=1" >> ~/.namecoin/namecoin.conf
+$ mkdir -p ~/.namecoin \
+	&& echo "rpcuser=`whoami`" >> ~/.namecoin/namecoin.conf \
+	&& echo "rpcpassword=`openssl rand -hex 30/`" >> ~/.namecoin/namecoin.conf \
+	&& echo "rpcport=8336" >> ~/.namecoin/namecoin.conf
+	&& echo "daemon=1" >> ~/.namecoin/namecoin.conf
 ```
 Go ahead and run `namecoind` to get things started. Check progress in downloading the blockchain using `namecoind getinfo`.
 
 For Ubuntu, instead of `systemd`, we use Upstart -  write this file into `/etc/init/namecoind.conf`
 ```
-	description "namecoind"
-	
-	start on filesystem
-	stop on runlevel [!2345]
-	oom never
-	expect daemon
-	respawn
-	respawn limit 10 60 # 10 times in 60 seconds
-	
-	script
-	user=ubuntu
-	home=/home/$user
-	cmd=/usr/bin/namecoind
-	pidfile=$home/.namecoin/namecoind.pid
-	# Don't change anythinsudo initctl reload-configurationg below here unless you know what you're doing
-	[[ -e $pidfile && ! -d "/proc/$(cat $pidfile)" ]] && rm $pidfile
-	[[ -e $pidfile && "$(cat /proc/$(cat $pidfile)/cmdline)" != $cmd* ]] && rm $pidfile
-	exec start-stop-daemon --start -c $user --chdir $home --pidfile $pidfile --startas $cmd -b --nicelevel 10 -m
-	end script
-```
+description "namecoind"
 
+start on filesystem
+stop on runlevel [!2345]
+oom never
+expect daemon
+respawn
+respawn limit 10 60 # 10 times in 60 seconds
+
+script
+user=ubuntu
+home=/home/$user
+cmd=/usr/bin/namecoind
+pidfile=$home/.namecoin/namecoind.pid
+# Don't change anythinsudo initctl reload-configurationg below here unless you know what you're doing
+[[ -e $pidfile && ! -d "/proc/$(cat $pidfile)" ]] && rm $pidfile
+[[ -e $pidfile && "$(cat /proc/$(cat $pidfile)/cmdline)" != $cmd* ]] && rm $pidfile
+exec start-stop-daemon --start -c $user --chdir $home --pidfile $pidfile --startas $cmd -b --nicelevel 10 -m
+end script
+```
+Then use `namecoind stop` to stop the process and restart it with `sudo initctl reload-configuration`
 	
-Then `namecoind stop` to stop the process and restart it with `sudo initctl reload-configuration`
+	
+	
 	
 	TODO: This doesn't actually work to run or automatically start namecoind
 	
