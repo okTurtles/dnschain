@@ -20,7 +20,7 @@ tutorial will use the current user.
 $ mkdir -p ~/.namecoin \
 	&& echo "rpcuser=`whoami`" >> ~/.namecoin/namecoin.conf \
 	&& echo "rpcpassword=`openssl rand -hex 30/`" >> ~/.namecoin/namecoin.conf \
-	&& echo "rpcport=8336" >> ~/.namecoin/namecoin.conf
+	&& echo "rpcport=8336" >> ~/.namecoin/namecoin.conf \
 	&& echo "daemon=1" >> ~/.namecoin/namecoin.conf
 ```
 Go ahead and run `namecoind` to get things started. Check progress in downloading the blockchain using `namecoind getinfo`.
