@@ -25,7 +25,7 @@ $ mkdir -p ~/.namecoin \
 ```
 Go ahead and run `namecoind` to get things started. Check progress in downloading the blockchain using `namecoind getinfo`.
 
-For Ubuntu, instead of `systemd`, we use [Upstart](http://upstart.ubuntu.com/cookbook/)-  write this file into `/etc/init/namecoind.conf`
+For Ubuntu, instead of `systemd`, we use [Upstart](http://upstart.ubuntu.com/cookbook/)-  write this file into `/etc/init/namecoind.conf`, remembering to substitute *yourusername*:
 ```
 description "namecoind"
 
@@ -56,10 +56,10 @@ made some progress, later when you revisit the Namecoin, you can try:
 $ namecoind getinfo
 $ namecoind name_show d/okturtles
 ```
-as well as checking the RPC interface (use the <rpcuser> and <rpcpassword> from namecoin.conf)
+as well as checking the RPC interface (use the *rpcuser* and *rpcpassword* from namecoin.conf)
 ```
-$ curl --user <rpcuser>:<rpcpassword> --data-binary '{"jsonrpc":"1.0","id":"curltext","method":"getinfo","params":[]}'  -H 'content-type: text/plain;' http://127.0.0.1:8336
-$ curl -v -D - --user <rpcuser>:<rpcpassword> --data-binary '{"jsonrpc":"1.0","id":"curltext","method":"name_show","params":["d/okturtles"]}' -H 'content-type: text/plain;' http://127.0.0.1:8336
+$ curl --user rpcuser:rpcpassword --data-binary '{"jsonrpc":"1.0","id":"curltext","method":"getinfo","params":[]}'  -H 'content-type: text/plain;' http://127.0.0.1:8336
+$ curl -v -D - --user rpcuser:rpcpassword --data-binary '{"jsonrpc":"1.0","id":"curltext","method":"name_show","params":["d/okturtles"]}' -H 'content-type: text/plain;' http://127.0.0.1:8336
 ```
 ## Install PowerDNS
 
@@ -96,7 +96,7 @@ First, update apt-get and install some pre-requisites. Note that while `install 
 $ sudo apt-get update
 $ sudo apt-get install git npm
 $ sudo apt-get install nodejs-legacy		# needed so that node calls nodejs
-$ sudo npm install -g coffee-script			# possibly not necessary
+$ sudo npm install -g coffee-script
 $ sudo npm install -g dnschain
 ```
 Tell DNSChain to bind to port 5333, but you can use any high port number as long as it matches the port number that PowerDNS is handing off requests to. This was specified earlier in __/etc/powerdns/recursor.conf__. 
