@@ -145,3 +145,14 @@ $ dig @127.0.0.1 okturtles.bit
 $ curl http://127.0.0.1:8000/v1/namecoin/key/d%2Fokturtles
 ```
 The first `dig` command ought to return the IP address for `okturtles.bit` and the second should return all the information associated with this domain name, including IP address, TLS fingerprint and more. If so, congratulations, everything works just fine! 
+
+## Bonus
+
+If you are paranoid like me, you may want to make sure everything auto-starts after a `shutdown -r`, you can use `ps aux | grep ...` to do this, e.g.,
+```
+tim@kumquat:~$ ps aux | grep "namecoin\|pdns\|dnschain"
+tim        980  0.1  9.3 723104 64260 ?        SNl  01:46   0:06 node /usr/local/bin/coffee /usr/local/bin/dnschain
+tim        999 31.2 19.8 687524 136052 ?       SNLsl 01:46  20:43 /usr/bin/namecoind
+pdns      1308  0.2  0.1 176344  1012 ?        Ssl  01:46   0:11 /usr/sbin/pdns_recursor
+tim       1677  0.0  0.3  10600  2304 pts/0    S+   02:53   0:00 grep --color=auto namecoin\|pdns\|dnschain
+```
