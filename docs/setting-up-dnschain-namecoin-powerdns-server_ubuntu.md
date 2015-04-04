@@ -117,7 +117,7 @@ oldDNS.port = 53
 port=8000
 tlsPort=4443
 ```
-Make another Upstart file for dnschain, write this file into `/etc/init/dnschain.conf`
+Make another Upstart file for dnschain, write this file into __/etc/init/dnschain.conf__
 ```
 description "dnschain"
 
@@ -139,7 +139,7 @@ pidfile=$home/.dnschain/dnschain.pid
 exec start-stop-daemon --start -c $user --chdir $home --pidfile $pidfile --startas $cmd -b --nicelevel 10 -m
 end script
 ```
-Finally, let's test it by trying to resolve a `.bit` domain name.
+Run `sudo initctl reload-configuration`, then restart the machine. Finally, let's test it by trying to resolve a `.bit` domain name.
 ```
 $ dig @127.0.0.1 okturtles.bit
 $ curl http://127.0.0.1:8000/v1/namecoin/key/d%2Fokturtles
