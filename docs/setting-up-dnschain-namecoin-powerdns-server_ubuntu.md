@@ -139,7 +139,7 @@ pidfile=$home/.dnschain/dnschain.pid
 exec start-stop-daemon --start -c $user --chdir $home --pidfile $pidfile --startas $cmd -b --nicelevel 10 -m
 end script
 ```
-Run `sudo initctl reload-configuration`, then restart the machine. Finally, let's test it by trying to resolve a `.bit` domain name.
+Run `sudo initctl reload-configuration`, then restart the machine. Finally, let's test it by trying to resolve a `.bit` domain name. Note that you may have to wait until a lot of the blockchain is loaded before it works.
 ```
 $ dig @127.0.0.1 okturtles.bit
 $ curl http://127.0.0.1:8000/v1/namecoin/key/d%2Fokturtles
@@ -148,11 +148,44 @@ The first `dig` command ought to return the IP address for `okturtles.bit` and t
 
 ## Bonus
 
+### Checking that processes are running
+
 If you are paranoid like me, you may want to make sure everything auto-starts after a `shutdown -r`, you can use `ps aux | grep ...` to do this, e.g.,
 ```
-tim@kumquat:~$ ps aux | grep "namecoin\|pdns\|dnschain"
+$ ps aux | grep "namecoin\|pdns\|dnschain"
 tim        980  0.1  9.3 723104 64260 ?        SNl  01:46   0:06 node /usr/local/bin/coffee /usr/local/bin/dnschain
 tim        999 31.2 19.8 687524 136052 ?       SNLsl 01:46  20:43 /usr/bin/namecoind
 pdns      1308  0.2  0.1 176344  1012 ?        Ssl  01:46   0:11 /usr/sbin/pdns_recursor
 tim       1677  0.0  0.3  10600  2304 pts/0    S+   02:53   0:00 grep --color=auto namecoin\|pdns\|dnschain
 ```
+
+### Checking blockchain status
+
+To check the blockchain status, you can use `namecoind getinfo`, e.g., 
+```
+$ namecoind getinfo
+{
+    "version" : 38000,
+    "balance" : 0.00000000,
+    "blocks" : 148076,
+    "timeoffset" : -1,
+    "connections" : 8,
+    "proxy" : "",
+    "generate" : false,
+    "genproclimit" : -1,
+    "difficulty" : 456070389.18823975,
+    "hashespersec" : 0,
+    "testnet" : false,
+    "keypoololdest" : 1428110634,
+    "keypoolsize" : 101,
+    "paytxfee" : 0.00500000,
+    "mininput" : 0.00010000,
+    "txprevcache" : false,
+    "errors" : ""
+}
+```
+In this example, we are only on block 148076, and according to the [Namecoin block explorer](https://explorer.namecoin.info/), the latest block is 224952. So we wait. Hint: for testing purposes, `namecoind name_show id/greg` shows up early.
+
+### Turning on mining
+
+To turn on mining, you can use `namecoind setgenerate true`.
