@@ -86,8 +86,8 @@ dig @127.0.0.1 okturtles.com
 ```
 You should get a result similar to this, with an IP address found for okturtles.com.
 
-![](http://i.imgur.com/iL881lF.png)
-   
+![](http://i.imgur.com/EhVaMUb.png)
+
    
 ## Install DNSChain
 
