@@ -91,7 +91,7 @@ You should get a result similar to this, with an IP address found for okturtles.
    
 ## Install DNSChain
 
-First, update apt-get and install some pre-requisites. Note that while `install npm` installs node.js, `nodejs-legacy` is needed because the binary is now `nodejs` instead of `node` and prerequisites of the dnschain install (hiredis?) will ask for `node`. Do not use `sudo apt-get install node` because this `node` is unrelated to node.js. See this [stackoverflow discussion](http://stackoverflow.com/questions/21168141/can-not-install-packages-using-node-package-manager-in-ubuntu) for details.
+First, update apt-get and install some pre-requisites. Note that while `install npm` installs node.js, `nodejs-legacy` is needed because the binary is now `nodejs` instead of `node` and prerequisites of the dnschain install (hiredis?) will ask for `node`. Do not use `sudo apt-get install node` because this `node` is unrelated to node.js. See this [stackoverflow discussion](http://stackoverflow.com/questions/21168141/can-not-install-packages-using-node-package-manager-in-ubuntu) for details. Again, note that `node.js` is installed in the `npm` installation. According to the [`nodejs-legacy` description](https://launchpad.net/ubuntu/trusty/+package/nodejs-legacy), "this package contains a symlink for legacy Node.js code requiring binary to be /usr/bin/node (not /usr/bin/nodejs as provided in Debian)."
 ```
 $ sudo apt-get update
 $ sudo apt-get install git npm
