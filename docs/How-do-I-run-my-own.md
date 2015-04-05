@@ -9,7 +9,7 @@ Get yourself a Linux server (they come as cheap as $2/month), and then make sure
 
 ## Requirements
 
-1. `nodejs` (or `iojs`), and `npm` - We recommend using a package manager to install them.
+1. `nodejs` (or `iojs`), and `npm` - We recommend using a package manager to install them
 2. [coffee-script](https://github.com/jashkenas/coffee-script) (version 1.7.1+) - install via `npm install -g coffee-script`
 3. A supported blockchain daemon like `namecoind`
 
@@ -122,3 +122,5 @@ There are settings for `http` and `dns` servers, Redis caching to improve perfor
 As a guide we have an example server setup using Debian 7 and PowerDNS, along with a Namecoin node. This setup will resolve `.bit` domain names and should serve as an example which can be used with other blockchains.
 
 **:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Debian Wheezy](setting-up-dnschain-namecoin-powerdns-server.md)**
+
+**:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Ubuntu](setting-up-dnschain-namecoin-powerdns-server_ubuntu.md)**
