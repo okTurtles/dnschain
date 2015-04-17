@@ -124,3 +124,5 @@ As a guide we have an example server setup using Debian 7 and PowerDNS, along wi
 **:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Debian Wheezy](setting-up-dnschain-namecoin-powerdns-server.md)**
 
 **:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Ubuntu](setting-up-dnschain-namecoin-powerdns-server_ubuntu.md)**
+
+**:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on FreeBSD](setting-up-dnschain-namecoin-powerdns-server_freebsd.md)**
