@@ -1,4 +1,4 @@
-# Setting up a DNSChain Server on Ubuntu
+# Setting up a DNSChain Server on FreeBSD
 
 This is a *how-to* for setting up a [DNSChain](https://github.com/okTurtles/dnschain") server running on [FreeBSD 10.1](https://www.freebsd.org). It will run <nobr>PowerDNS</nobr> recursor, issuing DNS queries for `.com` and `.net` domains as you would expect, but consulting the local Namecoin blockchain to resolve `.bit` domains. Hopefully, this will also provide guidance for getting dnschain
 onto pfsense.
