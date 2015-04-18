@@ -67,7 +67,7 @@ export HOME=/root
 load_rc_config ${name}
 run_rc_command "$1"
 ```
-Add `namecoind_enable="YES" to __/etc/rc.conf__. Issue `service namecoind start` to confirm the script works.
+Add `namecoind_enable="YES"` to __/etc/rc.conf__. Issue `service namecoind start` to confirm the script works.
 	
 As mentioned, `namecoind` is going to begin downloading the blockchain. We won't be able to lookup domain names from the blockchain until it has
 made some progress, later when you revisit the Namecoin, you can try:
