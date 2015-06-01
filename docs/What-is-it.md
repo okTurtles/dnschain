@@ -78,7 +78,7 @@ Still, if for some reason you need it, it's there:
     GET https://api.example.com/v1/icann/key/okturtles.com
     => {"version":"0.0.1","header":{"datastore":"icann"},"data":{"edns_options":[],"answer":[{"name":"okturtles.com","type":1,"class":1,"ttl":299,"address":"192.184.93.146"}],"authority":[],"additional":[]}}
 
-**:page_facing_up: See complete details: [Openname Resolver Specification](https://github.com/openname/openname-specifications/blob/master/resolvers.md)**
+**:page_facing_up: See complete details: [Openname Resolver Specification](https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md)**
 
 <a name="Free"></a>
 #### Free SSL certificates become possible
