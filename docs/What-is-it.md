@@ -57,7 +57,7 @@ Any DNSChain server can be used to retrieve the same information. Storing inform
 <a name="API"></a>
 #### RESTful API to Any Blockchain
 
-okTurtles is working with Onename to develop [a spec](https://github.com/openname/openname-specifications/blob/master/resolvers.md) for RESTful access to blockchains. Here's what it looks like:
+okTurtles is working with Onename to develop [a spec](https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md) for RESTful access to blockchains. Here's what it looks like:
 
     https://api.example.com/v1/namecoin/key/id%2Fbob
     https://api.example.com/v1/bitcoin/addr/MywyjpyBbFTsHkevcoYnSaifShG2Et8R3S
