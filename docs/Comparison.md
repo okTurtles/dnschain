@@ -55,6 +55,8 @@ While DNSChain does use public key pinning, it doesn't have these problems becau
 
 ### Thin Clients / Light Clients
 
+__NOTE: This section is out of date. Will be updated soon. See [blog post](https://blog.okturtles.com/2015/06/proof-of-transition-new-thin-client-technique-for-blockchains/).__
+
 [Thin Clients](https://en.bitcoin.it/wiki/Thin_Client_Security) are very interesting. They offer a way to access blockchain data in an extremely efficient and lightweight manner while maintaining a level of security that is almost as good as that provided by a full node (and in the case of "SPV+" or "UTXO" type clients, possibly equivalent, depending on how it's implemented).
 
 Some concerns with Thin Clients include:
