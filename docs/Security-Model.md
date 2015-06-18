@@ -81,11 +81,11 @@ Cons:
 
 <!-- - [Openname Resolver RESTful API](https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md) -->
 
-**We describe PoT not to claim it is better than SPV, but to explore the diversity of thin client techniques in order to help define a generic thin client protocol.**
-
 <p align="center">
     <img src="https://okturtles.com/other/images/Thin-Client-land-2.jpg" alt="Thin Client Land"/>
 </p>
+
+**We describe PoT not to claim it is better than SPV, but to explore the diversity of thin client techniques in order to help define a generic thin client protocol.**
 
 __The rest of this document will focus on defining Proof of Transition since plenty of literature on thin clients and SPV(+) already exists elsewhere.__
 
