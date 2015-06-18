@@ -83,6 +83,10 @@ Cons:
 
 **We describe PoT not to claim it is better than SPV, but to explore the diversity of thin client techniques in order to help define a generic thin client protocol.**
 
+<p align="center">
+    <img src="https://okturtles.com/other/images/Thin-Client-land-2.jpg" alt="Thin Client Land"/>
+</p>
+
 __The rest of this document will focus on defining Proof of Transition since plenty of literature on thin clients and SPV(+) already exists elsewhere.__
 
 ----
@@ -158,8 +162,6 @@ This scenario should be extremely rare since most __root__ transactions will be 
 A generalized thin client protocol for Internet-wide use is our goal, but its definition is outside the scope of this particular document.
 
 This document demonstrates that there may be many diverse ways to implement thin clients, and that is important because any generalized blockchain-agnostic thin client protocol must be flexible enough to accomidate arbitrary thin client techniques, including those yet to be discovered.
-
-![](https://okturtles.com/other/images/Thin-Client-land-2.jpg)
 
 If you're interested in this topic we'd love to collaborate with you. Get in touch!
 
