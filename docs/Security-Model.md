@@ -43,7 +43,7 @@ __Agnosticism.__ The protocol must be blockchain agnostic since:
 
 #### Comparing Thin Clients Techniques: SPV vs PoT
 
-A _thin client_ refers to software that downloads only a portion of the blockchain<sup>[1](https://en.bitcoin.it/w/index.php?title=Thin_Client_Security&oldid=56863)</sup>, thereby giving clients a greater ability to verify for themselves the authenticity of information that's within it.
+A _thin client_ (or a *light client*) refers to software that downloads only a portion of the blockchain<sup>[1](https://en.bitcoin.it/w/index.php?title=Thin_Client_Security&oldid=56863)</sup>, thereby giving clients a greater ability to verify for themselves the authenticity of information that's within it.
 
 The standard thin client protocol used by Bitcoin is called [Simple Payment Verification (SPV)](https://en.bitcoin.it/wiki/Thin_Client_Security). In this document, we will describe a new thin client protocol called _Proof of Transition (PoT)_.
 
@@ -60,7 +60,7 @@ Pros:
 Cons:
 
 - This technique [is not always practical or available](Comparison.md#thin-clients--light-clients). Some blockchains may not support it and some devices may not make it feasible.
-- Traditional SPV (used by most clients today) are succeptible to replay attacks (unlike PoT or UTXO-based SPV).
+- Traditional SPV is succeptible to replay attacks, whereas PoT and UTXO-style SPV are not.
 
 ##### Proof of Transition (PoT)
 
@@ -68,14 +68,14 @@ In PoT, clients download portions of the blockchain from the proxy on an as-need
 
 Pros:
 
-- Simple to implement and provides great security.
-- Low client-side footprint (no need to store all blockchain headers and rebuild Merkle tree proofs). This might result in faster connections.
+- Simple to implement and provides comparable security to SPV.
 - Might support more types of blockchains because Merkle roots do not need to be stored in the blockchain (but see con about pruning).
 
 Cons:
 
 - Does not support full nodes that prune transaction history.
 - Does not handle all large blockchain forks as gracefully as SPV.
+- Not suitable for situations where identifiers are updated frequently because clients must process all transactions between the transaction they last saw and the current one.
 
 ----
 
@@ -85,7 +85,7 @@ Cons:
     <img src="https://okturtles.com/other/images/Thin-Client-land-2.jpg" alt="Thin Client Land"/>
 </p>
 
-**We describe PoT not to claim it is better than SPV, but to explore the diversity of thin client techniques in order to help define a generic thin client protocol.**
+**We describe PoT not to claim it is better than SPV, but to explore the diversity of thin client techniques in order to help define a generic thin client protocol capable of supporting all of them.**
 
 __The rest of this document will focus on defining Proof of Transition since plenty of literature on thin clients and SPV(+) already exists elsewhere.__
 
@@ -101,12 +101,12 @@ In Namecoin, `.bit` domains are mapped to the `d/` namespace. So `okturtles.bit`
 
 **PoT behavior on initial identifier lookup**
 
-When a client looks up an identifier ***for the first time*** (such as `okturtles.bit`), PoT results in the proxy sending clients the following information:
+When a client looks up an identifier ***for the first time*** (such as `okturtles.bit`), the proxy sends the following information (all of which is cached by the client):
 
-- The transaction containing the most recent registration of the identifier. This is called **root** transaction. Client stores this transaction locally.
-- The transaction corresponding to the **current** value (and thus the current owner as well). This is also stored locally.
+- The **root** transaction, which contains the most recent registration of the identifier.
+- The **current** transaction, representing the current value and current owner of the identifier. This value is added to a [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) (that's associated with the **root**) to prevent replay attacks (discussed later in *Forking Considerations* and *Thin Client Threat Models*).
 
-The security of PoT rests on establishing the validity of the **root** transaction, and therefore lients *should* retrieve the information above from at least two different proxies and verify that all responses match.
+The security of PoT rests on establishing the validity of the **root** transaction, and therefore clients *should* retrieve the information above from at least two different proxies and verify that all responses match.
 
 **Securing the connection to proxies and reducing collusion risk**
 
@@ -125,27 +125,31 @@ When a previously queried identifier changes, PoT requires a proof be sent demon
 If the observed change is not the result of a fork, the entire protocol sequence would be as follows:
 
 1. Client queries a proxy for the value of an identifier and receives a transaction that is different from its locally cached version.
-2. Client sends its cached transaction (the one labeled "previous" in the figure below) to the proxy and requests a PoT to the "current" transaction it received in (1).
-3. Proxy responds with the list of transactions between the "previous" txn sent in (2) and the "current" txn in (1).
-4. Client verifies the transaction chain and discards all transactions except the **root** and the new "current" transaction for the identifier.
+2. Client sends its cached transaction (the one labeled **previous** in the figure below) to the proxy and requests a PoT to the **current** transaction it received in (1).
+3. Proxy responds with the list of transactions between the **previous** txn sent in (2) and the **current** txn in (1).
+4. Client verifies the transaction chain:
+    - If verification is successful, the entire transaction chain is efficiently memorized by a [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) and then discarded (except for the new **current** transaction for the identifier).
+    - If verification fails, an attack or data corruption is assumed. Client can either retry or switch to an honest proxy.
 
-In the scenario depicted below, steps 2-3 are skipped because there are no transactions between "previous" and "current", and so the PoT can be instantly verified at step 1:
+In the scenario depicted below, steps 2-3 are skipped because there are no transactions between **previous** and **current**, and so the PoT can be instantly verified at step 1:
 
 ![](https://okturtles.com/other/images/DNSChain-Security-Model-1.2.jpg)
 
 **Forking Considerations**
 
-Clients never discard the **root** transaction they receive in order to handle legitimate forks in the blockchain that override the "previous" cached transaction.
+Clients never discard the **root** transaction they receive in order to handle legitimate forks in the blockchain that override the **previous** cached transaction.
 
 If such a situation occurs, the PoT protocol works exactly as described previously, except Step 3 is now:
 
-- The proxy is unable to provide a PoT from the "previous" transaction so it assumes that the client is going off of an old fork and sends a specially marked "fork PoT" that contains the entire transaction chain (from the **root** to the "current").
+- The proxy sends a specially marked "fork PoT" that contains the entire transaction chain from the **root** to the **current**. The client verifies the signatures in the transaction chain **and** verifies that the [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) has **not** seen at least one of the transactions at the end of the chain.
+    + If signature verification fails, the client treats it as either an attack or data corruption and lets the user decide whether to retry or switch to a different proxy.
+    + If the Bloom filter reports it's seen all of the transactions, this indicates either a replay attack or a poorly configured Bloom filter (making the probability of a false positive too high). Recovery proceeds the same as when recovering from a **root** mismatch (described next).
 
-There is a danger to this behavior: it means that forks cannot be so long that they result in the block containing the **root** being overridden. If such a fork were to occur, the thin client would have no way to obtain a PoT. This scenario is depicted in the figure below (where the red blocks are now the longest chain):
+A dangerous situation can occur when a fork is so long that the block containing the **root** is overwritten. If such a fork were to occur, the thin client would have no way to obtain a PoT. This scenario is depicted in the figure below (where the red blocks are now the longest chain):
 
 ![](https://okturtles.com/other/images/DNSChain-Security-Model-3.jpg)
 
-Clients have no way to distinguish this scenario from an actual attack (where the proxy fabricates a fork to insert its own key as the **root**), and must therefore treat it as such.
+Clients have no way to distinguish this situation from an actual attack (where the proxy fabricates a fork to insert its own key as the **root**), and must therefore treat it as such.
 
 Recovering can behave as follows:
 
@@ -157,6 +161,8 @@ Recovering can behave as follows:
 
 This scenario should be extremely rare since most __root__ transactions will be buried deep in the blockchain.
 
+---
+
 #### Generalized Thin Client Protocol
 
 A generalized thin client protocol for Internet-wide use is our goal, but its definition is outside the scope of this particular document.
@@ -165,7 +171,11 @@ This document demonstrates that there may be many diverse ways to implement thin
 
 If you're interested in this topic we'd love to collaborate with you. Get in touch!
 
+---
+
 #### Thin Client Threat Models
+
+<!-- Consider moving this whole section to a separate document and linking to it from here. -->
 
 This section will be organized by threat type. We've done our best to describe the most significant ones but we might have missed something. If you notice something that should be here, please open an issue or send a pull request!
 
@@ -270,8 +280,8 @@ Small to severe, depending on nature of attack.
 
 *Thin Client Protocol Analysis*
 
-- SPV: Most SPV clients today are succeptible to this attack. New SPV modes (like those that store the UTXO set in the blockchain headers) can prevent this attack from happening.
-- PoT: None of the transactions *behind* the currently cached transaction can be replayed back to the client, and therefore this technique is immune to such attacks. See *Censorship* attacks for a replay attack that could be done through censorship (applies to SPV as well).
+- SPV: Traditional SPV techniques are succeptible to this attack. New SPV modes (like those that store the UTXO set in the blockchain headers) can prevent this attack from happening but may require special support by the blockchain.
+- PoT: Clients use a [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) per cached **root** to efficiently memorize all of the transactions they've seen, therefore this technique is immune to relay attacks. See *Censorship* attacks for a "replay" attack that could be done through censorship (applies to SPV as well).
 
 *Mitigation:* Use PoT or UTXO-based SPV instead of traditional SPV.
 
