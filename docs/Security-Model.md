@@ -45,7 +45,7 @@ __Agnosticism.__ The protocol must be blockchain agnostic since:
 
 #### Comparing Thin Clients Techniques: SPV vs PoT
 
-A _thin client_ (or a *light client*) refers to software that downloads only a portion of the blockchain<sup>[1](https://en.bitcoin.it/w/index.php?title=Thin_Client_Security&oldid=56863)</sup>, thereby giving clients a greater ability to verify for themselves the authenticity of information that's within it.
+A _thin client_ (or a *light client*) refers to software that downloads only a portion of the blockchain.<sup>[1](https://en.bitcoin.it/w/index.php?title=Thin_Client_Security&oldid=56863)</sup> This gives clients some ability to verify for themselves the authenticity of information within it.
 
 The standard thin client protocol used by Bitcoin is called [Simple Payment Verification (SPV)](https://en.bitcoin.it/wiki/Thin_Client_Security). In this document, we will describe a new thin client protocol called _Proof of Transition (PoT)_.
 
@@ -143,7 +143,7 @@ Clients never discard the **root** transaction they receive in order to handle l
 
 If such a situation occurs, the PoT protocol works exactly as described previously, except Step 3 is now:
 
-- The proxy sends a specially marked "fork PoT" that contains the entire transaction chain from the **root** to the **current**. The client verifies the signatures in the transaction chain **and** verifies that the [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) has **not** seen at least one of the transactions at the end of the chain.
+- The proxy sends a specially marked "fork PoT" that contains the entire transaction chain from the **root** to the **current**. The client verifies the signatures in the transaction chain **and** verifies that the [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) has **not** seen the transaction at the end of the chain (the new __current__).
     + If signature verification fails, the client treats it as either an attack or data corruption and lets the user decide whether to retry or switch to a different proxy.
     + If the Bloom filter reports it's seen all of the transactions, this indicates either a replay attack or a poorly configured Bloom filter (making the probability of a false positive too high). Recovery proceeds the same as when recovering from a **root** mismatch (described next).
 
@@ -153,12 +153,12 @@ A dangerous situation can occur when a fork is so long that the block containing
 
 Clients have no way to distinguish this situation from an actual attack (where the proxy fabricates a fork to insert its own key as the **root**), and must therefore treat it as such.
 
-Recovering can behave as follows:
+Recovery could behave something like this:
 
 1. Inform the user that they may be under attack by the proxy they are using.
 2. Present a GUI to the user that allows them to choose two or more other proxies to query to re-establish a new root.
 3. Query those two proxies in addition to four other randomly chosen proxies to establish a quorum for a new **root** for the identifier.
-    + If quorum achieves 100% agreement, override the **root** and then blacklist and report the offending proxy to some authority (or authorities).
+    + If quorum achieves 100% agreement, override the **root**. If the quorum disagreed with the original proxy, blacklist and report the proxy, and one of the two user-selected proxies in its place.
     + If quorum fails to achieve 100% agreement, inform the user and let them decide what to do next.
 
 This scenario should be extremely rare since most __root__ transactions will be buried deep in the blockchain.
