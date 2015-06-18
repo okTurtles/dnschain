@@ -153,12 +153,12 @@ A dangerous situation can occur when a fork is so long that the block containing
 
 Clients have no way to distinguish this situation from an actual attack (where the proxy fabricates a fork to insert its own key as the **root**), and must therefore treat it as such.
 
-Recovery could behave something like this:
+Recovery could proceed as follows:
 
 1. Inform the user that they may be under attack by the proxy they are using.
 2. Present a GUI to the user that allows them to choose two or more other proxies to query to re-establish a new root.
 3. Query those two proxies in addition to four other randomly chosen proxies to establish a quorum for a new **root** for the identifier.
-    + If quorum achieves 100% agreement, override the **root**. If the quorum disagreed with the original proxy, blacklist and report the proxy, and one of the two user-selected proxies in its place.
+    + If quorum achieves 100% agreement, override the **root**. If the original proxy disagrees with the quorum, report it and use one of the two user-selected proxies in its place.
     + If quorum fails to achieve 100% agreement, inform the user and let them decide what to do next.
 
 This scenario should be extremely rare since most __root__ transactions will be buried deep in the blockchain.
