@@ -68,7 +68,8 @@ In PoT, clients download portions of the blockchain from the proxy on an as-need
 
 Pros:
 
-- Smaller client-side footprint than SPV (no need to store all blockchain headers or rebuild Merkle tree proofs). This can also result in faster connections.
+- Simple to implement and provides great security.
+- Low client-side footprint (no need to store all blockchain headers and rebuild Merkle tree proofs). This might result in faster connections.
 - Might support more types of blockchains because Merkle roots do not need to be stored in the blockchain (but see con about pruning).
 
 Cons:
