@@ -1,8 +1,10 @@
-# The DNSChain Security Model
+# Security Model
 
-_Low-trust blockchain Public Key Infrastructure_
+_Toward a generalized, blockchain-agnostic protocol for thin/light clients._
 
-> __Abstract.__ Most Internet communications systems rely on accurate public key exchange to ensure their security. A man-in-the-middle (MITM) can compromise the security of these systems by replacing legitimate keys with their own as they travel to their destination. In the context of SSL/TLS, [over 1200 organizations](https://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/#CAs) each have the ability to perform this attack for any website. Blockchains prevent these and other "non-fundamental" MITM attacks by associating keys and arbitrary identifiers without relying on third party trust. However, end-user devices cannot run blockchain full nodes due to resource constraints. Here we present a blockchain agnostic thin client infrastructure for the Internet that can transfer the security properties of full blockchain nodes to resource constrained devices in a low-trust manner.
+> __Abstract.__ Most Internet communications systems rely on accurate public key exchange to ensure their security. A man-in-the-middle (MITM) can compromise the security of these systems by replacing legitimate keys with their own as they travel to their destination. In the context of SSL/TLS, [over 1200 organizations](https://blog.okturtles.com/2014/02/introducing-the-dotdns-metatld/#CAs) each have the ability to perform this attack for any website. Blockchains prevent these and other "non-fundamental" MITM attacks by associating keys and arbitrary identifiers without relying on third party trust. However, end-user devices cannot run blockchain full nodes due to resource constraints. Here we define a new thin client technique called Proof of Transition as a step toward definining a blockchain and technique agnostic thin client protocol for transfering most of the security properties of blockchain full nodes to resource constrained devices in a low-trust manner.
+
+Acknowledgements: Greg Slepak, Dionyziz Zindros
 
 __Table of Contents__
 
