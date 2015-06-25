@@ -42,7 +42,7 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 [use]: docs/How-do-I-use-it.md
 [api]: docs/What-is-it.md#API
 
-**:star: See Also: [How DNSChain Compares To Other Approaches](docs/Comparison.md)**
+**:star: See Also: [Comparison](docs/Comparison.md) and [Security Model](docs/Security-Model.md)**
 
 ## Documentation
 
