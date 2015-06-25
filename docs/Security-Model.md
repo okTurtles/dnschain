@@ -106,7 +106,7 @@ When a client looks up an identifier ***for the first time*** (such as `okturtle
 - The **root** transaction, which contains the most recent registration of the identifier.
 - The **current** transaction, representing the current value and current owner of the identifier. This value is added to a [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) (that's associated with the **root**) to prevent replay attacks (discussed later in *Forking Considerations* and *Thin Client Threat Models*).
 
-The security of PoT rests on establishing the validity of the **root** transaction, and therefore clients *should* retrieve the information above from at least two different proxies and verify that all responses match.
+The security of PoT rests on establishing the validity of the **root** transaction, and therefore clients *must* retrieve the information above from at least two different proxies and verify that all responses match.
 
 **Securing the connection to proxies and reducing collusion risk**
 
@@ -200,7 +200,7 @@ Small. The person trying to update their identifier's value would likely notice 
 
 *Difficulty*
 
-Generally extremely difficult to pull off because of the amount of time required, but it also depends on the blockchain being attacked.
+Generally extremely difficult to pull off because of the amount of time and resources required, but it also depends on the blockchain being attacked.
 
 *Thin Client Protocol Analysis*
 
@@ -221,7 +221,7 @@ Censorship can be used for various purposes, such as stealing identifiers (descr
 
 *Significance:* Varies.
 
-*Difficulty:* Low.
+*Difficulty:* Low for blocking all identifiers, extremely high for blocking specific ones.
 
 *Thin Client Protocol Analysis*
 

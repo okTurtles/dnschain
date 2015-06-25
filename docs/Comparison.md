@@ -55,27 +55,20 @@ While DNSChain does use public key pinning, it doesn't have these problems becau
 
 ### Thin Clients / Light Clients
 
-__NOTE: This section is out of date. Will be updated soon. See [blog post](https://blog.okturtles.com/2015/06/proof-of-transition-new-thin-client-technique-for-blockchains/).__
+[Thin Clients](https://en.bitcoin.it/wiki/Thin_Client_Security) are [very important](https://blog.okturtles.com/2015/06/proof-of-transition-new-thin-client-technique-for-blockchains/) and we are working to define and integrate [arbitrary thin client techniques](https://blog.okturtles.com/2015/06/proof-of-transition-new-thin-client-technique-for-blockchains/) into DNSChain.
 
-[Thin Clients](https://en.bitcoin.it/wiki/Thin_Client_Security) are very interesting. They offer a way to access blockchain data in an extremely efficient and lightweight manner while maintaining a level of security that is almost as good as that provided by a full node (and in the case of "SPV+" or "UTXO" type clients, possibly equivalent, depending on how it's implemented).
+So far most thin clients use Simplified Payment Verification (SPV) as their verification method. SPV may not work well in all situations, however:
 
-Some concerns with Thin Clients include:
+- Apple's iOS does not allow you to download and run servers in the background that other apps can talk to. This is an issue for SPV, which needs to always remain synced with the network.
+- SPV can result in a slower user experience on mobile devices. If the device has been off for a while, users would need to wait until the thin client syncs back up with the network before before accessing online resources.
 
-- They are not necessary. DNSChain's [3-pronged security model](https://blog.okturtles.com/2015/03/certificate-transparency-on-blockchains/) (see bottom of that post, better link to come), should provide security that is at least as good as thin clients, with none of the downsides mentioned below.
-- Over-reliance on SPV(+) clients can lead to a centralization of the entire network as fewer full nodes are being operated. Ultimately, the network is only as healthy as the number of full nodes there are, and full nodes can only reasonably be run on a server. *(DNSChain helps make the security of full nodes accessible today at the cost of having to trust the DNSChain servers you're talking to. If that's a concern, clients can increase the number of DNSChain servers they talk to.)*
-- They do not scale well for apps that want to support multiple blockchain resources (TLDs, key/value mappings, etc.). Apps would need a thin client for each TLD/resource that they wanted to access (this problem is even worse on mobile devices, as discussed next).
-- Some platforms do not support Thin Clients well. Examples include:
-    * Apple's iOS does not allow you to download and run a thin client (or any server) in the background that other apps can talk to. Therefore any app that wanted to talk to the blockchain would need to bundle its own thin client. On mobile devices, it is far more practical for apps to talk to DNSChain.
-    * Thin clients that perform DNS could result in a poor user experience on mobile devices if they've been offline for a prolonged period of time. They would need to wait until the thin client synced up with the network before it could be used reliably. DNSChain, on the other hand, provides instant access to the blockchain.
-- As mentioned previously, there are different kinds of thin clients, some of which provide a better user experience and security than others. It will be a while before we see high quality ones that can be used for DNS in the wild.
-- Thin clients do not exist for any key-value store blockchain technology, and they are unlikely to exist any time soon. If they start to show up, DNSChain can support them. However, it is fairly unlikely that thin clients will exist for all the blockchains that DNSChain supports.
+[Proof-of-Transition](https://blog.okturtles.com/2015/06/proof-of-transition-new-thin-client-technique-for-blockchains/) is a thin client technique that may work better on iOS.
 
-That all said, you should support thin client development as they are a powerful and useful tool for effectively improving online security.
-
-If/When they start to pop up, they can choose whether to directly implement the [Openname Resolver Specification](https://github.com/openname/openname-specifications/blob/master/resolvers.md) or use DNSChain as "middleware" so that apps have a simple and standard interface for communicating with the blockchain.
+It's important to remember that while thin clients are very important, blockchains are only as healthy as the number of full nodes there are, and full nodes can only reasonably be run on a server. DNSChain helps encourage the wider deployment of full nodes by making them accessible over a single protocol.
 
 Useful resources on thin clients:
 
+- :page_facing_up: __[Proof of Transition: New Thin Client Technique for Blockchains](https://blog.okturtles.com/2015/06/proof-of-transition-new-thin-client-technique-for-blockchains/)__
 - :page_facing_up: __[Bitcoin wiki: Thin Client Security](https://en.bitcoin.it/wiki/Thin_Client_Security)__
 - :page_facing_up: __[Various types of thin clients Namecoin is exploring](https://github.com/hlandau/ncdocs/blob/master/stateofnamecoin.md)__
 - :page_facing_up: __[Namecoin blog: Lightweight Resolvers](http://blog.namecoin.org/post/109811339625/lightweight-resolvers)__
