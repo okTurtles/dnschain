@@ -76,6 +76,7 @@ module.exports = (dnschain) ->
             internalTLSPort: 2500   # Not accessible from the internet, used internally only
             internalAdminPort: 3000 # Not accessible from the internet, used internally only
             host: '0.0.0.0' # what we bind to. 0.0.0.0 for the whole internet
+            cors: false
         redis:
             socket: '127.0.0.1:6379' # or UNIX domain socket path
             oldDNS:
