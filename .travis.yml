@@ -5,7 +5,10 @@ node_js:
   - iojs
 services:
   - redis-server
+sudo: false
+addons: 
+  apt: 
+    packages:
+      - dnsutils
 install:
-  - sudo apt-get update -q
-  - sudo apt-get install dnsutils
   - npm install
