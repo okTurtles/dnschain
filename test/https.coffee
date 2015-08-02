@@ -66,6 +66,11 @@ describe 'https', ->
             console.info "Result: #{stdout}".bold
             stdout.should.containEql data
 
+    it 'should send proper cors headers', ->
+       getAsync("http://localhost:#{gConf.get 'http:port'}/v1/namecoin/key/d%2Fokturtles").then (res) ->
+            res.header['access-control-allow-headers'].should.equal 'Origin, X-Requested-With, Content-Type, Accept'
+            res.header['access-control-allow-origin'].should.equal '*'
+
     it 'should shutdown successfully', ->
         server.shutdown() # returns a promise. Mocha should handle that properly
 
