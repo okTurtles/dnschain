@@ -28,7 +28,7 @@ Query: _What is the GPG key for `id/greg` in Namecoin?_
 
 Query: _What is the IP address of `okturtles.bit`?_
 
-- [https://api.dnschain.net/v1/namecoin/key/d%2Fokturtles](https://api.dnschain.net/v1/namecoin/key/id%2Fgreg)
+- [https://api.dnschain.net/v1/namecoin/key/d%2Fokturtles](https://api.dnschain.net/v1/namecoin/key/d%2Fokturtles)
 
 This means you can immediately begin [writing apps](Developers.md#securing-your-apps-with-dnschain) that query the blockchain over a MITM-proof channel.
 
