@@ -134,6 +134,7 @@ _Approximate chronological order._
 - [Konstantinos Lolos](https://www.linkedin.com/in/kostislolos) ([pydnschain](https://github.com/okTurtles/pydnschain) work)
 - [Anton Wilhelm](https://github.com/toenu23) (Support for [Nxt](http://nxt.org) cryptocurrency)
 - [Tim Uy](https://github.com/tofutim) (Ubuntu tutorial)
+- [Michael Bumann](https://twitter.com/bumi) (optional CORS support)
 - *Your name & link of choice here!*
 
 ## Release History
