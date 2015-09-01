@@ -3,12 +3,17 @@ node_js:
   - "0.12"
   - "0.10"
   - iojs
+env:
+  - CXX=g++-4.8
 services:
   - redis-server
 sudo: false
 addons: 
   apt: 
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - dnsutils
+      - g++-4.8
 install:
   - npm install
