@@ -39,7 +39,7 @@ key becomes MITM-proof.
 - The latest and most correct key is sent to clients over the secure
 channel between DNSChain and its clients. They are then able to establish further MITM-proof connections with the owner(s) of those key(s).
 
-It's bears emphasizing that the DNSChain server itself could be malicious, and therefore users should only query the server (or _servers_) that they have good reason to trust. If they don't have access to a trustworthy DNSChain server, they should query several independently run servers and verify that the responses match.
+It bears emphasizing that the DNSChain server itself could be malicious, and therefore users should only query the server (or _servers_) that they have good reason to trust. If they don't have access to a trustworthy DNSChain server, they should query several independently run servers and verify that the responses match.
 
 __:tv: Watch: [Securing online communications with the blockchain](https://www.youtube.com/watch?v=Qy1x3Ud8LCI)__
 
