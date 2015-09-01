@@ -9,7 +9,7 @@
 
 ### Certificate Transparency
 
-Google's Certificate Transparency proposal wants certificate authorities (CAs) to publicly log all of the certificates that they issue. [It does not protect against NSA spying and MITM attacks](https://blog.okturtles.com/2015/03/certificate-transparency-on-blockchains/). Website owners are then asked to monitor these logs to see if their clients were hacked. Everyone online still forced to trust the bad apple (the least trustworthy CA).
+Google's Certificate Transparency proposal wants certificate authorities (CAs) to publicly log all of the certificates that they issue. [It does not protect against NSA spying and MITM attacks](https://blog.okturtles.com/2015/03/certificate-transparency-on-blockchains/). Website owners are then asked to monitor these logs to see if their clients were hacked. Everyone online is still forced to trust the bad apple (the least trustworthy CA).
 
 - __*Best case* scenario: mis-issuance detected _after_ damage has been done. The CA blames hackers.__
 
@@ -30,7 +30,7 @@ In our words: Convergence is similar to having a `known_hosts` ssh key file for 
 
 - It is not very user friendly. Users are asked to manage a list of notaries. This list of notaries is stored locally on the computer, or even the browser. Managing this list is not feasible for most users.
 - It's not clear how well it protects (or can protect) if some notaries haven't yet cached the latest SSL certificate for a particular website.
-- It does not provide MITM protection on first-visit.
+- It does not provide MITM protection on first visit.
 - Waiting for group consensus means all connections have higher latency (slower page loads).
 - Both Convergence and Perspectives (see below) results in you sharing every website you visit with random third-parties. With DNSChain, if privacy is a concern, you can run your own server and only rely on it: it will provide both better performance and superior security.
 
