@@ -25,6 +25,13 @@ module.exports = (dnschain) ->
             @rateLimiting = gConf.get 'rateLimiting:http'
             app = express()
 
+            if gConf.get('http:cors')
+              @log.warn "CORS enabled! Accessing DNSChain from a webpage JS relies on X.509 and therefore does not preserve the security properties of Namecoin!".bold
+              app.use (req, res, next) =>
+                res.header "Access-Control-Allow-Origin", "*"
+                res.header "Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept"
+                next()
+            
             # Openname spec defined here:
             # - https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md
             # - https://github.com/openname/openname-specifications/blob/master/resolvers.md
