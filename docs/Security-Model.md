@@ -19,7 +19,7 @@ _Note: From here on "proxy" and "DNSChain" are interchangeable._
 
 #### DNSChain's Revised Security Model
 
-DNSChain's original security model involved a trusted-proxy with a MITM-proof channel established via public key pinning.
+DNSChain's original security model involved a trusted proxy with a MITM-proof channel established via public key pinning.
 
 This technique offers significant improvement over today's HTTPS security model that relies on [X.509](https://en.wikipedia.org/wiki/X.509). However, scaling a trusted-proxy model to all Internet users is challenging since not everyone may have a trustworthy DNSChain server to connect to.
 
@@ -244,7 +244,7 @@ Same as *Mitigation* for *Stealing identifiers*.
 
 *Significance*
 
-Depends on how important it is to you where someone knows who you are communicating with and what websites you are visiting.
+Depends on how important it is to you whether someone knows who you are communicating with and what websites you are visiting.
 
 *Difficulty*
 
@@ -254,15 +254,15 @@ Low. Anyone who can act as a MITM between you and the rest of the world can see 
 
 Both SPV and PoT leak information about the identifiers you are looking up.
 
-Even if you were to run a full node and conduct lookups *purely locally* a MITM could still figure out who you are communicating with and what websites you are visiting simply be monitoring the IP addresses you connect to.
+Even if you were to run a full node and conduct lookups *purely locally* a MITM could still figure out who you are communicating with and what websites you are visiting simply by monitoring the IP addresses you connect to.
 
 *Mitigation*
 
-If privacy of significant concern to you, there is no substitute for anonymizing networks like Tor. If privacy is of small but non-significant concern to you, run your own full node on a server and point you SPV/PoT thin client at it.
+If privacy is of significant concern to you, there is no substitute for anonymizing networks like Tor. If privacy is of small but non-significant concern to you, run your own full node on a server and point you SPV/PoT thin client at it.
 
 **Replay Attacks**
 
-A replay attack where outdated/expired identifier values (that actually exist in the blockchain) are sent back to the thin client.
+A replay attack is where outdated/expired identifier values (that actually exist in the blockchain) are sent back to the thin client.
 
 *Methods*
 
@@ -281,7 +281,7 @@ Small to severe, depending on nature of attack.
 *Thin Client Protocol Analysis*
 
 - SPV: Traditional SPV techniques are succeptible to this attack. New SPV modes (like those that store the UTXO set in the blockchain headers) can prevent this attack from happening but may require special support by the blockchain.
-- PoT: Clients use a [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) per cached **root** to efficiently memorize all of the transactions they've seen, therefore this technique is immune to relay attacks. See *Censorship* attacks for a "replay" attack that could be done through censorship (applies to SPV as well).
+- PoT: Clients use a [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) per cached **root** to efficiently memorize all of the transactions they've seen; therefore this technique is immune to relay attacks. See *Censorship* attacks for a "replay" attack that could be done through censorship (applies to SPV as well).
 
 *Mitigation:* Use PoT or UTXO-based SPV instead of traditional SPV.
 
