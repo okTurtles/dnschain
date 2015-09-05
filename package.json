@@ -1,6 +1,6 @@
 {
   "name": "dnschain",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "A blockchain-based DNS + HTTPS server that fixes HTTPS security, and more!",
   "homepage": "https://github.com/okTurtles/dnschain",
   "bugs": "https://github.com/okTurtles/dnschain/issues",

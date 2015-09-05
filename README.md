@@ -141,6 +141,13 @@ _Approximate chronological order._
 
 __[Blog post for 0.5 release.](https://blog.okturtles.com/2015/03/dnschain-0-5-released-https-openname-resolver-api-more/)__
 
+###### 0.5.3 - September 5, 2015
+
+- __New Features:__
+    + Optional CORS support from [Michael Bumann](https://twitter.com/bumi) (thanks!).
+- __Improvements:__
+    + Bumped `hiredis` to 0.4.1 for latest iojs compat.
+
 ###### 0.5.2 - March 11, 2015
 
 - __Improvements:__
