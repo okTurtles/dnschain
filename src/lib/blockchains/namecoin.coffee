@@ -43,6 +43,7 @@ module.exports = (dnschain) ->
                 o[v] = gConf.chains[@name].get 'rpc'+v
             , {}
             @params.connect ?= "127.0.0.1"
+            @params.port ?= "8336"
 
             unless _(@params).values().every()
                 missing = _.transform @params, ((o,v,k)->if !v then o.push 'rpc'+k), []
