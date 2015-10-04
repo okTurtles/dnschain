@@ -3,11 +3,26 @@
 dnschain
 http://dnschain.net
 
-Copyright (c) 2013-2014 Greg Slepak
+Copyright (c) 2014 okTurtles Foundation
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+###
+
+###
+
+INSTRUCTIONS:
+
+    1. Copy this file and rename it to your blockchain's name.
+       The name you choose will also be your metaTLD (e.g. namecoin.coffee => namecoin.dns)
+    2. Rename the class (following the same naming convention as shown in
+       `blockchains/namecoin.coffee`) and `extend BlockchainResolver`
+    3. Uncomment and edit the code as appropriate.
+       Look at how the other blockchains do it (especially namecoin.coffee)
+
+    REMEMBER: When in doubt, look at `blockchains/namecoin.coffee` !
 
 ###
 
@@ -16,44 +31,124 @@ module.exports = (dnschain) ->
     for k of dnschain.globals
         eval "var #{k} = dnschain.globals.#{k};"
 
-    ResolverStream  = require('./resolver-stream')(dnschain)
+    # Uncomment this:
+    # BlockchainResolver = require('../blockchain.coffee')(dnschain)
 
-    QTYPE_NAME = dns2.consts.QTYPE_TO_NAME
-    NAME_QTYPE = dns2.consts.NAME_TO_QTYPE
+    # For `dnsHandler:`
+    ResolverStream  = require('./resolver-stream')(dnschain)
     NAME_RCODE = dns2.consts.NAME_TO_RCODE
     RCODE_NAME = dns2.consts.RCODE_TO_NAME
-    BLOCKS2SEC = 10 * 60
 
-    LOCALHOSTS = _.uniq [
-        "127.0.0.", "10.0.0.", "192.168.", "::1", "fe80::"
-        gConf.get('dns:host'), gConf.get('http:host')
-        gConf.get('dns:externalIP'), gExternalIP()
-        gConf.nmc.get('rpcconnect')
-    ].filter (o)-> typeof(o) is 'string'
+    # This class is partially annotated using flowtate
+    # http://flowtype.org/blog/2015/02/20/Flow-Comments.html
+    # https://github.com/jareware/flotate
+    ### @flow ###
 
-    # instanceNum = 0 # debugging
+                             # Uncomment the 'extends' comment below:
+    class BlockchainResolver # extends BlockchainResolver
+        # Do you initialization in here.
+        ### (dnschain: DNSChain): BlockchainResolver ###
+        constructor: (@dnschain) ->
+            # Fill these in as appropriate:
+            @log = gNewLogger 'YourChainName'
+            @tld = 'chn'            # Your chain's TLD
+            @name = 'templatechain' # Your chain's name (lowercase, no spaces)
 
-    # It is the hander's job to add answers to 'res' but *NOT* to send them!
-    # Instead, it should call the callback function 'cb'.
-    # Pass in a NAME_RCODE to 'cb' on error, or nothing on success.
-    # 
-    # IMPORTANT: these functions __*MUST*__ be bound to the DNSServer instance 
-    #            that calls them!
-    dnsTypeHandlers =
-        namecoin:
+            # Optionally specify how long Redis should cache entries in seconds
+            # @cacheTTL = 600         # 0 == no cache, override here
+
+            # Fills this object with `startCheck` and `shutdownCheck` methods
+            gFillWithRunningChecks @
+
+        # This is the default TTL value for all blockchains.
+        # Override it above in the constructor for your blockchain.
+        cacheTTL: gConf.get 'redis:blockchain:ttl'
+
+        # Return `this` upon successful load, falsy otherwise
+        # If you return `this`, this chain will be included in the parent
+        # DNSChain instance's `@servers` list, and will have its `start:`
+        # method called.
+        ### : ?(BlockchainResolver | boolean) ###
+        config: ->
+            @log.debug "Loading resolver config"
+            @
+            # Fill this in with code to load your config.
+            # We recommend copying and editing the stuff from namecoin.coffee
+            #
+            # if "loaded successfully"
+            #     return this
+            # else
+            #     return false
+
+        # Connect to your blockchain. Return a Promise
+        ### : Promise ###
+        start: ->
+            # Replace this with something useful.
+            # 'cb' is of the form (err, args...) ->
+            @startCheck (cb) => cb null
+
+        # Close connection to your blockchain and do any other cleanup. Return a Promise.
+        ### : Promise ###
+        shutdown: ->
+            # Replace this with something useful.
+            # 'cb' is of the form (err, args...) ->
+            @shutdownCheck (cb) => cb null
+
+
+        # Do not modify the result template itself. Instead, set its .data property
+        # in your resources.key function.See how other blockchains do it.
+        ### : object ###
+        resultTemplate: ->
+            version: '0.0.1'
+            header:
+                datastore: @name
+            data: {} # <== Your `resources.key` function *must* set this to a JSON
+                     #     object that contains the output from your blockchain.
+
+        standardizers:
+            # These Functions convert data in the `data` object (see `resultTemplate` above)
+            # into a standard form (primarily for processing by `dnsHandler`s.
+            # See nxt.coffee for example of how to override.
+            dnsInfo: (data) -> data.value # Value sould conform to Namecoin's d/ spec.
+            ttlInfo: (data) -> 600 # 600 seconds for Namecoin (override if necessary)
+
+        # Any valid resource for a blockchain should be set here.
+        # All keys of this object must be functions of this form:
+        #   (property: string, operation: string, fmt: string, args: object, cb: function(err: object, result: object)) ->
+        #
+        # For more information, see:
+        #   https://github.com/okTurtles/openname-specifications/blob/resolvers/resolvers.md
+        resources:
+            key: (property, operation, fmt, args, cb) ->
+                cb new Error "Not Implemented"
+                # Example of what this function should do.
+                # Uncomment and edit:
+                #result = @resultTemplate()
+
+                # myBlockchain.resolve path, (err, answer) =>
+                #     if err
+                #         cb err
+                #     else
+                #         result.data = JSON.parse answer
+                #         cb null, result
+
+        dnsHandler: # A dictionary of functions corresponding to traditional DNS.
+            # You DO NOT need to copy these functions over unless you want to customize
+            # them for your blockchain. By default, these are designed for Namecoin's d/ spec. 
+            # Value of `this` is bound to the class instance (i.e. you blockchain).
             # TODO: handle all the types specified in the specification!
             #       https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Value_field
-            #       
+            #
             # TODO: handle other info outside of the specification!
             #       - GNS support
             #       - DNSSEC support?
-            #       
-            # *ALL* namecoin handlers must be of the this type
+            # Functions must be of this function signature
+            ### (object, object, number, object, function): any ###
             A: (req, res, qIdx, data, cb) ->
-                # @log.warn gLineInfo('debug A handler...'), {data: data}
-                info = data.value
                 q = req.question[qIdx]
-                ttl = BLOCKS2SEC # average block creation time. TODO: make even more accurate value
+                @log.debug gLineInfo "A handler for #{@name}", {q:q}
+                info = @standardizers.dnsInfo data
+                ttl = @standardizers.ttlInfo data
 
                 # According to NMC specification, specifying 'ns'
                 # overrules 'ip' value, so check it here and resolve using
@@ -63,7 +158,7 @@ module.exports = (dnschain) ->
                     # 2. Send request to each of the servers, separated by `stackedDelay`.
                     #    On receiving the first answer from any of them, cancel all other
                     #    pending requests and respond to our client.
-                    # 
+                    #
                     # TODO: handle ns = IPv6 addr!
                     [nsIPs, nsCNAMEs] = [[],[]]
 
@@ -86,7 +181,7 @@ module.exports = (dnschain) ->
                     #            It's far safer to tell DNSChain to use a different resolver
                     #            that won't re-ask DNSChain any questions.
                     nsCNAMEs = _.reject nsCNAMEs, (ns)->/\.(bit|dns)$/.test ns
-                    # IPs like 127.0.0.1 are checked below against LOCALHOSTS array
+                    # IPs like 127.0.0.1 are checked below against gConf.localhosts array
 
                     if nsIPs.length == nsCNAMEs.length == 0
                         return cb NAME_RCODE.REFUSED
@@ -104,7 +199,7 @@ module.exports = (dnschain) ->
                                 question: q
                                 server: address: nsIP
 
-                    nsIPs = es.merge(sa(nsIPs), sa(nsCNAMEs).pipe(nsCNAME2IP))
+                    nsIPs = gES.merge(gES.readArray(nsIPs), gES.readArray(nsCNAMEs).pipe(nsCNAME2IP))
 
                     stopRequests = (code) =>
                         if code
@@ -115,7 +210,7 @@ module.exports = (dnschain) ->
                         cb code
 
                     nsIPs.on 'data', (nsIP) =>
-                        if _.find(LOCALHOSTS, (ip)->S(nsIP).startsWith ip)
+                        if _.find(gConf.localhosts, (ip)->S(nsIP).startsWith ip)
                             # avoid the possible infinite-loop on some (perhaps poorly) configured systems
                             @log.warn gLineInfo('dropping query, NMC NS ~= localhost!'), {q:q, nsIP:nsIP, info:info}
                         else
@@ -151,13 +246,15 @@ module.exports = (dnschain) ->
 
             # TODO: implement this!
             AAAA: (req, res, qIdx, data, cb) ->
+                @log.debug gLineInfo "AAAA handler for #{@name}"
                 cb NAME_RCODE.NOTIMP
-            
+
             TLSA: (req, res, qIdx, data, cb) ->
-                len = res.answer.length
-                ttl = data.expires_in? * BLOCKS2SEC
                 q = req.question[qIdx]
-                if info = data.value
+                @log.debug gLineInfo "TLSA handler for #{@name}", {q:q}
+                ttl = @standardizers.ttlInfo data
+                len = res.answer.length
+                if info = @standardizers.dnsInfo data
                     res.answer.push gTls2tlsa(info.tls, ttl, q.name)...
                 # check if any records were added
                 if res.answer.length - len is 0
@@ -167,6 +264,7 @@ module.exports = (dnschain) ->
                     cb()
 
             ANY: ->
-                # TODO: loop through 'data.value' and call approrpriate handlers
+                @log.debug gLineInfo "ANY handler for #{@name}"
+                # TODO: loop through dnsInfo and call approrpriate handlers
                 # TODO: enable EDNS reply
-                dnsTypeHandlers.namecoin.A.apply @, [].slice.call arguments
+                @dnsHandler.A.apply @, [].slice.call arguments
