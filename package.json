@@ -41,6 +41,7 @@
     "bottleneck": "1.5.x",
     "event-stream": "3.2.2",
     "express": "4.11.2",
+    "getdns": "^0.3.1",
     "hiredis": "0.4.1",
     "json-rpc2": "0.8.1",
     "lodash": "3.1.0",
@@ -50,8 +51,8 @@
     "properties": "1.2.1",
     "redis": "0.12.x",
     "string": "2.0.1",
-    "winston": "0.8.0",
-    "superagent": "0.21.0"
+    "superagent": "0.21.0",
+    "winston": "0.8.0"
   },
   "devDependencies": {
     "coffee-script": "^1.8.0",
