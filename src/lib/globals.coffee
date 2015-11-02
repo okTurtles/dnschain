@@ -56,7 +56,9 @@ module.exports = (dnschain) ->
         # For now they're supported but their use is DEPRECATED and they *WILL* be removed!
         oldDNS:
             # Recommended method
-            NATIVE_DNS: 0 # Use 'native-dns' module (current default). Hopefully merged into NodeJS in the future: https://github.com/joyent/node/issues/6864#issuecomment-32229852
+            GETDNS: 4 # Use 'getdns-node' module (current default).
+
+            NATIVE_DNS: 0 # Use 'native-dns' module. Hopefully merged into NodeJS in the future: https://github.com/joyent/node/issues/6864#issuecomment-32229852
 
             #                    !! WARNING !!
             # > ! USING 'NODE_DNS' IS __STRONGLY DISCOURAGED__   ! <
