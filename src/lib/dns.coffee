@@ -14,6 +14,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # TODO: go through 'TODO's!
 
 Packet = require('native-dns-packet')
+getdns = require('getdns')
 
 module.exports = (dnschain) ->
     # expose these into our namespace
@@ -47,13 +48,22 @@ module.exports = (dnschain) ->
                 @log.warn "oldDNSMethod is set to refuse queries for traditional DNS!".bold
             else if @method is gConsts.oldDNS.NO_OLD_DNS_EVER
                 @log.warn "oldDNSMethod is set to refuse *ALL* queries for traditional DNS (even if the blockchain wants us to)!".bold.red
-            else if @method isnt gConsts.oldDNS.NATIVE_DNS
+            else if @method is gConsts.oldDNS.NATIVE_DNS
+                @log.warn "Using".bold.red, "oldDNSMethod = NATIVE_DNS".bold, "method is deprecated!".bold.red
+            else if @method isnt gConsts.oldDNS.GETDNS
                 gErr "No such oldDNSMethod: #{@method}"
 
             gFillWithRunningChecks @
 
         start: ->
             @startCheck (cb) =>
+                if @method is gConsts.oldDNS.GETDNS
+                    opts =
+                        upstreams: [[
+                            gConf.get('dns:oldDNS:address'),
+                            gConf.get('dns:oldDNS:port')
+                        ]]
+                    @context = getdns.createContext opts
                 @server = dns2.createServer() or gErr "dns2 create"
                 @server.on 'socketError', (err) -> gErr err
                 @server.on 'request', (req, res) =>
@@ -85,6 +95,8 @@ module.exports = (dnschain) ->
 
         shutdown: ->
             @shutdownCheck (cb) =>
+                if @method is gConsts.oldDNS.GETDNS
+                    @context.destroy()
                 if @server
                     @server.on 'close', cb
                     @server.close()
@@ -189,6 +201,15 @@ module.exports = (dnschain) ->
                         @sendRes res, cb
         # / end callback
 
+        # required for now to put the getdns response in a format that native-dns-packet wants
+        translateGetDNSResult: (res) ->
+            res.additional = []
+            res.answer = _.map res.answer, (a) ->
+                a.address = a.rdata.ipv4_address || a.rdata.ipv6_address
+                a
+            @log.debug gLineInfo('parsed getdns'), res
+            res
+
         oldDNSLookup: (req, cb) ->
             res = new Packet()
             sig = "oldDNS{#{@method}}"
@@ -198,7 +219,16 @@ module.exports = (dnschain) ->
 
             @log.debug {fn:sig+':start', q:q}
 
-            if @method is gConsts.oldDNS.NATIVE_DNS
+            if @method is gConsts.oldDNS.GETDNS
+                @log.debug q
+                @context.lookup q.name, q.type, (err, result) =>
+                    if err?
+                        @log.error gLineInfo('getdns callback error'), {err: err, result: result}
+                        cb NAME_RCODE.SERVFAIL, result
+                    else
+                        @log.debug gLineInfo('getdns callback response'), {result: result}
+                        cb null, filterRes(@translateGetDNSResult(result.replies_tree[0]))
+            else if @method is gConsts.oldDNS.NATIVE_DNS
                 success = false
                 # TODO: retry in TCP-mode on truncated response (like `dig`)
                 #       See: https://github.com/tjfontaine/node-dns/issues/70
