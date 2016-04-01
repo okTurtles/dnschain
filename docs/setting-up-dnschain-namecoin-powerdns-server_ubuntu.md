@@ -2,6 +2,8 @@
 
 This is a *how-to* for setting up a [DNSChain](https://github.com/okTurtles/dnschain") server running on [Ubuntu 14.04 LTS](https://www.ubuntu.org). It will run <nobr>PowerDNS</nobr> recursor, issuing DNS queries for `.com` and `.net` domains as you would expect, but consulting the local Namecoin blockchain to resolve `.bit` domains.
 
+Note: some of the examples here might use expired domains, so it's best to test domain resolution on a domain that you personally registered on Namecoin's blockchain.
+
 Start with a fresh copy of Ubuntu 14.04 LTS.
 
 ## Install Namecoin

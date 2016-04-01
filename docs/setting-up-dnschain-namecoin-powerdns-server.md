@@ -143,9 +143,9 @@ Let's start DNSChain to ensure that we have it configured correctly.
 	$ systemctl enable dnschain
 	$ systemctl start dnschain
 
-Finally, let's test it by trying to resolve a `.bit` domain name.
+Finally, let's test it by trying to resolve a `.bit` domain name (replace `example.bit` and `d%2Fexample` with real domains):
 
-	$ dig @127.0.0.1 okturtles.bit
-	$ curl http://127.0.0.1:8000/v1/namecoin/key/d%2Fokturtles
+	$ dig @127.0.0.1 example.bit
+	$ curl http://127.0.0.1:8000/v1/namecoin/key/d%2Fexample
 
 The first `dig` command ought to return the IP address for `okturtles.bit` and the second should return all the information associated with this domain name, including IP address, TLS fingerprint and more. If so, congratulations, everything works just fine! 

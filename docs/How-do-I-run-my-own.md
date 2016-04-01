@@ -23,9 +23,9 @@ Get yourself a Linux server (they come as cheap as $2/month), and then make sure
 
 Test DNSChain by simply running `dnschain` from the command line (developers [see here](Developers.md#Working)). Have a look at the configuration section below, and when you're ready, run it in the background as a daemon. As a convenience, DNSChain [comes with a `systemd` unit file](<../scripts/dnschain.service>) that you can use to run it.
 
-By default, it will start listening for DNS requests on port `53` if you run it as `root`, and `5333` otherwise. You can test `.bit` resolution with `dig`:
+By default, it will start listening for DNS requests on port `53` if you run it as `root`, and `5333` otherwise. You can test `.bit` resolution (for [properly registered](https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Value_field) Namecoin domains) using `dig`:
 
-    $ dig @localhost -p 5333 okturtles.bit
+    $ dig @localhost -p 5333 example.bit
 
 **:page_facing_up: [Guide to Setting Up DNSChain + Namecoin + PowerDNS on Debian Wheezy](setting-up-dnschain-namecoin-powerdns-server.md)**
 

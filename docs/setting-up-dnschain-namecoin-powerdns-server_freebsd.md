@@ -1,13 +1,14 @@
 # Setting up a DNSChain Server on FreeBSD
 
-This is a *how-to* for setting up a [DNSChain](https://github.com/okTurtles/dnschain") server running on [FreeBSD 10.1](https://www.freebsd.org). It will run <nobr>PowerDNS</nobr> recursor, issuing DNS queries for `.com` and `.net` domains as you would expect, but consulting the local Namecoin blockchain to resolve `.bit` domains. Hopefully, this will also provide guidance for getting dnschain
-onto pfsense.
+This is a *how-to* for setting up a [DNSChain](https://github.com/okTurtles/dnschain") server running on [FreeBSD 10.1](https://www.freebsd.org). It will run <nobr>PowerDNS</nobr> recursor, issuing DNS queries for `.com` and `.net` domains as you would expect, but consulting the local Namecoin blockchain to resolve `.bit` domains. Hopefully, this will also provide guidance for getting dnschain onto pfsense.
 
 Start with a fresh copy of FreeBSD 10.1. Optionally install nano with `pkg install nano`. If DHCP is not picking up, make sure your __/etc/rc.conf__ has
 ```
 synchronous_dhclient="YES"
 ifconfig_hn0="DHCP"
 ```
+
+Note: some of the examples here might use expired domains, so it's best to test domain resolution on a domain that you personally registered on Namecoin's blockchain.
 
 ## Install Namecoin
 
