@@ -18,8 +18,8 @@ with traditional DNS.
 It compares favorably to [the alternatives](docs/Comparison.md), and provides the following features:
 ︎
 <!-- This extra line is necessary for table to render properly. -->
-|                                                                          |      DNSChain      | X.509 PKI with [Certificate Transparency][ct] |
-|--------------------------------------------------------------------------|--------------------|-----------------------------------------------|
+|                                                                          | DNSChain           | X.509 PKI with [Certificate Transparency][ct] |
+|:-------------------------------------------------------------------------|:-------------------|:----------------------------------------------|
 | __MITM-proof'ed [Internet connections][mitm]__                           | :white_check_mark: | :x:                                           |
 | __Secure and simple [GPG key distribution][gpg]__                        | :white_check_mark: | :x:                                           |
 | __MITM-proof RESTful [API to blockchain][api]__                          | :white_check_mark: | :x:                                           |
@@ -43,6 +43,8 @@ It compares favorably to [the alternatives](docs/Comparison.md), and provides th
 [api]: docs/What-is-it.md#API
 
 **:star: See Also: [Comparison](docs/Comparison.md) and [Security Model](docs/Security-Model.md)**
+
+**:star: April 21, 2017: Comparison of [DPKI](https://github.com/okTurtles/dnschain/issues/180#issuecomment-255641398) to [CONIKS, Key Transparency, Certificate Transparency](https://blog.okturtles.com/2017/02/coniks-vs-key-transparency-vs-certificate-transparency-vs-blockchains/)**
 
 ## Documentation
 

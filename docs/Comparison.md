@@ -1,3 +1,8 @@
+**UPDATE April 21, 2017: Read the latest and most relevant blog post on [DPKI](https://github.com/okTurtles/dnschain/issues/180#issuecomment-255641398) versus CONIKS, CT, KT:**
+
+- **[CONIKS vs Key Transparency vs Certificate Transparency vs Blockchains](https://blog.okturtles.com/2017/02/coniks-vs-key-transparency-vs-certificate-transparency-vs-blockchains/)**
+
+
 # DNSChain versus...
 
 - [Certificate Transparency](<#certificate-transparency>)
