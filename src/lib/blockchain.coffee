@@ -246,8 +246,104 @@ module.exports = (dnschain) ->
 
             # TODO: implement this!
             AAAA: (req, res, qIdx, data, cb) ->
-                @log.debug gLineInfo "AAAA handler for #{@name}"
-                cb NAME_RCODE.NOTIMP
+                q = req.question[qIdx]
+                @log.debug gLineInfo "AAAA handler for #{@name}", {q:q}
+                info = @standardizers.dnsInfo data
+                ttl = @standardizers.ttlInfo data
+
+                # According to NMC specification, specifying 'ns'
+                # overrules 'ip' value, so check it here and resolve using
+                # old-style DNS.
+                if info.ns?.length > 0
+                    # 1. Create a stream of nameserver IP addresses out of info.ns
+                    # 2. Send request to each of the servers, separated by `stackedDelay`.
+                    #    On receiving the first answer from any of them, cancel all other
+                    #    pending requests and respond to our client.
+                    #
+                    # TODO: handle ns = IPv6 addr!
+                    [nsIPs, nsCNAMEs] = [[],[]]
+
+                    for ip in info.ns
+                        (if net.isIP(ip) then nsIPs else nsCNAMEs).push(ip)
+
+                    if @method is gConsts.oldDNS.NO_OLD_DNS_EVER
+                        nsCNAMEs = []
+
+                    # IMPORTANT! This DNSChain server might have a bi-directional relationship
+                    #            with another local resolver for oldDNS (like PowerDNS). We
+                    #            don't want malicious data in the blockchain to result in
+                    #            queries being sent back and forth between them ad-infinitum!
+                    #            Namecoin's specification states that these should only be
+                    #            oldDNS TLDs anyway. Use 'delegate', 'import', or 'map' to
+                    #            refer to other blockchain locations:
+                    #            https://wiki.namecoin.info/index.php?title=Domain_Name_Specification#Value_field
+                    # WARNING!   Because of this issue, it's probably best to not create a
+                    #            bi-directional relationship like this between two resolvers.
+                    #            It's far safer to tell DNSChain to use a different resolver
+                    #            that won't re-ask DNSChain any questions.
+                    nsCNAMEs = _.reject nsCNAMEs, (ns)->/\.(bit|dns)$/.test ns
+                    # IPs like 127.0.0.1 are checked below against gConf.localhosts array
+
+                    if nsIPs.length == nsCNAMEs.length == 0
+                        return cb NAME_RCODE.REFUSED
+
+                    # TODO: use these statically instead of creating new instances for each request
+                    #       See: https://github.com/okTurtles/dnschain/issues/11
+                    nsCNAME2IP   = new ResolverStream
+                        name        : 'nsCNAME2IP' # +'-'+(instanceNum++)
+                        stackedDelay: 100
+                    stackedQuery = new ResolverStream
+                        name        : 'stackedQuery' #+'-'+(instanceNum-1)
+                        stackedDelay: 1000
+                        reqMaker    : (nsIP) =>
+                            dns2.Request
+                                question: q
+                                server: address: nsIP
+
+                    nsIPs = gES.merge(gES.readArray(nsIPs), gES.readArray(nsCNAMEs).pipe(nsCNAME2IP))
+
+                    stopRequests = (code) =>
+                        if code
+                            @log.warn gLineInfo("errors on all NS!"), {q:q, code:RCODE_NAME[code]}
+                        else
+                            @log.debug gLineInfo('ending async requests'), {q:q}
+                        rs.cancelRequests(true) for rs in [nsCNAME2IP, stackedQuery]
+                        cb code
+
+                    nsIPs.on 'data', (nsIP) =>
+                        if _.find(gConf.localhosts, (ip)->S(nsIP).startsWith ip)
+                            # avoid the possible infinite-loop on some (perhaps poorly) configured systems
+                            @log.warn gLineInfo('dropping query, NMC NS ~= localhost!'), {q:q, nsIP:nsIP, info:info}
+                        else
+                            stackedQuery.write(nsIP)
+
+                    nsCNAME2IP.on 'failed', (err) =>
+                        @log.warn gLineInfo('nsCNAME2IP error'), {error:err?.message, q:q}
+                        if nsCNAME2IP.errCount == info.ns.length
+                            stopRequests err.code ? NAME_RCODE.NOTFOUND
+
+                    stackedQuery.on 'failed', (err) =>
+                        @log.warn gLineInfo('stackedQuery error'), {error:err?.message, q:q}
+                        if stackedQuery.errCount == info.ns.length
+                            stopRequests err.code ? NAME_RCODE.SERVFAIL
+
+                    stackedQuery.on 'answers', (answers) =>
+                        @log.debug gLineInfo('stackedQuery answers'), {answers:answers}
+                        res.answer.push answers...
+                        stopRequests()
+
+                else if info.ip6
+                    # we have its IP! send reply to client
+                    # TODO: handle more info! send the rest of the
+                    #       stuff in 'info', and all the IPs!
+                    info.ip6 = [info.ip6] if typeof info.ip6 is 'string'
+                    # info.ip.forEach (a)-> res.answer.push gIP2type(q.name, ttl)(a)
+                    res.answer.push (info.ip6.map gIP2type(q.name, ttl, 'AAAA'))...
+                    cb()
+                else
+                    @log.warn gLineInfo('no useful data from nmc_show'), {q:q}
+                    cb NAME_RCODE.NOTFOUND
+            # /end 'AAAA'
 
             TLSA: (req, res, qIdx, data, cb) ->
                 q = req.question[qIdx]
